@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow - Enter the Night</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/design-system.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#050505">
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-deep: #050508;
+  --purple-deep: #4a1d96;
+  --purple-mid: #7c3aed;
+  --purple-light: #a78bfa;
+  --blue-deep: #1e3a8a;
+  --blue-mid: #3b82f6;
+  --pink-deep: #831843;
+  --pink-mid: #ec4899;
+  --pink-light: #f9a8d4;
+  --surface-glass: rgba(255, 255, 255, 0.03);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-hover: rgba(255, 255, 255, 0.15);
+  --text-primary: #f8fafc;
+  --text-secondary: rgba(248, 250, 252, 0.7);
+  --text-tertiary: rgba(248, 250, 252, 0.4);
+  --accent-glow: rgba(167, 139, 250, 0.4);
+  --success: #22c55e;
+  --error: #ef4444;
+  --sky: #38bdf8;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   ANIMATED MESH GRADIENT BACKGROUND
+======================================== */
+.background-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.mesh-gradient {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(167,139,250,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,114,182,0.14), transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(34,211,238,0.10), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(139,92,246,0.12), transparent 50%),
+    radial-gradient(ellipse 70% 50% at 30% 30%, rgba(249,115,22,0.06), transparent 45%);
+  animation: meshMove 25s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes meshMove {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(5%, 3%) scale(1.05) rotate(1deg);
+  }
+  50% {
+    transform: translate(-3%, 5%) scale(1.02) rotate(-0.5deg);
+  }
+  75% {
+    transform: translate(3%, -3%) scale(1.03) rotate(0.5deg);
+  }
+}
+
+/* Floating orbs — Apple Vision Pro style */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(167,139,250,0.45) 0%, rgba(167,139,250,0.15) 40%, transparent 70%);
+  top: -10%;
+  left: -10%;
+  animation: float1 20s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(244,114,182,0.4) 0%, rgba(244,114,182,0.12) 40%, transparent 70%);
+  top: 45%;
+  right: -8%;
+  animation: float2 25s ease-in-out infinite;
+}
+
+.orb-3 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(34,211,238,0.3) 0%, rgba(34,211,238,0.1) 40%, transparent 70%);
+  bottom: -18%;
+  left: 25%;
+  animation: float3 22s ease-in-out infinite;
+}
+
+.orb-4 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(139,92,246,0.35) 0%, rgba(139,92,246,0.1) 40%, transparent 70%);
+  top: 25%;
+  left: 45%;
+  animation: float4 18s ease-in-out infinite;
+}
+
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(8%, 4%) scale(1.03); }
+  40% { transform: translate(4%, 10%) scale(0.98); }
+  60% { transform: translate(-4%, 6%) scale(1.02); }
+  80% { transform: translate(2%, -2%) scale(1); }
+}
+
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-10%, 6%) scale(1.04); }
+  50% { transform: translate(-5%, -8%) scale(0.97); }
+  75% { transform: translate(5%, 4%) scale(1.02); }
+}
+
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-6%, -10%) scale(1.02); }
+  66% { transform: translate(10%, -4%) scale(0.98); }
+}
+
+@keyframes float4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  30% { transform: translate(-12%, 8%) scale(1.05); }
+  60% { transform: translate(8%, -6%) scale(0.96); }
+}
+
+/* Noise texture overlay — Premium grain */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .mesh-gradient, .orb, .orb-1, .orb-2, .orb-3, .orb-4 {
+    animation: none;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .mesh-gradient { animation-duration: 35s; }
+  .orb { filter: blur(60px); }
+  .orb-1 { width: 400px; height: 400px; }
+  .orb-2 { width: 300px; height: 300px; }
+  .orb-3, .orb-4 { display: none; }
+}
+
+/* Particle stars */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: particleTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes particleTwinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.5); }
+}
+
+/* ========================================
+   MAIN LAYOUT
+======================================== */
+.main-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ========================================
+   GLASS CARD
+======================================== */
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(10, 10, 15, 0.6);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--border-glass);
+  border-radius: 32px;
+  padding: 48px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(167, 139, 250, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: cardAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-card:hover {
+  border-color: var(--border-glass-hover);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 30px 60px -15px rgba(0, 0, 0, 0.6),
+    0 0 120px rgba(167, 139, 250, 0.15);
+}
+
+/* ========================================
+   LOGO SECTION
+======================================== */
+.logo-section {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.logo-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--purple-mid), var(--pink-mid));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+  box-shadow:
+    0 0 30px rgba(124, 58, 237, 0.5),
+    0 0 60px rgba(236, 72, 153, 0.3);
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(124, 58, 237, 0.5),
+      0 0 60px rgba(236, 72, 153, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(124, 58, 237, 0.7),
+      0 0 80px rgba(236, 72, 153, 0.5);
+  }
+}
+
+.logo-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--purple-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   TABS (Pill style with sliding indicator)
+======================================== */
+.tabs-container {
+  position: relative;
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: linear-gradient(135deg, var(--purple-mid), var(--pink-mid));
+  border-radius: 10px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+}
+
+.tabs-container[data-active="signup"] .tab-indicator {
+  transform: translateX(100%);
+}
+
+.tab-btn {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  padding: 14px 20px;
+  border: none;
+  background: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.tab-btn.active {
+  color: #fff;
+}
+
+.tab-btn:not(.active):hover {
+  color: var(--text-primary);
+}
+
+/* ========================================
+   FORMS CONTAINER (for sliding animation)
+======================================== */
+.forms-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.form-panel {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-panel.hidden {
+  display: none;
+}
+
+.form-panel.slide-out-left {
+  animation: slideOutLeft 0.4s forwards;
+}
+
+.form-panel.slide-in-right {
+  animation: slideInRight 0.4s forwards;
+}
+
+.form-panel.slide-out-right {
+  animation: slideOutRight 0.4s forwards;
+}
+
+.form-panel.slide-in-left {
+  animation: slideInLeft 0.4s forwards;
+}
+
+@keyframes slideOutLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-30px); opacity: 0; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(30px); opacity: 0; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========================================
+   MESSAGES
+======================================== */
+.message {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  animation: messageAppear 0.3s ease;
+}
+
+@keyframes messageAppear {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.show {
+  display: flex;
+}
+
+.message.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  animation: messageAppear 0.3s ease, shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.message.success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+/* ========================================
+   FORM INPUTS (Material Design 3 floating labels)
+======================================== */
+.form-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 18px 16px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 56px;
+}
+
+.form-input::placeholder {
+  color: transparent;
+}
+
+.form-input:focus {
+  background: rgba(124, 58, 237, 0.06);
+  border-color: var(--purple-mid);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.form-label {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
+  padding: 0 4px;
+}
+
+.form-input:focus ~ .form-label,
+.form-input:not(:placeholder-shown) ~ .form-label {
+  top: 10px;
+  transform: translateY(0);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--purple-light);
+  letter-spacing: 0.3px;
+}
+
+/* ========================================
+   ROLE SELECTOR
+======================================== */
+.roles-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.role-card {
+  position: relative;
+  padding: 20px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.role-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-glass-hover);
+  transform: translateY(-2px);
+}
+
+.role-card.selected {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: var(--purple-mid);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.2);
+}
+
+.role-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.role-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.role-desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.venue-field {
+  display: none;
+  animation: fieldAppear 0.3s ease;
+}
+
+.venue-field.show {
+  display: block;
+}
+
+@keyframes fieldAppear {
+  from { opacity: 0; height: 0; margin-bottom: 0; }
+  to { opacity: 1; height: auto; margin-bottom: 20px; }
+}
+
+/* ========================================
+   SUBMIT BUTTON (with magnetic effect)
+======================================== */
+.submit-btn {
+  position: relative;
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--purple-mid), var(--pink-mid));
+  border: none;
+  border-radius: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 0 30px rgba(124, 58, 237, 0.3),
+    0 10px 40px rgba(236, 72, 153, 0.2);
+  margin-top: 8px;
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 40px rgba(124, 58, 237, 0.5),
+    0 15px 50px rgba(236, 72, 153, 0.3);
+}
+
+.submit-btn:hover::before {
+  opacity: 1;
+}
+
+.submit-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none;
+}
+
+.submit-btn .spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   SOCIAL DIVIDER
+======================================== */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
+}
+
+.divider-text {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* ========================================
+   SOCIAL BUTTONS
+======================================== */
+.social-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-glass-hover);
+  transform: translateY(-2px);
+}
+
+.social-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ========================================
+   DEMO ACCOUNTS
+======================================== */
+.demo-section {
+  background: rgba(56, 189, 248, 0.05);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.demo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.demo-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sky);
+  background: rgba(56, 189, 248, 0.15);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.demo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.demo-row:last-child {
+  margin-bottom: 0;
+}
+
+.demo-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.demo-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 6px 12px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  color: var(--sky);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  transform: scale(1.05);
+}
+
+/* ========================================
+   SWITCH LINK
+======================================== */
+.switch-text {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.switch-link {
+  color: var(--purple-light);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.switch-link:hover {
+  color: var(--pink-light);
+}
+
+/* ========================================
+   FADE OUT TRANSITION
+======================================== */
+.fade-out {
+  animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* ========================================
+   MOBILE RESPONSIVE
+======================================== */
+@media (max-width: 520px) {
+  .main-container {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+
+  .auth-card {
+    padding: 32px 24px;
+    border-radius: 24px;
+    max-width: 100%;
+  }
+
+  .logo-mark {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 22px;
+  }
+
+  .tab-btn {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .form-input {
+    min-height: 52px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .submit-btn {
+    padding: 14px 20px;
+    min-height: 52px;
+  }
+
+  .roles-container {
+    gap: 10px;
+  }
+
+  .role-card {
+    padding: 16px 12px;
+  }
+
+  .role-icon {
+    font-size: 28px;
+  }
+
+  .social-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Touch-friendly inputs */
+@media (pointer: coarse) {
+  .form-input,
+  .submit-btn,
+  .tab-btn,
+  .role-card,
+  .demo-btn,
+  .social-btn {
+    min-height: 48px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="background-container">
+  <div class="mesh-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="noise-overlay"></div>
+  <div class="particles" id="particles"></div>
+</div>
+
+<!-- Main Content -->
+<div class="main-container">
+  <div class="auth-card" id="auth-card">
+
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <div class="logo">
+        <div class="logo-mark">NF</div>
+        <span class="logo-text">NightFlow</span>
+      </div>
+      <p class="tagline">Enter the night</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container" id="tabs-container" data-active="login">
+      <div class="tab-indicator"></div>
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Register</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="message error" id="msg-error"></div>
+    <div class="message success" id="msg-success"></div>
+
+    <!-- Forms Wrapper -->
+    <div class="forms-wrapper">
+
+      <!-- Login Form -->
+      <div class="form-panel" id="form-login">
+
+        <!-- Demo Credentials -->
+        <div class="demo-section">
+          <div class="demo-header">
+            <span class="demo-badge">Demo Accounts</span>
+          </div>
+          <div class="demo-row">
+            <span class="demo-label">Club Owner</span>
+            <button class="demo-btn" onclick="fillDemo('club@nightflow.gr', 'club123')">club123</button>
+          </div>
+          <div class="demo-row">
+            <span class="demo-label">Customer</span>
+            <button class="demo-btn" onclick="fillDemo('customer@nightflow.gr', 'customer123')">customer123</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="email" class="form-input" id="login-email" placeholder="Email" autocomplete="email">
+          <label class="form-label">Email</label>
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-input" id="login-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <label class="form-label">Password</label>
+        </div>
+
+        <button class="submit-btn" id="btn-login" onclick="doLogin()">
+          Sign In
+        </button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or continue with</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="social-buttons">
+          <button class="social-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button class="social-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+            GitHub
+          </button>
+        </div>
+
+        <p class="switch-text">
+          Don't have an account? <a href="#" class="switch-link" onclick="switchTab('signup'); return false;">Register</a>
+        </p>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="form-panel hidden" id="form-signup">
+
+        <div class="roles-container">
+          <div class="role-card selected" id="role-customer" onclick="selectRole('customer')">
+            <span class="role-icon">🎉</span>
+            <div class="role-title">Customer</div>
+            <div class="role-desc">Events & reservations</div>
+          </div>
+          <div class="role-card" id="role-club" onclick="selectRole('club')">
+            <span class="role-icon">🏠</span>
+            <div class="role-title">Club Owner</div>
+            <div class="role-desc">Manage your venue</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-input" id="signup-name" placeholder="Full Name" autocomplete="name">
+          <label class="form-label">Full Name</label>
+        </div>
+
+        <div class="form-group">
+          <input type="email" class="form-input" id="signup-email" placeholder="Email" autocomplete="email">
+          <label class="form-label">Email</label>
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-input" id="signup-pass" placeholder="Password" autocomplete="new-password">
+          <label class="form-label">Password</label>
+        </div>
+
+        <div class="form-group venue-field" id="venue-field">
+          <input type="text" class="form-input" id="signup-venue" placeholder="Venue Name">
+          <label class="form-label">Venue Name</label>
+        </div>
+
+        <button class="submit-btn" id="btn-signup" onclick="doSignup()">
+          Create Account
+        </button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or continue with</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="social-buttons">
+          <button class="social-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button class="social-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+            GitHub
+          </button>
+        </div>
+
+        <p class="switch-text">
+          Already have an account? <a href="#" class="switch-link" onclick="switchTab('login'); return false;">Sign in</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ========================================
+// Generate Particles
+// ========================================
+(function generateParticles() {
+  const container = document.getElementById('particles');
+  const particleCount = 50;
+
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.top = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 3 + 's';
+    particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+    container.appendChild(particle);
+  }
+})();
+
+// ========================================
+// Magnetic Button Effect
+// ========================================
+document.querySelectorAll('.submit-btn').forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    if (btn.disabled) return;
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    btn.style.transform = `translateY(-2px) scale(1.02) translate(${x * 0.1}px, ${y * 0.1}px)`;
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    if (btn.disabled) return;
+    btn.style.transform = '';
+  });
+});
+
+// ========================================
+// Auth State & API
+// ========================================
+const API = 'http://localhost:5000';
+let selectedRole = 'customer';
+let currentTab = 'login';
+
+// ========================================
+// Tab Switching with Slide Animation
+// ========================================
+function switchTab(tab) {
+  if (tab === currentTab) return;
+
+  const tabsContainer = document.getElementById('tabs-container');
+  const loginForm = document.getElementById('form-login');
+  const signupForm = document.getElementById('form-signup');
+  const loginTab = document.getElementById('tab-login');
+  const signupTab = document.getElementById('tab-signup');
+
+  // Update tabs
+  tabsContainer.dataset.active = tab;
+  loginTab.classList.toggle('active', tab === 'login');
+  signupTab.classList.toggle('active', tab === 'signup');
+
+  // Slide animation
+  if (tab === 'signup') {
+    loginForm.classList.add('slide-out-left');
+    setTimeout(() => {
+      loginForm.classList.add('hidden');
+      loginForm.classList.remove('slide-out-left');
+      signupForm.classList.remove('hidden');
+      signupForm.classList.add('slide-in-right');
+      setTimeout(() => signupForm.classList.remove('slide-in-right'), 400);
+    }, 300);
+  } else {
+    signupForm.classList.add('slide-out-right');
+    setTimeout(() => {
+      signupForm.classList.add('hidden');
+      signupForm.classList.remove('slide-out-right');
+      loginForm.classList.remove('hidden');
+      loginForm.classList.add('slide-in-left');
+      setTimeout(() => loginForm.classList.remove('slide-in-left'), 400);
+    }, 300);
+  }
+
+  currentTab = tab;
+  clearMessages();
+}
+
+// ========================================
+// Role Selection
+// ========================================
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('role-customer').classList.toggle('selected', role === 'customer');
+  document.getElementById('role-club').classList.toggle('selected', role === 'club');
+  document.getElementById('venue-field').classList.toggle('show', role === 'club');
+}
+
+// ========================================
+// Demo Account Fill
+// ========================================
+function fillDemo(email, pass) {
+  const emailInput = document.getElementById('login-email');
+  const passInput = document.getElementById('login-pass');
+
+  emailInput.value = email;
+  passInput.value = pass;
+
+  // Trigger label animation
+  emailInput.dispatchEvent(new Event('input'));
+  passInput.dispatchEvent(new Event('input'));
+
+  // Visual feedback
+  emailInput.style.transition = 'background 0.3s';
+  passInput.style.transition = 'background 0.3s';
+  emailInput.style.background = 'rgba(124, 58, 237, 0.1)';
+  passInput.style.background = 'rgba(124, 58, 237, 0.1)';
+
+  setTimeout(() => {
+    emailInput.style.background = '';
+    passInput.style.background = '';
+  }, 500);
+}
+
+// ========================================
+// Message Handling
+// ========================================
+function showError(msg) {
+  const el = document.getElementById('msg-error');
+  el.innerHTML = '<span>&#9888;</span> ' + msg;
+  el.classList.add('show');
+  document.getElementById('msg-success').classList.remove('show');
+}
+
+function showSuccess(msg) {
+  const el = document.getElementById('msg-success');
+  el.innerHTML = '<span>&#10003;</span> ' + msg;
+  el.classList.add('show');
+  document.getElementById('msg-error').classList.remove('show');
+}
+
+function clearMessages() {
+  document.getElementById('msg-error').classList.remove('show');
+  document.getElementById('msg-success').classList.remove('show');
+}
+
+// ========================================
+// Login Handler
+// ========================================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+
+  if (!email || !pass) {
+    showError('Please fill in email and password');
+    return;
+  }
+
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Signing in...';
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showError(data.error || 'Invalid credentials');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+
+    // Store tokens
+    localStorage.setItem('nightflow_token', data.token);
+    if (data.refresh_token) localStorage.setItem('nightflow_refresh_token', data.refresh_token);
+    localStorage.setItem('nightflow_user', JSON.stringify(data.user));
+
+    showSuccess('Login successful!');
+
+    // Fade out and redirect
+    setTimeout(() => {
+      document.getElementById('auth-card').classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = data.user.role === 'club' ? 'dashboard.html' : 'discover.html';
+      }, 500);
+    }, 400);
+
+  } catch (e) {
+    showError('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+}
+
+// ========================================
+// Signup Handler
+// ========================================
+async function doSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-pass').value;
+  const venue = document.getElementById('signup-venue').value.trim();
+
+  if (!name || !email || !pass) {
+    showError('Please fill in all fields');
+    return;
+  }
+
+  if (pass.length < 4) {
+    showError('Password must be at least 4 characters');
+    return;
+  }
+
+  if (selectedRole === 'club' && !venue) {
+    showError('Please enter your venue name');
+    return;
+  }
+
+  const btn = document.getElementById('btn-signup');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Creating account...';
+
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password: pass, role: selectedRole, venue_name: venue })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showError(data.error || 'Registration failed');
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+      return;
+    }
+
+    // Store tokens
+    localStorage.setItem('nightflow_token', data.token);
+    if (data.refresh_token) localStorage.setItem('nightflow_refresh_token', data.refresh_token);
+    localStorage.setItem('nightflow_user', JSON.stringify(data.user));
+
+    showSuccess('Account created successfully!');
+
+    // Fade out and redirect
+    setTimeout(() => {
+      document.getElementById('auth-card').classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = data.user.role === 'club' ? 'dashboard.html' : 'discover.html';
+      }, 500);
+    }, 400);
+
+  } catch (e) {
+    showError('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Create Account';
+  }
+}
+
+// ========================================
+// Auto-redirect if Already Logged In
+// ========================================
+(async function checkAuth() {
+  const token = localStorage.getItem('nightflow_token');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`${API}/api/auth/me`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    const user = data.user || data.data?.user;
+
+    if (user) {
+      window.location.href = user.role === 'club' ? 'dashboard.html' : 'discover.html';
+    }
+  } catch (e) {
+    // Token invalid or expired, stay on auth page
+  }
+})();
+
+// ========================================
+// Handle URL Parameters
+// ========================================
+if (new URLSearchParams(location.search).get('tab') === 'signup') {
+  switchTab('signup');
+}
+</script>
+</body>
+</html>

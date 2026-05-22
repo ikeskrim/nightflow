@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow — Customer Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#050505">
+<style>
+.profile-layout{max-width:960px;margin:0 auto;padding:84px 24px 60px;display:grid;grid-template-columns:300px 1fr;gap:24px}
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:28px;height:fit-content;position:sticky;top:84px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;font-family:'Syne',sans-serif;margin:0 auto 16px}
+.profile-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;text-align:center;margin-bottom:4px}
+.profile-email{font-size:13px;color:var(--text3);text-align:center;margin-bottom:16px}
+.tier-badge{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;margin-bottom:20px}
+.tier-gold{background:rgba(255,184,0,.15);color:var(--gold);border:1px solid rgba(255,184,0,.3)}
+.tier-black{background:rgba(124,58,255,.15);color:var(--neon3);border:1px solid rgba(124,58,255,.3)}
+.tier-silver{background:rgba(156,163,175,.15);color:#9ca3af;border:1px solid rgba(156,163,175,.3)}
+.profile-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.pstat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:14px;text-align:center}
+.pstat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;line-height:1}
+.pstat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:var(--text3)}
+.info-val{color:var(--text);font-weight:500}
+.send-btn{width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:8px}
+.send-primary{background:linear-gradient(135deg,var(--neon),var(--neon2));border:none;color:#fff}
+.send-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
+.send-ghost:hover{background:var(--card2);color:var(--text)}
+
+/* Right column */
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:24px;margin-bottom:20px}
+.sc-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;letter-spacing:-.3px}
+.visit-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.visit-item:last-child{border-bottom:none}
+.visit-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.visit-info{flex:1}
+.visit-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.visit-meta{font-size:12px;color:var(--text3)}
+.visit-spend{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--gold)}
+.note-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px}
+.note-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;resize:vertical;min-height:80px;outline:none;transition:border-color .2s}
+.note-input:focus{border-color:rgba(124,58,255,.5)}
+.prog-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:8px}
+.prog-fill-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neon),var(--cyan))}
+.toast-small{position:fixed;bottom:20px;right:20px;background:rgba(14,11,26,.97);border:1px solid var(--border2);border-radius:12px;padding:12px 18px;font-size:13px;z-index:500;display:none;animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(max-width:700px){.profile-layout{grid-template-columns:1fr}.profile-card{position:static}}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation">
+  <div class="mesh-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="noise-overlay"></div>
+</div>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:200;height:64px;display:flex;align-items:center;gap:16px;padding:0 24px;background:rgba(8,6,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)">
+  <a href="index.html?page=dashboard" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--neon),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff">NF</div>
+    <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--text)">Night<span style="color:var(--neon3)">Flow</span></span>
+  </a>
+  <a href="index.html?page=dashboard" style="font-size:13px;color:var(--text2);text-decoration:none;margin-left:8px">← CRM Dashboard</a>
+  <div style="margin-left:auto;font-size:13px;color:var(--text3)" id="nav-user"></div>
+</nav>
+
+<div class="profile-layout">
+  <!-- LEFT: Profile card -->
+  <div class="profile-card" id="profile-card">
+    <div style="text-align:center;color:var(--text3);padding:40px 0">Φόρτωση...</div>
+  </div>
+
+  <!-- RIGHT: Details -->
+  <div>
+    <!-- Points progress -->
+    <div class="section-card" id="points-card" style="display:none">
+      <div class="sc-title">Loyalty Progress</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--gold)" id="pts-num">0</div>
+          <div style="font-size:12px;color:var(--text3)">NightFlow Points</div>
+        </div>
+        <div style="text-align:right;font-size:13px;color:var(--text2)" id="pts-next"></div>
+      </div>
+      <div class="prog-track"><div class="prog-fill-bar" id="pts-bar" style="width:0%"></div></div>
+    </div>
+
+    <!-- Visit history -->
+    <div class="section-card">
+      <div class="sc-title">Ιστορικό Επισκέψεων</div>
+      <div id="visit-history">
+        <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">Φόρτωση...</div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="section-card">
+      <div class="sc-title">Σημειώσεις Staff</div>
+      <div class="note-box" id="existing-note">—</div>
+      <textarea class="note-input" id="new-note" placeholder="Πρόσθεσε σημείωση για αυτόν τον πελάτη..."></textarea>
+      <button class="send-btn send-primary" onclick="saveNote()" style="margin-top:8px">Αποθήκευση Σημείωσης</button>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="section-card">
+      <div class="sc-title">Γρήγορες Ενέργειες</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="send-btn send-primary" onclick="sendAction('birthday')">🎂 Στείλε Birthday Offer</button>
+        <button class="send-btn send-primary" onclick="sendAction('vip')">💎 Στείλε VIP Invite</button>
+        <button class="send-btn send-ghost" onclick="sendAction('winback')">💌 Winback Message</button>
+        <button class="send-btn send-ghost" onclick="newReservation()">📋 Νέα Κράτηση</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-small" id="toast"></div>
+
+<script src="js/api.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const customerId = params.get('id');
+
+const user = JSON.parse(localStorage.getItem('nightflow_user') || 'null');
+if (!user || user.role !== 'club') { window.location.href = 'auth.html'; }
+document.getElementById('nav-user').textContent = user?.name || '';
+
+const TIER_LABELS = { gold:'🥇 Gold', black:'💎 Black', silver:'🥈 Silver' };
+const TIER_CSS = { gold:'tier-gold', black:'tier-black', silver:'tier-silver' };
+const GRAD_COLORS = [
+  'linear-gradient(135deg,#7C3AFF,#FF2D8A)',
+  'linear-gradient(135deg,#FF2D8A,#FFB800)',
+  'linear-gradient(135deg,#00D4FF,#7C3AFF)',
+  'linear-gradient(135deg,#FFB800,#FF6BB0)',
+  'linear-gradient(135deg,#9B5FFF,#00A8D4)',
+  'linear-gradient(135deg,#6b7280,#9ca3af)',
+];
+
+// Mock visit history (in real app would come from DB)
+const MOCK_VISITS = [
+  {date:'18 Ιουν 2025', event:'Greek x Commercial Night', venue:'Fortezza Club', spend:180, type:'vip'},
+  {date:'14 Ιουν 2025', event:'Harbor Latin & Hits', venue:'Harbor Nights', spend:95, type:'standard'},
+  {date:'7 Ιουν 2025', event:'Greek x Commercial Night', venue:'Fortezza Club', spend:220, type:'vip'},
+  {date:'31 Μαι 2025', event:'Beach Strip Party', venue:'Beach Strip Club', spend:60, type:'standard'},
+  {date:'24 Μαι 2025', event:'Student Thursday List', venue:'Campus Beat', spend:0, type:'standard'},
+];
+
+async function loadProfile() {
+  const c = await api.get(`/api/customers/${customerId}`);
+  if (!c || c.error) {
+    document.getElementById('profile-card').innerHTML = '<div style="color:var(--red);padding:20px">Ο πελάτης δεν βρέθηκε.</div>';
+    return;
+  }
+
+  const color = GRAD_COLORS[Math.floor(Math.random() * GRAD_COLORS.length)];
+  document.title = `NightFlow — ${c.name}`;
+
+  document.getElementById('profile-card').innerHTML = `
+    <div class="profile-avatar" style="background:${color}">${c.initials}</div>
+    <div class="profile-name">${c.name}</div>
+    <div class="profile-email">${c.email}</div>
+    <div class="tier-badge ${TIER_CSS[c.tier]}">${TIER_LABELS[c.tier]}</div>
+
+    <div class="profile-stat-grid">
+      <div class="pstat">
+        <div class="pstat-num" style="color:var(--gold)">€${(c.avg_spend_month/1000).toFixed(1)}K</div>
+        <div class="pstat-label">Avg/Month</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-num">${c.total_visits}</div>
+        <div class="pstat-label">Επισκέψεις</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-num" style="color:var(--neon3)">${c.points.toLocaleString()}</div>
+        <div class="pstat-label">Points</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-num" style="color:var(--green)">9.2</div>
+        <div class="pstat-label">Score</div>
+      </div>
+    </div>
+
+    <div class="info-row"><span class="info-key">📞 Τηλέφωνο</span><span class="info-val">${c.phone || '—'}</span></div>
+    <div class="info-row"><span class="info-key">🎂 Γενέθλια</span><span class="info-val">${formatBday(c.birthday)}</span></div>
+    <div class="info-row"><span class="info-key">🎵 Μουσική</span><span class="info-val">${c.fav_genre || '—'}</span></div>
+    <div class="info-row"><span class="info-key">📅 Πελάτης από</span><span class="info-val">${formatDate(c.customer_since)}</span></div>
+    <div class="info-row"><span class="info-key">🕐 Τελευταία επίσκεψη</span><span class="info-val">${formatDate(c.last_visit)}</span></div>
+
+    <button class="send-btn send-primary" style="margin-top:16px" onclick="sendAction('message')">📨 Στείλε Μήνυμα</button>
+    <button class="send-btn send-ghost" onclick="window.history.back()">← Πίσω</button>
+  `;
+
+  // Points progress
+  const nextTier = c.tier === 'silver' ? 1000 : c.tier === 'gold' ? 4000 : 10000;
+  const pct = Math.min(100, Math.round(c.points / nextTier * 100));
+  document.getElementById('pts-num').textContent = c.points.toLocaleString();
+  document.getElementById('pts-next').textContent = c.tier === 'black' ? '✅ Max Tier' : `${nextTier - c.points} pts για επόμενο tier`;
+  document.getElementById('pts-bar').style.width = pct + '%';
+  document.getElementById('points-card').style.display = 'block';
+
+  // Notes
+  document.getElementById('existing-note').textContent = c.notes || 'Δεν υπάρχουν σημειώσεις.';
+
+  // Visit history (mock)
+  const visits = MOCK_VISITS.slice(0, Math.min(c.total_visits, 5));
+  document.getElementById('visit-history').innerHTML = visits.length ? visits.map(v => `
+    <div class="visit-item">
+      <div class="visit-dot" style="background:${v.type==='vip'?'var(--neon)':'var(--cyan2)'}"></div>
+      <div class="visit-info">
+        <div class="visit-name">${v.event}</div>
+        <div class="visit-meta">${v.date} · ${v.venue} · ${v.type.toUpperCase()}</div>
+      </div>
+      <div class="visit-spend">${v.spend > 0 ? '€' + v.spend : 'FREE'}</div>
+    </div>`).join('')
+  : '<div style="color:var(--text3);font-size:13px">Δεν υπάρχει ιστορικό.</div>';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('el-GR', {day:'numeric',month:'short',year:'numeric'});
+}
+function formatBday(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('el-GR', {day:'numeric',month:'long'});
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function saveNote() {
+  const note = document.getElementById('new-note').value.trim();
+  if (!note) return;
+  document.getElementById('existing-note').textContent = note;
+  document.getElementById('new-note').value = '';
+  toast('✅ Σημείωση αποθηκεύτηκε');
+}
+
+function sendAction(type) {
+  const msgs = {
+    birthday:'🎂 Birthday offer στάλθηκε!',
+    vip:'💎 VIP invitation στάλθηκε!',
+    winback:'💌 Winback message στάλθηκε!',
+    message:'📨 Μήνυμα στάλθηκε!',
+  };
+  toast(msgs[type] || 'Στάλθηκε!');
+}
+
+function newReservation() {
+  window.location.href = `index.html?page=reservations&customer=${customerId}`;
+}
+
+loadProfile();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+[
+  {
+    "id": "u_club_1",
+    "name": "Μανώλης Owner",
+    "email": "club@nightflow.gr",
+    "password_hash": "31474b031f9ce2904183ddcb9dcd608600d1cf34485299a872707f3f6ef3e6c5",
+    "role": "club",
+    "venue_id": "v1",
+    "venue_name": "Fortezza Club"
+  },
+  {
+    "id": "u_customer_1",
+    "name": "Νίκος Πελάτης",
+    "email": "customer@nightflow.gr",
+    "password_hash": "b041c0aeb35bb0fa4aa668ca5a920b590196fdaf9a00eb852c9b7f4d123cc6d6",
+    "role": "customer",
+    "customer_id": "c3",
+    "points": 980,
+    "tier": "silver"
+  },
+  {
+    "id": "u_14798c35",
+    "name": "michail",
+    "email": "mcaptain1724@gmail.com",
+    "password_hash": "854a124039f213bf74c7588e7980d45f6b054d791ada2e46b6e0af401a4378bf",
+    "role": "customer",
+    "customer_id": "c0115b229",
+    "points": 0,
+    "tier": "silver"
+  }
+]

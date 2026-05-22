@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow — Nightlife Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#050505">
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation">
+  <div class="mesh-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="noise-overlay"></div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-logo">
+    <div class="nav-logo-mark">NF</div>
+    <div class="nav-logo-text">Night<span>Flow</span></div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="discover">Discover</button>
+    <button class="nav-tab" data-page="dashboard">Club Dashboard</button>
+  </div>
+  <div class="nav-right">
+    <div class="live-indicator"><span class="live-dot"></span><span id="open-venues-nav">14</span> venues live</div>
+    <button class="btn-nav btn-ghost" id="btn-signin">Σύνδεση</button>
+    <button class="btn-nav btn-primary" id="btn-join">Εγγραφή Δωρεάν</button>
+    <div class="nav-avatar" id="nav-avatar" title="Go to Dashboard">K</div>
+  </div>
+  <button class="nav-burger" id="nav-burger">☰</button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <button class="mobile-tab" data-page="discover">🌙 Discover</button>
+  <button class="mobile-tab" data-page="dashboard">📊 Club Dashboard</button>
+  <hr style="border-color:var(--border);margin:12px 0">
+  <button class="btn-nav btn-primary" style="width:100%">Εγγραφή Δωρεάν</button>
+</div>
+
+<!-- ═══════════════════ DISCOVER PAGE ═══════════════════ -->
+<div id="page-discover" class="page active">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-particles" id="hero-particles"></div>
+    <div class="hero-content">
+      <div class="hero-badge" id="hero-badge">
+        <span class="live-dot"></span>
+        <span id="hero-live-text">Live — Rethymno Nightlife</span>
+      </div>
+      <h1>Your <span class="grad">Nightlife<br>Operating System</span></h1>
+      <p class="hero-sub">Ανακάλυψε τα καλύτερα events απόψε, κλείσε τη θέση σου,<br>κέρδισε rewards και ξεκλείδωσε την αποκλειστική νυχτερινή ζωή του Ρεθύμνου.</p>
+      <div class="hero-actions">
+        <button class="btn-hero btn-hero-primary" onclick="scrollToEvents()">Explore Tonight →</button>
+        <button class="btn-hero btn-hero-outline" onclick="switchPage('dashboard')">Club Owner Portal</button>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num" data-target="2400" id="stat-guests">0</div><div class="hero-stat-label">Guests Tonight</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" data-target="14"   id="stat-venues">0</div><div class="hero-stat-label">Open Venues</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" data-target="6"    id="stat-events">0</div><div class="hero-stat-label">Trending Events</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" data-target="92"   id="stat-sat">0</div><div class="hero-stat-label">% Satisfaction</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-inner">
+      <div class="filter-chips">
+        <button class="chip active" data-filter="all">🌙 All</button>
+        <button class="chip" data-filter="trending">🔥 Trending</button>
+        <button class="chip" data-filter="student">🎓 Student</button>
+        <button class="chip" data-filter="tourist">✈️ Tourist</button>
+        <button class="chip" data-filter="vip">💎 VIP</button>
+      </div>
+      <div class="filter-search">
+        <input type="text" id="search-input" placeholder="Αναζήτηση venue, event, DJ..." />
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TONIGHT'S EVENTS -->
+  <section class="section" id="events-section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Tonight in Rethymno</h2>
+        <div class="section-sub">Παρασκευή, 20 Ιουνίου · Ζωντανή ενημέρωση</div>
+      </div>
+      <div class="tonight-meta">
+        <div class="tonight-location">📍 Rethymno, Crete</div>
+      </div>
+    </div>
+    <div class="cards-grid" id="events-grid">
+      <div class="card-skeleton"></div>
+      <div class="card-skeleton"></div>
+      <div class="card-skeleton"></div>
+    </div>
+  </section>
+
+  <!-- HEATMAP -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">🗺️ Live Crowd Heatmap</h2>
+        <div class="section-sub">Crowd activity across Rethymno — updated live</div>
+      </div>
+      <div class="heatmap-live-badge"><span class="live-dot"></span> 14 Active Venues</div>
+    </div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-bg" id="heatmap">
+        <div class="hm-street" style="left:20%;top:30%;width:60%;height:3px;transform:rotate(-3deg)"></div>
+        <div class="hm-street" style="left:15%;top:55%;width:70%;height:2px"></div>
+        <div class="hm-street" style="left:40%;top:15%;width:2px;height:70%"></div>
+        <div class="hm-street" style="left:65%;top:20%;width:2px;height:60%"></div>
+        <div class="hm-hot" style="left:30%;top:18%;width:160px;height:110px;background:radial-gradient(ellipse,rgba(124,58,255,0.5) 0%,transparent 70%)"></div>
+        <div class="hm-hot" style="left:50%;top:42%;width:130px;height:90px;background:radial-gradient(ellipse,rgba(255,45,138,0.4) 0%,transparent 70%)"></div>
+        <div class="hm-hot" style="left:15%;top:48%;width:110px;height:75px;background:radial-gradient(ellipse,rgba(0,212,255,0.28) 0%,transparent 70%)"></div>
+        <div class="hm-hot" style="left:68%;top:18%;width:90px;height:65px;background:radial-gradient(ellipse,rgba(255,184,0,0.25) 0%,transparent 70%)"></div>
+        <!-- Venue pins -->
+        <div class="hm-pin" style="left:36%;top:20%" data-venue="Privilege Rethymno · 94% full · €15">
+          <div class="pin-dot hot"></div><div class="pin-label">Privilege</div>
+        </div>
+        <div class="hm-pin" style="left:54%;top:46%" data-venue="Utopia Club · 76% full · Ladies Free">
+          <div class="pin-dot trending"></div><div class="pin-label">Utopia</div>
+        </div>
+        <div class="hm-pin" style="left:22%;top:52%" data-venue="Rock City Bar · 55% full · €8">
+          <div class="pin-dot chill"></div><div class="pin-label">Rock City</div>
+        </div>
+        <div class="hm-pin" style="left:60%;top:33%" data-venue="Cavo Paradiso · 87% full · €25">
+          <div class="pin-dot hot"></div><div class="pin-label">Cavo</div>
+        </div>
+        <div class="hm-pin" style="left:70%;top:20%" data-venue="Rimondi Estate · 62% full · Min €40">
+          <div class="pin-dot trending"></div><div class="pin-label">Rimondi</div>
+        </div>
+        <div class="hm-pin" style="left:43%;top:60%" data-venue="Akti Beach Club · 71% full · €18">
+          <div class="pin-dot chill"></div><div class="pin-label">Akti</div>
+        </div>
+        <div class="hm-pin" style="left:78%;top:53%" data-venue="Venezia Club · 83% full · €20">
+          <div class="pin-dot hot"></div><div class="pin-label">Venezia</div>
+        </div>
+        <div class="hm-tooltip" id="hm-tooltip"></div>
+        <div class="hm-area-label" style="left:6%;top:36%">Venetian Port</div>
+        <div class="hm-area-label" style="left:42%;top:7%">Old Town</div>
+        <div class="hm-area-label" style="left:62%;top:76%">Beach Strip</div>
+      </div>
+      <div class="heatmap-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--neon);box-shadow:0 0 8px var(--neon)"></div>Very Busy (+80%)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Trending (60–80%)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--cyan2)"></div>Moderate (–60%)</div>
+        <span class="legend-time">⏱ Updated 2 min ago</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOYALTY -->
+  <section class="section">
+    <div class="section-header">
+      <div><h2 class="section-title">⭐ Loyalty & Rewards</h2><div class="section-sub">Κέρδισε πόντους, ξεκλείδωσε VIP προνόμια</div></div>
+    </div>
+    <div class="loyalty-box">
+      <div class="loyalty-top">
+        <div>
+          <div class="loyalty-title">Your Membership · <span style="color:var(--gold)">Gold Level</span></div>
+          <div class="loyalty-sub">2.450 / 4.000 πόντους για Black tier</div>
+        </div>
+        <div class="loyalty-points">
+          <div class="points-num">2,450</div>
+          <div class="points-label">NightFlow Points</div>
+        </div>
+      </div>
+      <div class="loyalty-progress-wrap">
+        <div class="prog-labels"><span>Gold · 2.450 pts</span><span>Black · 4.000 pts</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:61%"></div></div>
+      </div>
+      <div class="tiers-grid">
+        <div class="tier-card silver">
+          <div class="tier-icon">🥈</div>
+          <div class="tier-name">Silver</div>
+          <ul class="tier-perks"><li>Priority queue access</li><li>1 free drink / month</li><li>10% reservation discount</li><li>Birthday bonus points</li></ul>
+          <div class="tier-status unlocked">✓ Ενεργό</div>
+        </div>
+        <div class="tier-card gold active-tier">
+          <div class="tier-icon">🥇</div>
+          <div class="tier-name">Gold</div>
+          <ul class="tier-perks"><li>Skip the queue</li><li>3 free drinks / month</li><li>Dedicated table host</li><li>Early event access</li></ul>
+          <div class="tier-status current">⭐ Τρέχον Tier</div>
+        </div>
+        <div class="tier-card black-tier">
+          <div class="tier-icon">💎</div>
+          <div class="tier-name">Black</div>
+          <ul class="tier-perks"><li>Always free entry</li><li>VIP table upgrade</li><li>Complimentary bottle</li><li>Concierge service</li></ul>
+          <div class="tier-status locked">🔒 1.550 pts needed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEED + TOURIST -->
+  <section class="section">
+    <div class="two-col-grid">
+      <!-- Activity Feed -->
+      <div>
+        <div class="col-header">
+          <h3 class="col-title">🔥 FOMO Feed</h3>
+          <div class="col-sub">Τι κάνουν οι φίλοι σου</div>
+        </div>
+        <div class="feed-card" id="activity-feed">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line" style="width:80%"></div>
+          <div class="skeleton-line" style="width:90%"></div>
+        </div>
+      </div>
+      <!-- Tourist Mode -->
+      <div>
+        <div class="col-header">
+          <h3 class="col-title">✈️ Tourist Mode</h3>
+          <div class="col-sub">Best of Rethymno for visitors</div>
+        </div>
+        <div class="tourist-box">
+          <div class="tourist-grid">
+            <div class="tourist-card" onclick="showToast('✅ Showing verified venues','Verified Venues')">
+              <div class="t-icon">✅</div>
+              <div class="t-title">Verified Venues</div>
+              <div class="t-desc">Safety-checked, English staff</div>
+            </div>
+            <div class="tourist-card" onclick="showToast('⚡ Opening easy booking','Book Now')">
+              <div class="t-icon">⚡</div>
+              <div class="t-title">Easy Booking</div>
+              <div class="t-desc">Reserve in 60 seconds</div>
+            </div>
+            <div class="tourist-card" onclick="showToast('🗺️ Opening nightlife map','Map')">
+              <div class="t-icon">🗺️</div>
+              <div class="t-title">Nightlife Map</div>
+              <div class="t-desc">Walking distances & taxis</div>
+            </div>
+            <div class="tourist-card" onclick="showToast('💬 Connecting to concierge','Concierge')">
+              <div class="t-icon">💬</div>
+              <div class="t-title">Local Concierge</div>
+              <div class="t-desc">24/7 English support</div>
+            </div>
+          </div>
+          <div class="tourist-pick">
+            <div class="tourist-pick-badge">🔥 Tourist Pick Tonight</div>
+            <div class="tourist-pick-title">Cavo Paradiso — Sunset Sessions Vol.8</div>
+            <div class="tourist-pick-desc">Deep House · Clifftop venue · Stunning views · €25 entry · Shuttle available</div>
+            <button class="btn-primary" style="width:100%;margin-top:12px;padding:10px" onclick="openReserveModal('e2')">Book This →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end discover page -->
+
+<!-- ═══════════════════ DASHBOARD PAGE ═══════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="crm-layout">
+    <!-- SIDEBAR -->
+    <aside class="crm-sidebar" id="crm-sidebar">
+      <div class="sidebar-venue">
+        <div class="sidebar-venue-name">Privilege Rethymno</div>
+        <div class="sidebar-venue-status"><span class="live-dot"></span> Open Tonight</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group-label">Operations</div>
+        <button class="sidebar-btn active-side" data-crm="overview">
+          <span>📊</span> Overview <span class="s-badge live-badge">Live</span>
+        </button>
+        <button class="sidebar-btn" data-crm="reservations">
+          <span>📋</span> Reservations <span class="s-badge" id="res-badge">6</span>
+        </button>
+        <button class="sidebar-btn" data-crm="staff">
+          <span>🚪</span> Door & Staff
+        </button>
+        <div class="sidebar-group-label">CRM</div>
+        <button class="sidebar-btn" data-crm="customers">
+          <span>👥</span> Customers
+        </button>
+        <button class="sidebar-btn" data-crm="promoters">
+          <span>📣</span> Promoters
+        </button>
+        <button class="sidebar-btn" data-crm="marketing">
+          <span>📨</span> Marketing
+        </button>
+        <div class="sidebar-group-label">Intelligence</div>
+        <button class="sidebar-btn" data-crm="analytics">
+          <span>📈</span> Analytics
+        </button>
+        <div style="margin-top:auto;padding-top:24px">
+          <button class="sidebar-btn" onclick="switchPage('discover')">
+            <span>🌐</span> Public App
+          </button>
+          <button class="sidebar-btn" onclick="showToast('⚙️ Opening settings...','Settings')">
+            <span>⚙️</span> Settings
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="crm-main" id="crm-main">
+
+      <!-- OVERVIEW -->
+      <div class="crm-section active-crm" id="crm-overview">
+        <div class="crm-topbar">
+          <div>
+            <h2 class="crm-page-title">Tonight's Overview</h2>
+            <div class="crm-page-sub">Παρασκευή, 20 Ιουνίου · Season Peak</div>
+          </div>
+          <div class="crm-topbar-right">
+            <span class="crm-venue-chip">📍 Privilege Rethymno</span>
+            <button class="btn-primary btn-sm" onclick="showToast('📤 Εξαγωγή αναφοράς...','Export')">Export Report</button>
+          </div>
+        </div>
+        <div class="metrics-grid" id="overview-metrics"></div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Αφίξεις & Έσοδα Ανά Ώρα</div>
+            <div class="chart-sub">Timeline απόψε — guests vs έσοδα</div>
+            <div style="height:220px"><canvas id="chart-arrivals"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Δημοτικότητα Μουσικής</div>
+            <div class="chart-sub">Προτιμήσεις πελατών αυτή την εβδομάδα</div>
+            <div style="height:220px"><canvas id="chart-genres"></canvas></div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Εβδομαδιαία Απόδοση</div>
+            <div class="chart-sub">Έσοδα vs χωρητικότητα — τελευταίες 7 μέρες</div>
+            <div style="height:200px"><canvas id="chart-weekly"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Νέοι vs Επαναλαμβανόμενοι</div>
+            <div class="chart-sub">Acquisition αυτόν τον μήνα</div>
+            <div style="height:200px"><canvas id="chart-retention"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESERVATIONS -->
+      <div class="crm-section" id="crm-reservations">
+        <div class="crm-topbar">
+          <h2 class="crm-page-title">Reservations</h2>
+          <div class="crm-topbar-right">
+            <button class="btn-ghost btn-sm" onclick="showToast('📋 Εξαγωγή PDF...','Export')">Export List</button>
+            <button class="btn-primary btn-sm" onclick="openNewResModal()">+ Νέα Κράτηση</button>
+          </div>
+        </div>
+        <div class="res-layout">
+          <!-- Floor Plan -->
+          <div class="chart-card floor-card">
+            <div class="chart-title" style="margin-bottom:16px">Floor Plan — Live Status</div>
+            <div class="floor-bg" id="floor-plan">
+              <div class="floor-stage">Stage</div>
+              <div class="floor-dj">🎧</div>
+              <!-- VIP Row -->
+              <div class="floor-table" style="left:14%;top:23%" data-info="V1 · Kostas P. · VIP · 8 pax" data-type="vip"><span>V1</span></div>
+              <div class="floor-table" style="left:30%;top:23%" data-info="V2 · Maria K. · VIP · 6 pax" data-type="vip"><span>V2</span></div>
+              <div class="floor-table" style="left:50%;top:23%" data-info="V3 · Elena D. · VIP · 10 pax" data-type="vip"><span>V3</span></div>
+              <div class="floor-table" style="left:70%;top:23%" data-info="V4 · Available · VIP" data-type="free"><span>V4</span></div>
+              <!-- Main Row -->
+              <div class="floor-table" style="left:10%;top:47%" data-info="T1 · Nikos V. · 5 pax · 23:00" data-type="reserved"><span>T1</span></div>
+              <div class="floor-table" style="left:26%;top:47%" data-info="T2 · Alex M. · 4 pax · 22:30 ✓" data-type="checkedin"><span>T2</span></div>
+              <div class="floor-table" style="left:42%;top:47%" data-info="T3 · James P. · 3 pax · Pending" data-type="pending"><span>T3</span></div>
+              <div class="floor-table" style="left:58%;top:47%" data-info="T4 · Available" data-type="free"><span>T4</span></div>
+              <div class="floor-table" style="left:74%;top:47%" data-info="T5 · Sofia P. · 6 pax" data-type="reserved"><span>T5</span></div>
+              <!-- Back Row -->
+              <div class="floor-table" style="left:18%;top:68%" data-info="T6 · Available" data-type="free"><span>T6</span></div>
+              <div class="floor-table" style="left:38%;top:68%" data-info="T7 · Group · 8 pax · 00:00" data-type="reserved"><span>T7</span></div>
+              <div class="floor-table" style="left:60%;top:68%" data-info="T8 · Available" data-type="free"><span>T8</span></div>
+              <div class="floor-bar-label">🍸 Bar</div>
+              <div class="floor-tooltip" id="floor-tooltip"></div>
+            </div>
+            <div class="floor-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--neon)"></div>VIP</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--pink2)"></div>Reserved</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Checked In</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Pending</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Free</div>
+            </div>
+          </div>
+          <!-- Reservation List -->
+          <div class="chart-card" style="overflow:hidden">
+            <div class="chart-title" style="margin-bottom:16px">Κρατήσεις Απόψε</div>
+            <div id="reservation-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS -->
+      <div class="crm-section" id="crm-customers">
+        <div class="crm-topbar">
+          <h2 class="crm-page-title">Customer CRM</h2>
+          <div class="crm-topbar-right">
+            <button class="btn-ghost btn-sm" onclick="showToast('📤 Εξαγωγή CSV...','Export')">Export CSV</button>
+            <button class="btn-primary btn-sm" onclick="openNewCustomerModal()">+ Νέος Πελάτης</button>
+          </div>
+        </div>
+        <div class="crm-filter-tabs" id="customer-filter-tabs">
+          <button class="crm-tab active" data-filter="all">Όλοι</button>
+          <button class="crm-tab" data-filter="black">💎 Black</button>
+          <button class="crm-tab" data-filter="gold">🥇 Gold</button>
+          <button class="crm-tab" data-filter="silver">🥈 Silver</button>
+        </div>
+        <div class="customers-grid" id="customers-grid"></div>
+      </div>
+
+      <!-- PROMOTERS -->
+      <div class="crm-section" id="crm-promoters">
+        <div class="crm-topbar">
+          <h2 class="crm-page-title">Promoter Dashboard</h2>
+          <div class="crm-topbar-right">
+            <button class="btn-primary btn-sm" onclick="openNewPromoterModal()">+ Προσθήκη Promoter</button>
+          </div>
+        </div>
+        <div class="metrics-grid" id="promoter-metrics"></div>
+        <div class="chart-card" style="overflow-x:auto">
+          <div class="chart-title" style="margin-bottom:20px">Promoter Performance — Ιούνιος 2025</div>
+          <table class="promo-table" id="promoters-table"></table>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="crm-section" id="crm-analytics">
+        <div class="crm-topbar">
+          <h2 class="crm-page-title">Analytics</h2>
+          <div class="crm-topbar-right"><span class="crm-venue-chip">Ιούν 2025 — Season Report</span></div>
+        </div>
+        <div class="metrics-grid" id="analytics-metrics"></div>
+        <div class="analytics-grid">
+          <div class="chart-card"><div class="chart-title">Μηνιαία Έσοδα</div><div class="chart-sub">Ιαν–Ιουν 2025</div><div style="height:220px"><canvas id="chart-monthly"></canvas></div></div>
+          <div class="chart-card"><div class="chart-title">Καλύτερες Μέρες</div><div class="chart-sub">Μέσα έσοδα ανά μέρα</div><div style="height:220px"><canvas id="chart-bestnight"></canvas></div></div>
+          <div class="chart-card"><div class="chart-title">Ώρες Αιχμής Αφίξεων</div><div class="chart-sub">Μέσες αφίξεις ανά ώρα</div><div style="height:220px"><canvas id="chart-peakhour"></canvas></div></div>
+          <div class="chart-card"><div class="chart-title">Μέση Δαπάνη ανά Tier</div><div class="chart-sub">Ανά επίπεδο loyalty</div><div style="height:220px"><canvas id="chart-spend"></canvas></div></div>
+        </div>
+      </div>
+
+      <!-- MARKETING -->
+      <div class="crm-section" id="crm-marketing">
+        <div class="crm-topbar">
+          <h2 class="crm-page-title">Marketing Tools</h2>
+          <div class="crm-topbar-right"><span class="crm-venue-chip">842 reachable contacts</span></div>
+        </div>
+        <div class="marketing-grid">
+          <div class="mk-card">
+            <div class="mk-icon" style="background:rgba(255,184,0,.15)">🎂</div>
+            <div class="mk-title">Birthday Campaigns</div>
+            <div class="mk-desc">Αυτόματα birthday messages με VIP προσφορές και δωρεάν ποτά.</div>
+            <div class="mk-stats"><span><strong>24</strong> Upcoming birthdays</span><span><strong>68%</strong> Open rate</span></div>
+            <button class="mk-btn" onclick="sendCampaign('birthday',24)">Launch Campaign →</button>
+          </div>
+          <div class="mk-card">
+            <div class="mk-icon" style="background:rgba(124,58,255,.15)">💎</div>
+            <div class="mk-title">VIP Invitations</div>
+            <div class="mk-desc">Αποστολή αποκλειστικών invitations σε Black & Gold members για premium events.</div>
+            <div class="mk-stats"><span><strong>56</strong> VIP members</span><span><strong>92%</strong> Accept rate</span></div>
+            <button class="mk-btn" onclick="sendCampaign('vip_invite',56)">Send VIP Invites →</button>
+          </div>
+          <div class="mk-card">
+            <div class="mk-icon" style="background:rgba(0,229,160,.12)">📲</div>
+            <div class="mk-title">Push Notifications</div>
+            <div class="mk-desc">Real-time push για last-minute deals, lineup changes και flash offers.</div>
+            <div class="mk-stats"><span><strong>1,284</strong> Subscribers</span><span><strong>54%</strong> Click-through</span></div>
+            <button class="mk-btn" onclick="sendCampaign('push',1284)">Create Push →</button>
+          </div>
+          <div class="mk-card">
+            <div class="mk-icon" style="background:rgba(0,212,255,.12)">🎫</div>
+            <div class="mk-title">Event Promotions</div>
+            <div class="mk-desc">Κωδικοί έκπτωσης, early bird τιμές και limited-time offers για upcoming events.</div>
+            <div class="mk-stats"><span><strong>6</strong> Active promos</span><span><strong>€4.2K</strong> Revenue driven</span></div>
+            <button class="mk-btn" onclick="showToast('🎫 Opening promo builder...','Promo Builder')">Create Promo →</button>
+          </div>
+          <div class="mk-card">
+            <div class="mk-icon" style="background:rgba(255,45,138,.12)">💌</div>
+            <div class="mk-title">Winback Campaigns</div>
+            <div class="mk-desc">Re-engage πελάτες που δεν ήρθαν 30+ μέρες με special welcome-back offers.</div>
+            <div class="mk-stats"><span><strong>142</strong> Lapsed guests</span><span><strong>31%</strong> Re-activation</span></div>
+            <button class="mk-btn" onclick="sendCampaign('winback',142)">Run Winback →</button>
+          </div>
+          <div class="mk-card">
+            <div class="mk-icon" style="background:rgba(255,184,0,.12)">🎯</div>
+            <div class="mk-title">Segment & Target</div>
+            <div class="mk-desc">Advanced segmentation by spend, μουσική προτίμηση, visit frequency.</div>
+            <div class="mk-stats"><span><strong>12</strong> Saved segments</span><span><strong>840</strong> Targetable</span></div>
+            <button class="mk-btn" onclick="showToast('🎯 Opening audience builder...','Audience Builder')">Build Audience →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div class="crm-section" id="crm-staff">
+        <div class="crm-topbar">
+          <h2 class="crm-page-title">Door & Staff Interface</h2>
+          <div class="crm-topbar-right"><span class="crm-live-chip">🔴 Live Mode</span></div>
+        </div>
+        <div class="metrics-grid" id="staff-metrics"></div>
+        <div class="res-layout">
+          <!-- Capacity Zones -->
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:20px">Venue Capacity</div>
+            <div class="occ-zone">
+              <div class="occ-zone-label"><span>Συνολικά</span><span class="occ-pct">94%</span></div>
+              <div class="occ-track"><div class="occ-fill" style="width:94%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div>
+              <div class="occ-count">565 / 600 guests</div>
+            </div>
+            <div class="occ-zone">
+              <div class="occ-zone-label"><span>Main Floor</span><span class="occ-pct" style="color:var(--green)">94%</span></div>
+              <div class="occ-track"><div class="occ-fill" style="width:94%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div>
+              <div class="occ-count">340 / 360 guests</div>
+            </div>
+            <div class="occ-zone">
+              <div class="occ-zone-label"><span>VIP Area</span><span class="occ-pct" style="color:var(--neon3)">90%</span></div>
+              <div class="occ-track"><div class="occ-fill" style="width:90%;background:linear-gradient(90deg,var(--neon),var(--neon2))"></div></div>
+              <div class="occ-count">108 / 120 guests</div>
+            </div>
+            <div class="occ-zone">
+              <div class="occ-zone-label"><span>Terrace</span><span class="occ-pct" style="color:var(--cyan)">98%</span></div>
+              <div class="occ-track"><div class="occ-fill" style="width:98%;background:linear-gradient(90deg,var(--cyan),var(--cyan2))"></div></div>
+              <div class="occ-count">117 / 120 guests</div>
+            </div>
+          </div>
+          <!-- Check-in Queue -->
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:16px">Guest Check-In Queue</div>
+            <div id="checkin-queue"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div><!-- end dashboard page -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Reserve Modal -->
+<div class="modal-overlay" id="modal-reserve">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="reserve-modal-title">Reserve a Table</h3>
+      <button class="modal-close" onclick="closeModal('modal-reserve')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Πλήρες Όνομα</label>
+        <input type="text" id="res-name" placeholder="Kostas Papadakis" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="res-email" placeholder="kostas@gmail.com" />
+        </div>
+        <div class="form-group">
+          <label>Αριθμός ατόμων</label>
+          <select id="res-guests">
+            <option>1</option><option>2</option><option selected>3</option>
+            <option>4</option><option>5</option><option>6</option><option>8</option><option>10+</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ώρα άφιξης</label>
+          <select id="res-time">
+            <option>21:00</option><option>22:00</option><option selected>23:00</option>
+            <option>00:00</option><option>01:00</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Τύπος Τραπεζιού</label>
+          <select id="res-type">
+            <option value="standard">Standard</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Σημειώσεις (προαιρετικά)</label>
+        <input type="text" id="res-notes" placeholder="π.χ. γενέθλια, πανό, ειδικές απαιτήσεις..." />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-reserve')">Ακύρωση</button>
+      <button class="btn-primary" onclick="submitReservation()">Κράτηση →</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Customer Modal -->
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Νέος Πελάτης</h3>
+      <button class="modal-close" onclick="closeModal('modal-customer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Πλήρες Όνομα</label><input type="text" id="cust-name" placeholder="Ονοματεπώνυμο" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="cust-email" placeholder="email@example.com" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Τηλέφωνο</label><input type="tel" id="cust-phone" placeholder="+30 69X XXX XXXX" /></div>
+        <div class="form-group"><label>Γενέθλια</label><input type="date" id="cust-birthday" /></div>
+      </div>
+      <div class="form-group"><label>Αγαπημένο Είδος Μουσικής</label>
+        <select id="cust-genre">
+          <option>Progressive House</option><option>Deep House</option><option>R&B / Hip-Hop</option>
+          <option>Techno</option><option>Afro House</option><option>Pop / Dance</option><option>Rock</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Σημειώσεις</label><input type="text" id="cust-notes" placeholder="Προτιμήσεις, VIP status, κλπ..." /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-customer')">Ακύρωση</button>
+      <button class="btn-primary" onclick="submitNewCustomer()">Αποθήκευση →</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Promoter Modal -->
+<div class="modal-overlay" id="modal-promoter">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Νέος Promoter</h3>
+      <button class="modal-close" onclick="closeModal('modal-promoter')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Πλήρες Όνομα</label><input type="text" id="promo-name" placeholder="Ονοματεπώνυμο" /></div>
+      <div class="form-group"><label>Email</label><input type="email" id="promo-email" placeholder="promoter@example.com" /></div>
+      <div class="form-group"><label>Τηλέφωνο</label><input type="tel" id="promo-phone" placeholder="+30 69X XXX XXXX" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-promoter')">Ακύρωση</button>
+      <button class="btn-primary" onclick="submitNewPromoter()">Αποθήκευση →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-msg" id="toast-msg"></div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

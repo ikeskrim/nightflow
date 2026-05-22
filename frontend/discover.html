@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow — Tonight in Rethymno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#050505">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --bg: #050505;
+  --bg-elevated: #0a0a0a;
+  --bg-card: #111111;
+  --bg-card-hover: #161616;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --text: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-tertiary: #666666;
+  --accent: #a78bfa;
+  --accent-secondary: #c4b5fd;
+  --gold: #f59e0b;
+  --emerald: #10b981;
+  --rose: #f472b6;
+  --cyan: #22d3ee;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.08);
+}
+
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2)}
+
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-0.02em}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION — Glass morphism with scroll transform
+═══════════════════════════════════════════════════════════════ */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:72px;
+  display:flex;align-items:center;
+  padding:0 clamp(16px,4vw,48px);
+  background:rgba(5,5,5,0.7);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid transparent;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.nav.scrolled {
+  height:60px;
+  background:rgba(5,5,5,0.95);
+  border-bottom-color:var(--border);
+}
+.nav-logo {
+  display:flex;align-items:center;gap:12px;
+  text-decoration:none;flex-shrink:0;
+}
+.nav-mark {
+  width:42px;height:42px;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--rose) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;
+  transition:transform 0.2s;
+}
+.nav-logo:hover .nav-mark{transform:scale(1.05)}
+.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.03em}
+.nav-brand span{background:linear-gradient(135deg,var(--accent),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+.nav-center{flex:1;display:flex;justify-content:center;padding:0 32px}
+.nav-links{display:flex;gap:8px;background:var(--glass);border:1px solid var(--glass-border);border-radius:100px;padding:4px}
+.nav-link{
+  padding:10px 20px;border-radius:100px;
+  font-size:14px;font-weight:500;
+  color:var(--text-secondary);
+  background:none;border:none;cursor:pointer;
+  transition:all 0.2s;
+}
+.nav-link:hover{color:var(--text)}
+.nav-link.active{background:var(--text);color:var(--bg);font-weight:600}
+
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-live{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:100px;
+  background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.2);
+  font-size:13px;font-weight:500;color:var(--emerald);
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--emerald);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+.nav-points{
+  padding:8px 16px;border-radius:100px;
+  background:rgba(245,158,11,0.1);
+  border:1px solid rgba(245,158,11,0.2);
+  font-size:13px;font-weight:600;color:var(--gold);
+}
+.nav-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:transform 0.2s;
+}
+.nav-avatar:hover{transform:scale(1.08)}
+.nav-logout{
+  padding:8px 16px;border-radius:100px;
+  font-size:13px;font-weight:500;
+  background:none;border:1px solid var(--border);color:var(--text-secondary);
+  cursor:pointer;transition:all 0.2s;
+}
+.nav-logout:hover{background:var(--glass);border-color:var(--border-hover);color:var(--text)}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO — Full viewport with animated gradient
+═══════════════════════════════════════════════════════════════ */
+.hero {
+  position:relative;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:120px clamp(24px,6vw,80px) 80px;
+  overflow:hidden;
+}
+.hero-bg {
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%,rgba(167,139,250,0.15),transparent 50%),
+    radial-gradient(ellipse 60% 40% at 70% 60%,rgba(244,114,182,0.08),transparent 50%),
+    radial-gradient(ellipse 50% 30% at 20% 80%,rgba(34,211,238,0.06),transparent 50%);
+}
+.hero-noise {
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity:0.03;
+  pointer-events:none;
+}
+.hero-gradient {
+  position:absolute;bottom:0;left:0;right:0;height:50%;
+  background:linear-gradient(to top,var(--bg),transparent);
+  pointer-events:none;
+}
+#hero-canvas{position:absolute;inset:0;z-index:0}
+
+.hero-content{position:relative;z-index:1;text-align:center;max-width:900px;width:100%}
+.hero-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 20px;border-radius:100px;
+  background:rgba(167,139,250,0.1);
+  border:1px solid rgba(167,139,250,0.2);
+  font-size:13px;font-weight:500;color:var(--accent-secondary);
+  margin-bottom:32px;
+  animation:fadeInUp 0.8s ease both;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.hero-title{
+  font-size:clamp(48px,12vw,120px);
+  font-weight:800;
+  line-height:0.9;
+  letter-spacing:-0.04em;
+  margin-bottom:24px;
+  animation:fadeInUp 0.8s ease 0.1s both;
+}
+.hero-title .gradient{
+  background:linear-gradient(135deg,var(--accent-secondary) 0%,var(--gold) 50%,var(--rose) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 8s ease-in-out infinite;
+}
+@keyframes gradientShift{0%,100%{background-position:0% center}50%{background-position:100% center}}
+
+.hero-subtitle{
+  font-size:clamp(16px,2vw,20px);
+  color:var(--text-secondary);
+  line-height:1.6;
+  max-width:560px;
+  margin:0 auto 48px;
+  font-weight:400;
+  animation:fadeInUp 0.8s ease 0.2s both;
+}
+
+/* Search Bar - Spotify Style */
+.hero-search{
+  position:relative;
+  max-width:600px;
+  margin:0 auto 64px;
+  animation:fadeInUp 0.8s ease 0.3s both;
+}
+.search-input{
+  width:100%;
+  padding:20px 24px 20px 56px;
+  border-radius:100px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  font-size:16px;
+  color:var(--text);
+  outline:none;
+  transition:all 0.3s;
+}
+.search-input::placeholder{color:var(--text-tertiary)}
+.search-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(167,139,250,0.1);
+}
+.search-icon{
+  position:absolute;left:24px;top:50%;transform:translateY(-50%);
+  font-size:18px;color:var(--text-tertiary);
+  pointer-events:none;
+}
+
+/* Hero Stats */
+.hero-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  max-width:700px;
+  margin:0 auto;
+  animation:fadeInUp 0.8s ease 0.4s both;
+}
+.hero-stat{
+  padding:24px 16px;
+  border-radius:20px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  text-align:center;
+  transition:all 0.3s;
+}
+.hero-stat:hover{transform:translateY(-4px);border-color:var(--border-hover)}
+.hero-stat-value{
+  font-family:'Syne',sans-serif;
+  font-size:32px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent-secondary),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-stat-label{font-size:12px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.05em;margin-top:4px}
+
+/* Scroll Indicator */
+.scroll-indicator{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  animation:bounce 2s ease-in-out infinite;
+}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.scroll-indicator span{font-size:12px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em}
+.scroll-indicator svg{width:24px;height:24px;color:var(--text-tertiary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   FILTER BAR — Sticky with glass effect
+═══════════════════════════════════════════════════════════════ */
+.filter-bar{
+  position:sticky;top:72px;z-index:100;
+  background:rgba(5,5,5,0.9);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:16px 0;
+}
+.filter-inner{
+  max-width:1400px;margin:0 auto;
+  padding:0 clamp(24px,4vw,48px);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+.filter-chip{
+  padding:10px 20px;border-radius:100px;
+  font-size:14px;font-weight:500;
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-secondary);
+  cursor:pointer;transition:all 0.2s;
+}
+.filter-chip:hover{background:var(--bg-card);border-color:var(--border-hover);color:var(--text)}
+.filter-chip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.filter-search{margin-left:auto;position:relative}
+.filter-search input{
+  padding:10px 16px 10px 40px;
+  border-radius:100px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  font-size:14px;color:var(--text);
+  width:280px;outline:none;
+  transition:all 0.2s;
+}
+.filter-search input:focus{border-color:var(--accent);width:320px}
+.filter-search input::placeholder{color:var(--text-tertiary)}
+.filter-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-tertiary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION STYLES
+═══════════════════════════════════════════════════════════════ */
+.section{
+  padding:80px clamp(24px,4vw,48px);
+  max-width:1400px;margin:0 auto;
+}
+.section-header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:32px;gap:16px;flex-wrap:wrap;
+}
+.section-title{font-size:clamp(24px,4vw,36px);font-weight:700;letter-spacing:-0.02em}
+.section-subtitle{font-size:14px;color:var(--text-tertiary);margin-top:4px}
+.section-link{
+  font-size:14px;font-weight:500;color:var(--accent);
+  display:flex;align-items:center;gap:4px;cursor:pointer;
+  transition:color 0.2s;
+}
+.section-link:hover{color:var(--accent-secondary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   TONIGHT'S LINEUP — Horizontal scroll marquee
+═══════════════════════════════════════════════════════════════ */
+.tonight-section{padding-bottom:40px}
+.tonight-scroll{
+  display:flex;gap:16px;
+  overflow-x:auto;
+  padding-bottom:16px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+.tonight-scroll::-webkit-scrollbar{height:4px}
+.tonight-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+.tonight-card{
+  flex:0 0 300px;
+  scroll-snap-align:start;
+  padding:24px;
+  border-radius:24px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.tonight-card:hover{transform:translateY(-4px);border-color:var(--border-hover);background:var(--bg-card-hover)}
+.tonight-card.highlight{
+  background:linear-gradient(145deg,rgba(16,185,129,0.08),rgba(167,139,250,0.05));
+  border-color:rgba(16,185,129,0.2);
+}
+.tonight-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.tonight-emoji{
+  width:56px;height:56px;border-radius:16px;
+  background:var(--glass);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+}
+.tonight-info h3{font-size:18px;font-weight:700;margin-bottom:2px}
+.tonight-info span{font-size:13px;color:var(--text-tertiary)}
+.tonight-status{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:100px;
+  font-size:12px;font-weight:600;
+  margin-bottom:12px;
+}
+.tonight-status.open{background:rgba(16,185,129,0.1);color:var(--emerald);border:1px solid rgba(16,185,129,0.2)}
+.tonight-status.party{background:rgba(245,158,11,0.1);color:var(--gold);border:1px solid rgba(245,158,11,0.2)}
+.tonight-meta{display:flex;gap:16px;font-size:13px;color:var(--text-secondary);margin-bottom:16px}
+.tonight-crowd{display:flex;align-items:center;gap:10px}
+.tonight-bar{flex:1;height:6px;background:var(--glass);border-radius:3px;overflow:hidden}
+.tonight-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--rose));transition:width 0.5s}
+.tonight-pct{font-size:13px;font-weight:600;color:var(--text-secondary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   VENUE GRID — Editorial bento layout
+═══════════════════════════════════════════════════════════════ */
+.venue-grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:20px;
+}
+
+.venue-card{
+  position:relative;
+  border-radius:24px;
+  overflow:hidden;
+  cursor:pointer;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.venue-card:hover{transform:translateY(-8px);border-color:var(--border-hover);box-shadow:0 32px 64px rgba(0,0,0,0.4)}
+
+/* Card sizes */
+.venue-card.xl{grid-column:span 8}
+.venue-card.lg{grid-column:span 6}
+.venue-card.md{grid-column:span 4}
+.venue-card.sm{grid-column:span 3}
+
+.venue-image{
+  position:relative;
+  height:240px;
+  overflow:hidden;
+}
+.venue-card.xl .venue-image{height:380px}
+.venue-card.lg .venue-image{height:300px}
+
+.venue-image img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.venue-card:hover .venue-image img{transform:scale(1.08)}
+
+.venue-image-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:72px;opacity:0.3;
+  transition:transform 0.4s;
+}
+.venue-card.xl .venue-image-placeholder{font-size:120px}
+.venue-card:hover .venue-image-placeholder{transform:scale(1.1)}
+
+.venue-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.8) 100%);
+  opacity:0.8;
+  transition:opacity 0.3s;
+}
+.venue-card:hover .venue-overlay{opacity:1}
+
+.venue-badges{
+  position:absolute;top:16px;left:16px;
+  display:flex;gap:8px;flex-wrap:wrap;
+  z-index:2;
+}
+.venue-badge{
+  padding:6px 12px;border-radius:100px;
+  font-size:11px;font-weight:600;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.badge-live{background:rgba(16,185,129,0.2);color:var(--emerald);border:1px solid rgba(16,185,129,0.3)}
+.badge-trending{background:rgba(245,158,11,0.2);color:var(--gold);border:1px solid rgba(245,158,11,0.3)}
+.badge-vip{background:rgba(167,139,250,0.2);color:var(--accent-secondary);border:1px solid rgba(167,139,250,0.3)}
+.badge-new{background:rgba(244,114,182,0.2);color:var(--rose);border:1px solid rgba(244,114,182,0.3)}
+
+.venue-crowd{
+  position:absolute;bottom:16px;right:16px;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:100px;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--glass-border);
+  font-size:13px;font-weight:500;
+  z-index:2;
+}
+.crowd-bar{width:48px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden}
+.crowd-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--rose))}
+
+.venue-content{padding:24px}
+.venue-card.xl .venue-content{padding:32px}
+
+.venue-type{
+  font-size:12px;color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:0.08em;
+  margin-bottom:8px;
+}
+.venue-name{
+  font-family:'Syne',sans-serif;
+  font-size:20px;font-weight:700;
+  margin-bottom:12px;
+  letter-spacing:-0.01em;
+}
+.venue-card.xl .venue-name{font-size:28px}
+
+.venue-genre{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:100px;
+  background:rgba(167,139,250,0.1);
+  border:1px solid rgba(167,139,250,0.2);
+  font-size:13px;color:var(--accent-secondary);
+  margin-bottom:12px;
+}
+.venue-meta{
+  display:flex;gap:16px;
+  font-size:13px;color:var(--text-tertiary);
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.venue-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+}
+.venue-price{
+  font-family:'Syne',sans-serif;
+  font-size:22px;font-weight:700;
+}
+.venue-price.free{color:var(--emerald)}
+.venue-price small{display:block;font-size:12px;color:var(--text-tertiary);font-family:'Inter',sans-serif;font-weight:400}
+.venue-cta{
+  padding:12px 24px;border-radius:100px;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  border:none;color:#fff;
+  font-size:14px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+}
+.venue-card.xl .venue-cta{padding:14px 32px;font-size:15px}
+.venue-cta:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(167,139,250,0.3)}
+
+/* Empty state */
+.empty-state{
+  grid-column:1/-1;
+  text-align:center;
+  padding:80px 20px;
+  color:var(--text-tertiary);
+  font-size:16px;
+}
+
+/* Skeleton */
+.skeleton{
+  min-height:320px;border-radius:24px;
+  background:linear-gradient(90deg,var(--bg-card) 25%,var(--bg-card-hover) 50%,var(--bg-card) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATS SECTION — Animated counters with glow
+═══════════════════════════════════════════════════════════════ */
+.stats-section{
+  padding:100px clamp(24px,4vw,48px);
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(167,139,250,0.08),transparent 50%);
+}
+.stats-content{
+  max-width:800px;margin:0 auto;text-align:center;
+}
+.stats-number{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(64px,15vw,120px);
+  font-weight:800;
+  letter-spacing:-0.04em;
+  background:linear-gradient(135deg,var(--accent-secondary),var(--gold),var(--rose));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease-in-out infinite;
+  margin-bottom:16px;
+}
+.stats-label{
+  font-size:clamp(18px,3vw,24px);
+  color:var(--text-secondary);
+  font-weight:400;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LOYALTY SECTION
+═══════════════════════════════════════════════════════════════ */
+.loyalty-section{padding-top:40px}
+.loyalty-card{
+  background:linear-gradient(145deg,rgba(167,139,250,0.05),rgba(244,114,182,0.03));
+  border:1px solid rgba(167,139,250,0.15);
+  border-radius:32px;
+  padding:48px;
+  position:relative;
+  overflow:hidden;
+}
+.loyalty-card::before{
+  content:'';position:absolute;
+  top:-50%;right:-20%;width:60%;height:100%;
+  background:radial-gradient(ellipse,rgba(167,139,250,0.08),transparent 70%);
+  pointer-events:none;
+}
+.loyalty-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:24px;margin-bottom:32px}
+.loyalty-info h3{font-size:28px;font-weight:700;margin-bottom:8px}
+.loyalty-info p{font-size:15px;color:var(--text-secondary)}
+.loyalty-points{text-align:right}
+.points-value{font-family:'Syne',sans-serif;font-size:56px;font-weight:800;color:var(--gold);line-height:1}
+.points-label{font-size:13px;color:var(--text-tertiary);margin-top:4px}
+
+.loyalty-progress{margin-bottom:40px}
+.progress-labels{display:flex;justify-content:space-between;font-size:14px;color:var(--text-secondary);margin-bottom:10px}
+.progress-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--rose));transition:width 1s ease}
+.progress-fill::after{
+  content:'';display:block;width:14px;height:14px;
+  background:#fff;border-radius:50%;
+  margin-left:auto;margin-top:-11px;
+  box-shadow:0 0 12px rgba(167,139,250,0.5);
+}
+
+.tiers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tier-card{
+  padding:32px;border-radius:24px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  text-align:center;
+  cursor:pointer;transition:all 0.3s;
+}
+.tier-card:hover{transform:translateY(-4px);border-color:var(--border-hover)}
+.tier-card.active{
+  background:linear-gradient(145deg,rgba(167,139,250,0.1),rgba(167,139,250,0.03));
+  border-color:rgba(167,139,250,0.3);
+}
+.tier-icon{font-size:48px;margin-bottom:16px}
+.tier-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px}
+.tier-name.silver{color:#9ca3af}
+.tier-name.gold{color:var(--gold)}
+.tier-name.black{background:linear-gradient(135deg,var(--accent-secondary),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tier-perks{list-style:none;text-align:left;margin-bottom:20px}
+.tier-perks li{font-size:14px;color:var(--text-secondary);margin-bottom:8px;padding-left:20px;position:relative}
+.tier-perks li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.tier-status{
+  display:inline-block;padding:8px 20px;border-radius:100px;
+  font-size:13px;font-weight:600;
+}
+.tier-status.current{background:rgba(16,185,129,0.1);color:var(--emerald);border:1px solid rgba(16,185,129,0.2)}
+.tier-status.locked{background:var(--glass);color:var(--text-tertiary);border:1px solid var(--glass-border)}
+
+/* ═══════════════════════════════════════════════════════════════
+   ACTIVITY FEED
+═══════════════════════════════════════════════════════════════ */
+.activity-section{padding-bottom:120px}
+.activity-feed{display:flex;flex-direction:column;gap:12px}
+.activity-item{
+  display:flex;align-items:center;gap:16px;
+  padding:20px 24px;border-radius:16px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  transition:all 0.2s;
+}
+.activity-item:hover{background:var(--bg-card-hover);border-color:var(--border-hover)}
+.activity-avatar{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.activity-text{flex:1}
+.activity-user{font-weight:600;font-size:15px;margin-bottom:2px}
+.activity-action{font-size:14px;color:var(--text-secondary)}
+.activity-time{font-size:13px;color:var(--text-tertiary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+.footer{
+  padding:48px clamp(24px,4vw,48px);
+  border-top:1px solid var(--border);
+  max-width:1400px;margin:0 auto;
+}
+.footer-content{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:24px;
+}
+.footer-brand{display:flex;align-items:center;gap:12px}
+.footer-brand .nav-mark{width:36px;height:36px;font-size:12px}
+.footer-brand span{font-family:'Syne',sans-serif;font-weight:700;font-size:18px}
+.footer-links{display:flex;gap:32px}
+.footer-links a{color:var(--text-secondary);text-decoration:none;font-size:14px;transition:color 0.2s}
+.footer-links a:hover{color:var(--text)}
+.footer-social{display:flex;gap:12px}
+.footer-social a{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;transition:all 0.2s;
+  text-decoration:none;
+}
+.footer-social a:hover{background:var(--bg-card);border-color:var(--border-hover)}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  z-index:2000;
+  display:none;align-items:center;justify-content:center;
+  padding:24px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  border-radius:28px;
+  width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;
+  animation:modalIn 0.3s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:28px 32px 0}
+.modal-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700}
+.modal-close{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-secondary);font-size:18px;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--bg-card);color:var(--text)}
+.modal-body{padding:28px 32px}
+.modal-footer{display:flex;gap:12px;padding:0 32px 28px;justify-content:flex-end}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.form-group input,.form-group select{
+  width:100%;padding:14px 16px;border-radius:12px;
+  background:var(--bg-card);border:1px solid var(--border);
+  font-size:15px;color:var(--text);outline:none;
+  transition:all 0.2s;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+.form-group select option{background:var(--bg-card)}
+.btn-ghost{
+  padding:12px 24px;border-radius:12px;
+  background:none;border:1px solid var(--border);
+  color:var(--text-secondary);font-size:15px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-ghost:hover{background:var(--glass);color:var(--text)}
+.btn-primary{
+  padding:12px 28px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  border:none;color:#fff;
+  font-size:15px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(167,139,250,0.3)}
+.success-state{display:none;text-align:center;padding:24px 0}
+.success-icon{font-size:64px;margin-bottom:16px}
+.success-ref{
+  font-family:monospace;padding:12px 24px;border-radius:12px;
+  background:var(--bg-card);border:1px solid var(--border);
+  font-size:15px;color:var(--accent);display:inline-block;margin-top:16px;
+}
+.error-msg{color:#f87171;font-size:14px;margin-top:12px;display:none}
+.error-msg.show{display:block}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:32px;right:32px;
+  background:var(--bg-elevated);border:1px solid var(--border);
+  border-radius:16px;padding:20px 28px;
+  z-index:3000;min-width:300px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.5);
+  display:none;
+  animation:toastIn 0.3s ease;
+}
+.toast.show{display:block}
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+.toast-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px}
+.toast-msg{font-size:14px;color:var(--text-tertiary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .venue-card.xl{grid-column:span 12}
+  .venue-card.lg{grid-column:span 6}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .nav-center{display:none}
+  .filter-search{display:none}
+  .venue-grid{grid-template-columns:1fr}
+  .venue-card.xl,.venue-card.lg,.venue-card.md,.venue-card.sm{grid-column:span 1}
+  .tiers-grid{grid-template-columns:1fr}
+  .hero-stats{grid-template-columns:1fr 1fr;gap:12px}
+  .loyalty-card{padding:32px 24px}
+  .footer-content{flex-direction:column;text-align:center}
+  .footer-links{flex-wrap:wrap;justify-content:center}
+}
+@media(max-width:480px){
+  .hero-title{letter-spacing:-0.02em}
+  .hero-search{margin-bottom:48px}
+  .section{padding:60px 16px}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED BACKGROUND — Premium multi-layer effect
+═══════════════════════════════════════════════════════════════ */
+.bg-animation {
+  position:fixed;inset:0;z-index:-1;overflow:hidden;background:#050505;pointer-events:none;
+}
+.bg-animation .mesh-gradient {
+  position:absolute;inset:-50%;width:200%;height:200%;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(167,139,250,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,114,182,0.14), transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(34,211,238,0.10), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(139,92,246,0.12), transparent 50%);
+  animation:bgMeshMove 25s ease-in-out infinite;
+  will-change:transform;
+}
+@keyframes bgMeshMove {
+  0%,100%{transform:translate(0,0) scale(1) rotate(0deg)}
+  25%{transform:translate(5%,3%) scale(1.05) rotate(1deg)}
+  50%{transform:translate(-3%,5%) scale(1.02) rotate(-0.5deg)}
+  75%{transform:translate(3%,-3%) scale(1.03) rotate(0.5deg)}
+}
+.bg-animation .orb {
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.6;mix-blend-mode:screen;will-change:transform;
+}
+.bg-animation .orb-1 {
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(167,139,250,0.45) 0%,rgba(167,139,250,0.15) 40%,transparent 70%);
+  top:-10%;left:-10%;animation:bgFloat1 20s ease-in-out infinite;
+}
+.bg-animation .orb-2 {
+  width:450px;height:450px;
+  background:radial-gradient(circle,rgba(244,114,182,0.4) 0%,rgba(244,114,182,0.12) 40%,transparent 70%);
+  top:45%;right:-8%;animation:bgFloat2 25s ease-in-out infinite;
+}
+.bg-animation .orb-3 {
+  width:550px;height:550px;
+  background:radial-gradient(circle,rgba(34,211,238,0.3) 0%,rgba(34,211,238,0.1) 40%,transparent 70%);
+  bottom:-18%;left:25%;animation:bgFloat3 22s ease-in-out infinite;
+}
+.bg-animation .orb-4 {
+  width:350px;height:350px;
+  background:radial-gradient(circle,rgba(139,92,246,0.35) 0%,rgba(139,92,246,0.1) 40%,transparent 70%);
+  top:25%;left:45%;animation:bgFloat4 18s ease-in-out infinite;
+}
+@keyframes bgFloat1{0%,100%{transform:translate(0,0) scale(1)}20%{transform:translate(8%,4%) scale(1.03)}40%{transform:translate(4%,10%) scale(0.98)}60%{transform:translate(-4%,6%) scale(1.02)}80%{transform:translate(2%,-2%) scale(1)}}
+@keyframes bgFloat2{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(-10%,6%) scale(1.04)}50%{transform:translate(-5%,-8%) scale(0.97)}75%{transform:translate(5%,4%) scale(1.02)}}
+@keyframes bgFloat3{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-6%,-10%) scale(1.02)}66%{transform:translate(10%,-4%) scale(0.98)}}
+@keyframes bgFloat4{0%,100%{transform:translate(0,0) scale(1)}30%{transform:translate(-12%,8%) scale(1.05)}60%{transform:translate(8%,-6%) scale(0.96)}}
+.bg-animation .noise-overlay {
+  position:absolute;inset:0;opacity:0.035;pointer-events:none;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media(prefers-reduced-motion:reduce){.bg-animation .mesh-gradient,.bg-animation .orb{animation:none}}
+@media(max-width:768px){.bg-animation .mesh-gradient{animation-duration:35s}.bg-animation .orb{filter:blur(60px)}.bg-animation .orb-1{width:400px;height:400px}.bg-animation .orb-2{width:300px;height:300px}.bg-animation .orb-3,.bg-animation .orb-4{display:none}}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation">
+  <div class="mesh-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="noise-overlay"></div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="nav" id="nav">
+  <a href="discover.html" class="nav-logo">
+    <div class="nav-mark">NF</div>
+    <div class="nav-brand">Night<span>Flow</span></div>
+  </a>
+  <div class="nav-center">
+    <div class="nav-links">
+      <button class="nav-link active">Discover</button>
+      <button class="nav-link" onclick="window.location.href='#venues'">Venues</button>
+      <button class="nav-link">Map</button>
+      <button class="nav-link">My Tickets</button>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-live"><span class="live-dot"></span><span id="venues-live">5</span> Live</div>
+    <div class="nav-points" id="nav-points">0 pts</div>
+    <div class="nav-avatar" id="nav-avatar">?</div>
+    <button class="nav-logout" onclick="doLogout()">Exit</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-gradient"></div>
+
+  <div class="hero-content">
+    <div class="hero-pill">
+      <span class="live-dot"></span>
+      Live in Rethymno
+    </div>
+    <h1 class="hero-title">Tonight in<br><span class="gradient">Rethymno</span></h1>
+    <p class="hero-subtitle">Discover the best nightlife, book tables, join guest lists, and earn rewards with every visit.</p>
+
+    <div class="hero-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" class="search-input" id="hero-search" placeholder="Search venues, events, DJs...">
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="stat-guests">--</div>
+        <div class="hero-stat-label">Guests Tonight</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="stat-venues">--</div>
+        <div class="hero-stat-label">Venues Live</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="stat-events">--</div>
+        <div class="hero-stat-label">Events</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="stat-satisfaction">--</div>
+        <div class="hero-stat-label">Satisfaction</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-inner">
+    <div class="filter-chips">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="nightclub">Nightclubs</button>
+      <button class="filter-chip" data-filter="beach_club">Beach Clubs</button>
+      <button class="filter-chip" data-filter="bar">Bars</button>
+      <button class="filter-chip" data-filter="trending">Trending</button>
+      <button class="filter-chip" data-filter="vip">VIP</button>
+    </div>
+    <div class="filter-search">
+      <span class="filter-search-icon">&#128269;</span>
+      <input type="text" id="filter-search" placeholder="Search venues...">
+    </div>
+  </div>
+</div>
+
+<!-- TONIGHT'S LINEUP -->
+<section class="section tonight-section" id="tonight">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Tonight's Lineup</h2>
+      <p class="section-subtitle" id="tonight-date">Loading...</p>
+    </div>
+    <div class="section-link">
+      <span class="live-dot"></span>
+      <span>Live updates</span>
+    </div>
+  </div>
+  <div class="tonight-scroll" id="tonight-grid"></div>
+</section>
+
+<!-- VENUES GRID -->
+<section class="section" id="venues">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">All Venues</h2>
+      <p class="section-subtitle">Discover the best spots in Rethymno</p>
+    </div>
+    <div class="section-link">View all &#8594;</div>
+  </div>
+  <div class="venue-grid" id="venue-grid">
+    <div class="skeleton xl"></div>
+    <div class="skeleton md"></div>
+    <div class="skeleton md"></div>
+    <div class="skeleton md"></div>
+  </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="stats-section">
+  <div class="stats-content">
+    <div class="stats-number" id="stats-number">847</div>
+    <p class="stats-label">people out tonight in Rethymno</p>
+  </div>
+</section>
+
+<!-- LOYALTY SECTION -->
+<section class="section loyalty-section" id="loyalty">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Loyalty & Rewards</h2>
+      <p class="section-subtitle">Earn points, unlock exclusive perks</p>
+    </div>
+  </div>
+
+  <div class="loyalty-card">
+    <div class="loyalty-header">
+      <div class="loyalty-info">
+        <h3>Your Membership</h3>
+        <p id="tier-subtitle">Collect points to level up your tier</p>
+      </div>
+      <div class="loyalty-points">
+        <div class="points-value" id="points-value">0</div>
+        <div class="points-label">NightFlow Points</div>
+      </div>
+    </div>
+
+    <div class="loyalty-progress">
+      <div class="progress-labels">
+        <span id="progress-current">Silver</span>
+        <span id="progress-next">Gold - 1,000 pts</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="tiers-grid">
+      <div class="tier-card" id="tier-silver">
+        <div class="tier-icon">&#129352;</div>
+        <div class="tier-name silver">Silver</div>
+        <ul class="tier-perks">
+          <li>Priority queue access</li>
+          <li>1 free drink per month</li>
+          <li>10% off all bookings</li>
+          <li>Birthday bonus points</li>
+        </ul>
+        <div class="tier-status current" id="status-silver">Current</div>
+      </div>
+      <div class="tier-card" id="tier-gold">
+        <div class="tier-icon">&#129351;</div>
+        <div class="tier-name gold">Gold</div>
+        <ul class="tier-perks">
+          <li>Skip the queue entirely</li>
+          <li>3 free drinks per month</li>
+          <li>Dedicated host service</li>
+          <li>Early event access</li>
+        </ul>
+        <div class="tier-status locked" id="status-gold">1,000 pts to unlock</div>
+      </div>
+      <div class="tier-card" id="tier-black">
+        <div class="tier-icon">&#128142;</div>
+        <div class="tier-name black">Black</div>
+        <ul class="tier-perks">
+          <li>Always free entry</li>
+          <li>VIP table upgrades</li>
+          <li>Complimentary bottles</li>
+          <li>24/7 concierge</li>
+        </ul>
+        <div class="tier-status locked" id="status-black">4,000 pts to unlock</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVITY FEED -->
+<section class="section activity-section" id="activity">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Live Activity</h2>
+      <p class="section-subtitle">What's happening right now</p>
+    </div>
+  </div>
+  <div class="activity-feed" id="activity-feed"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <div class="nav-mark">NF</div>
+      <span>NightFlow</span>
+    </div>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Venues</a>
+      <a href="#">Events</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy</a>
+    </div>
+    <div class="footer-social">
+      <a href="#" title="Instagram">&#128247;</a>
+      <a href="#" title="Twitter">&#128038;</a>
+      <a href="#" title="Facebook">&#127760;</a>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-title">Book Table</h3>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-form">
+        <div class="form-group">
+          <label>Number of Guests</label>
+          <select id="modal-guests">
+            <option>1</option><option>2</option><option selected>3</option>
+            <option>4</option><option>5</option><option>6</option><option>8</option><option>10+</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Arrival Time</label>
+          <select id="modal-time">
+            <option>21:00</option><option>22:00</option><option selected>23:00</option>
+            <option>00:00</option><option>01:00</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Table Type</label>
+          <select id="modal-type">
+            <option value="standard">Standard Table</option>
+            <option value="vip">VIP Table</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes (Optional)</label>
+          <input type="text" id="modal-notes" placeholder="e.g. birthday, special requests...">
+        </div>
+        <div class="error-msg" id="modal-error"></div>
+      </div>
+      <div class="success-state" id="modal-success">
+        <div class="success-icon">&#127881;</div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px">Booking Confirmed!</h3>
+        <p style="color:var(--text-secondary);margin-bottom:8px">You'll receive a confirmation shortly.</p>
+        <div class="success-ref" id="modal-ref">Ref: NF-XXXXXX</div>
+      </div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitBooking()">Book Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-msg" id="toast-msg"></div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// HERO CANVAS — Ambient particle visualization
+// ══════════════════════════════════════════════════════════════
+const canvas = document.getElementById('hero-canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resizeCanvas() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Floating orbs
+const orbs = Array.from({ length: 4 }, (_, i) => ({
+  x: 0.2 + Math.random() * 0.6,
+  y: 0.3 + Math.random() * 0.4,
+  radius: 0.2 + Math.random() * 0.15,
+  phase: Math.random() * Math.PI * 2,
+  speed: 0.0002 + Math.random() * 0.0001,
+  color: i % 3 === 0 ? [167, 139, 250] : i % 3 === 1 ? [244, 114, 182] : [245, 158, 11]
+}));
+
+// Particles
+const particles = Array.from({ length: 50 }, () => ({
+  x: Math.random(),
+  y: Math.random(),
+  size: 0.5 + Math.random() * 1.5,
+  speed: 0.00003 + Math.random() * 0.00005,
+  phase: Math.random() * Math.PI * 2,
+  color: Math.random() > 0.5 ? [196, 181, 253] : [244, 114, 182]
+}));
+
+function renderCanvas(t) {
+  ctx.fillStyle = '#050505';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw orbs
+  orbs.forEach(orb => {
+    const offsetX = Math.sin(t * orb.speed + orb.phase) * 0.04;
+    const offsetY = Math.cos(t * orb.speed * 0.7 + orb.phase) * 0.025;
+    const x = (orb.x + offsetX) * W;
+    const y = (orb.y + offsetY) * H;
+    const r = orb.radius * Math.min(W, H);
+
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
+    glow.addColorStop(0, `rgba(${orb.color.join(',')},0.06)`);
+    glow.addColorStop(0.5, `rgba(${orb.color.join(',')},0.02)`);
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+  });
+
+  // Draw particles
+  particles.forEach(p => {
+    p.y -= p.speed;
+    if (p.y < -0.05) { p.y = 1.1; p.x = Math.random(); }
+    const alpha = (Math.sin(t * 0.0006 + p.phase) * 0.3 + 0.4) * 0.5;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = `rgb(${p.color.join(',')})`;
+    ctx.beginPath();
+    ctx.arc(p.x * W, p.y * H, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  requestAnimationFrame(renderCanvas);
+}
+requestAnimationFrame(renderCanvas);
+
+// ══════════════════════════════════════════════════════════════
+// NAV SCROLL EFFECT
+// ══════════════════════════════════════════════════════════════
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 50) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// APP LOGIC
+// ══════════════════════════════════════════════════════════════
+const user = JSON.parse(localStorage.getItem('nightflow_user') || 'null');
+if (!user) window.location.href = 'auth.html';
+
+document.getElementById('nav-avatar').textContent = (user?.name || '?').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+document.getElementById('nav-points').textContent = `${(user?.points || 0).toLocaleString()} pts`;
+
+let events = [], currentFilter = 'all', activeVenueId = null;
+
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// Unsplash photo mapping
+const venuePhotos = {
+  nightclub: 'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=800&q=80',
+  beach_club: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+  bar: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=800&q=80',
+  dj: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',
+  crowd: 'https://images.unsplash.com/photo-1574391884720-bbc049ec09ad?w=800&q=80'
+};
+
+async function init() {
+  const now = new Date();
+  document.getElementById('tonight-date').textContent = `${dayNames[now.getDay()]}, ${monthNames[now.getMonth()]} ${now.getDate()}`;
+
+  const stats = await NightFlowAPI.getTonightStats();
+  if (stats) {
+    animateCount('stat-guests', stats.total_guests_tonight || 0, '');
+    animateCount('stat-venues', stats.open_venues || 0, '');
+    animateCount('stat-events', stats.venues_with_events || stats.trending_events || 0, '');
+    animateCount('stat-satisfaction', stats.avg_satisfaction || 0, '%');
+    animateCount('stats-number', stats.total_guests_tonight || 847, '');
+    document.getElementById('venues-live').textContent = stats.open_venues || 0;
+  }
+
+  events = await NightFlowAPI.getEvents() || [];
+  renderTonight();
+  renderVenues();
+  renderLoyalty();
+  renderActivity();
+
+  // Auto-refresh every 5 minutes
+  setInterval(async () => {
+    events = await NightFlowAPI.getEvents() || [];
+    renderTonight();
+    renderVenues();
+  }, 5 * 60 * 1000);
+}
+
+function animateCount(id, target, suffix) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let current = 0;
+  const step = Math.max(1, target / 40);
+  const interval = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.round(current).toLocaleString() + suffix;
+    if (current >= target) clearInterval(interval);
+  }, 25);
+}
+
+function renderTonight() {
+  const grid = document.getElementById('tonight-grid');
+  const tonightVenues = events.filter(e =>
+    e.venue_status === 'open_tonight' ||
+    e.venue_status === 'party_tonight' ||
+    e.venue_status === 'party_night'
+  );
+
+  if (!tonightVenues.length) {
+    grid.innerHTML = '<div style="padding:20px;color:var(--text-tertiary)">No special events tonight. Check out all venues below.</div>';
+    return;
+  }
+
+  grid.innerHTML = tonightVenues.map(e => {
+    const crowdPct = e.crowd_pct || 0;
+    const isHighlight = e.venue_status === 'party_tonight' || e.venue_status === 'open_tonight';
+    const statusClass = e.venue_status === 'party_tonight' ? 'party' : 'open';
+    const statusText = e.venue_badge || 'OPEN';
+
+    return `<div class="tonight-card ${isHighlight ? 'highlight' : ''}" onclick="goToVenue('${e.venue_id}')">
+      <div class="tonight-header">
+        <div class="tonight-emoji">${e.image_emoji || '&#127925;'}</div>
+        <div class="tonight-info">
+          <h3>${e.venue_name}</h3>
+          <span>${e.venue_type || e.category || 'Venue'}</span>
+        </div>
+      </div>
+      <div class="tonight-status ${statusClass}"><span class="live-dot"></span>${statusText}</div>
+      <div class="tonight-meta">
+        <span>&#128336; ${e.start_time}</span>
+        <span>&#127925; ${e.genre?.split('/')[0] || 'Mixed'}</span>
+      </div>
+      <div class="tonight-crowd">
+        <div class="tonight-bar"><div class="tonight-fill" style="width:${crowdPct}%"></div></div>
+        <span class="tonight-pct">${crowdPct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderVenues() {
+  const query = (document.getElementById('filter-search')?.value || '').toLowerCase();
+  let filtered = [...events];
+
+  if (currentFilter !== 'all') {
+    if (currentFilter === 'trending') {
+      filtered = filtered.filter(e => e.trending || e.venue_status === 'party_tonight');
+    } else if (currentFilter === 'vip') {
+      filtered = filtered.filter(e => e.vip_available || e.min_spend_vip > 0);
+    } else {
+      filtered = filtered.filter(e => e.category === currentFilter);
+    }
+  }
+  if (query) {
+    filtered = filtered.filter(e => (e.title + e.venue_name + e.genre + e.dj + (e.venue_address || '')).toLowerCase().includes(query));
+  }
+
+  const grid = document.getElementById('venue-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state">No venues found for this filter.</div>';
+    return;
+  }
+
+  const badgeMap = {
+    trending: ['badge-trending', '&#128293; Trending'],
+    live: ['badge-live', '&#9679; LIVE'],
+    vip: ['badge-vip', '&#128142; VIP'],
+    new: ['badge-new', '&#9889; New']
+  };
+
+  const statusBadgeMap = {
+    'open_tonight': ['badge-live', '&#9679; OPEN TONIGHT'],
+    'party_tonight': ['badge-trending', '&#127881; PARTY TONIGHT'],
+    'party_night': ['badge-new', '&#127925; PARTY NIGHT']
+  };
+
+  const getSizeClass = (category, index) => {
+    if (category === 'nightclub' && index < 2) return 'xl';
+    if (category === 'beach_club') return 'lg';
+    if (category === 'nightclub') return 'lg';
+    return 'md';
+  };
+
+  const getPhotoUrl = (category) => {
+    return venuePhotos[category] || venuePhotos.nightclub;
+  };
+
+  grid.innerHTML = filtered.map((e, i) => {
+    const category = e.category || 'nightclub';
+    const size = getSizeClass(category, i);
+    const photoUrl = getPhotoUrl(category);
+    const crowdPct = e.crowd_pct || Math.round((e.venue_current / e.venue_capacity) * 100) || 0;
+    const typeLabel = e.venue_type || (category === 'nightclub' ? 'Nightclub' : category === 'beach_club' ? 'Beach Club' : 'Bar');
+
+    let badges = '';
+    if (e.venue_badge && statusBadgeMap[e.venue_status]) {
+      const [cls, label] = statusBadgeMap[e.venue_status];
+      badges += `<span class="venue-badge ${cls}">${label}</span>`;
+    }
+    (e.badges || []).forEach(b => {
+      if (badgeMap[b]) badges += `<span class="venue-badge ${badgeMap[b][0]}">${badgeMap[b][1]}</span>`;
+    });
+
+    const priceHtml = e.entry_price === 0
+      ? `<div class="venue-price free">FREE<small>Entry</small></div>`
+      : `<div class="venue-price">&#8364;${e.entry_price}<small>Entry</small></div>`;
+
+    let cta = 'Reserve';
+    if (category === 'beach_club') cta = 'Book Table';
+    else if (e.vip_available) cta = 'VIP Table';
+
+    return `<article class="venue-card ${size}" style="animation:fadeInUp 0.6s ease ${i * 0.08}s both" onclick="goToVenue('${e.venue_id}')">
+      <div class="venue-image">
+        <img src="${photoUrl}" alt="${e.venue_name}" loading="lazy">
+        <div class="venue-overlay"></div>
+        <div class="venue-badges">${badges}</div>
+        <div class="venue-crowd">
+          <div class="crowd-bar"><div class="crowd-fill" style="width:${crowdPct}%"></div></div>
+          <span>${crowdPct}%</span>
+        </div>
+      </div>
+      <div class="venue-content">
+        <div class="venue-type">${typeLabel} &middot; ${e.venue_address ? e.venue_address.split(',')[0] : 'Rethymno'}</div>
+        <h3 class="venue-name">${e.venue_name}</h3>
+        <div class="venue-genre">${e.genre_icon || '&#127925;'} ${e.genre}</div>
+        <div class="venue-meta">
+          <span>&#128336; ${e.start_time}</span>
+          <span>&#128101; ${e.venue_current}/${e.venue_capacity}</span>
+          ${e.venue_rating ? `<span>&#11088; ${e.venue_rating}</span>` : ''}
+        </div>
+        <div class="venue-footer">
+          ${priceHtml}
+          <button class="venue-cta" onclick="event.stopPropagation();openBooking('${e.venue_id}')">${cta}</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+
+  // Add scroll animations via IntersectionObserver
+  const cards = document.querySelectorAll('.venue-card');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  cards.forEach(card => observer.observe(card));
+}
+
+function renderLoyalty() {
+  const points = user?.points || 0;
+  const tier = user?.tier || 'silver';
+
+  document.getElementById('points-value').textContent = points.toLocaleString();
+
+  const tiers = {
+    silver: { name: 'Silver', next: 1000, nextName: 'Gold' },
+    gold: { name: 'Gold', next: 4000, nextName: 'Black' },
+    black: { name: 'Black', next: 99999, nextName: 'Max' }
+  };
+  const t = tiers[tier] || tiers.silver;
+
+  document.getElementById('tier-subtitle').textContent = tier === 'black'
+    ? "You've reached the highest tier!"
+    : `${(t.next - points).toLocaleString()} pts to ${t.nextName}`;
+
+  document.getElementById('progress-current').textContent = `${t.name} - ${points.toLocaleString()} pts`;
+  document.getElementById('progress-next').textContent = tier === 'black' ? 'MAX' : `${t.nextName} - ${t.next.toLocaleString()} pts`;
+
+  const progress = tier === 'black' ? 100 : Math.min(100, Math.round(points / t.next * 100));
+  document.getElementById('progress-fill').style.width = progress + '%';
+
+  ['silver', 'gold', 'black'].forEach(t => {
+    document.getElementById(`tier-${t}`).classList.remove('active');
+    const statusEl = document.getElementById(`status-${t}`);
+    statusEl.className = 'tier-status locked';
+    statusEl.textContent = t === 'silver' ? '0 pts' : t === 'gold' ? '1,000 pts to unlock' : '4,000 pts to unlock';
+  });
+
+  document.getElementById(`tier-${tier}`).classList.add('active');
+  const statusEl = document.getElementById(`status-${tier}`);
+  statusEl.className = 'tier-status current';
+  statusEl.textContent = 'Current';
+}
+
+async function renderActivity() {
+  const feed = await NightFlowAPI.getActivityFeed() || [];
+  const container = document.getElementById('activity-feed');
+
+  container.innerHTML = feed.slice(0, 5).map(item => `
+    <div class="activity-item">
+      <div class="activity-avatar">${item.icon || item.initials}</div>
+      <div class="activity-text">
+        <div class="activity-user">${item.user_name || item.user}</div>
+        <div class="activity-action">${item.action}</div>
+      </div>
+      <div class="activity-time">${item.time}</div>
+    </div>
+  `).join('');
+}
+
+// Filter chips
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentFilter = chip.dataset.filter;
+    renderVenues();
+  });
+});
+
+document.getElementById('filter-search').addEventListener('input', renderVenues);
+document.getElementById('hero-search').addEventListener('input', (e) => {
+  document.getElementById('filter-search').value = e.target.value;
+  renderVenues();
+  document.getElementById('venues').scrollIntoView({ behavior: 'smooth' });
+});
+
+// Modal
+function openBooking(venueId) {
+  activeVenueId = venueId;
+  const venue = events.find(e => e.venue_id === venueId);
+  document.getElementById('modal-title').textContent = `Book - ${venue?.venue_name || 'Table'}`;
+  document.getElementById('modal-form').style.display = 'block';
+  document.getElementById('modal-success').style.display = 'none';
+  document.getElementById('modal-footer').style.display = 'flex';
+  document.getElementById('modal-error').classList.remove('show');
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+async function submitBooking() {
+  const btn = document.querySelector('#modal-footer .btn-primary');
+  btn.disabled = true;
+  btn.textContent = 'Booking...';
+
+  const res = await NightFlowAPI.createReservation({
+    customer_name: user.name,
+    customer_id: user.customer_id || null,
+    guests: parseInt(document.getElementById('modal-guests').value),
+    arrival_time: document.getElementById('modal-time').value,
+    table_type: document.getElementById('modal-type').value,
+    notes: document.getElementById('modal-notes').value,
+    venue_id: activeVenueId
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Book Now';
+
+  if (!res || res.error) {
+    const errEl = document.getElementById('modal-error');
+    errEl.textContent = res?.error || 'Booking failed';
+    errEl.classList.add('show');
+    return;
+  }
+
+  document.getElementById('modal-form').style.display = 'none';
+  document.getElementById('modal-footer').style.display = 'none';
+  document.getElementById('modal-success').style.display = 'block';
+  document.getElementById('modal-ref').textContent = 'Ref: NF-' + (res.id || '').slice(-6).toUpperCase();
+  showToast('Booking Confirmed!', 'You\'ll receive a confirmation shortly.');
+}
+
+function goToVenue(venueId) {
+  window.location.href = `venue.html?id=${venueId}`;
+}
+
+async function doLogout() {
+  await NightFlowAPI.logout();
+  window.location.href = 'auth.html';
+}
+
+let toastTimeout;
+function showToast(title, msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent = msg || '';
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+window.openBooking = openBooking;
+window.closeModal = closeModal;
+window.submitBooking = submitBooking;
+window.goToVenue = goToVenue;
+window.doLogout = doLogout;
+
+init();
+</script>
+</body>
+</html>

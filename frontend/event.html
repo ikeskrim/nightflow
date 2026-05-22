@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event — NightFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#050505">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --bg: #050505;
+  --bg-elevated: #0a0a0a;
+  --bg-card: #111111;
+  --bg-card-hover: #161616;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --text: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-tertiary: #666666;
+  --accent: #a78bfa;
+  --accent-secondary: #c4b5fd;
+  --gold: #f59e0b;
+  --emerald: #10b981;
+  --rose: #f472b6;
+  --cyan: #22d3ee;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.08);
+}
+
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-0.02em}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:72px;display:flex;align-items:center;
+  padding:0 clamp(16px,4vw,48px);
+  background:rgba(5,5,5,0.7);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid transparent;
+  transition:all 0.3s;
+}
+.nav.scrolled{height:60px;background:rgba(5,5,5,0.95);border-bottom-color:var(--border)}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-mark{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;
+}
+.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.03em}
+.nav-brand span{background:linear-gradient(135deg,var(--accent),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-right{display:flex;align-items:center;gap:16px;margin-left:auto}
+.btn-back{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:100px;
+  font-size:14px;font-weight:500;
+  background:none;border:1px solid var(--border);color:var(--text-secondary);
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-back:hover{background:var(--glass);border-color:var(--border-hover);color:var(--text)}
+.nav-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;cursor:pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EVENT HERO — Poster style full bleed
+═══════════════════════════════════════════════════════════════ */
+.event-hero{
+  position:relative;
+  min-height:70vh;
+  display:flex;
+  align-items:flex-end;
+  padding:120px clamp(24px,6vw,80px) 60px;
+  overflow:hidden;
+}
+.hero-image{
+  position:absolute;inset:0;
+}
+.hero-image img{
+  width:100%;height:100%;object-fit:cover;
+  filter:brightness(0.5);
+}
+.hero-image-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:200px;opacity:0.15;
+  background:linear-gradient(145deg,#0a0a0a,#151515);
+}
+.hero-gradient{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(5,5,5,0.3) 0%,rgba(5,5,5,0.95) 100%),
+    linear-gradient(90deg,rgba(5,5,5,0.5) 0%,transparent 50%);
+  pointer-events:none;
+}
+.hero-content{
+  position:relative;z-index:1;
+  max-width:900px;width:100%;
+}
+.hero-badges{
+  display:flex;gap:10px;flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.hero-badge{
+  padding:8px 16px;border-radius:100px;
+  font-size:12px;font-weight:600;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.badge-trending{background:rgba(245,158,11,0.2);color:var(--gold);border:1px solid rgba(245,158,11,0.3)}
+.badge-live{background:rgba(16,185,129,0.2);color:var(--emerald);border:1px solid rgba(16,185,129,0.3)}
+.badge-vip{background:rgba(167,139,250,0.2);color:var(--accent-secondary);border:1px solid rgba(167,139,250,0.3)}
+.badge-new{background:rgba(244,114,182,0.2);color:var(--rose);border:1px solid rgba(244,114,182,0.3)}
+
+.event-date{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(18px,3vw,24px);
+  font-weight:600;
+  color:var(--gold);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.event-title{
+  font-size:clamp(36px,8vw,72px);
+  font-weight:800;
+  letter-spacing:-0.04em;
+  line-height:1;
+  margin-bottom:24px;
+  max-width:800px;
+}
+.event-meta{
+  display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+  font-size:16px;color:var(--text-secondary);
+}
+.event-meta-item{
+  display:flex;align-items:center;gap:8px;
+}
+.event-meta-item a{color:var(--accent-secondary);text-decoration:none;transition:color 0.2s}
+.event-meta-item a:hover{color:var(--accent)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTENT LAYOUT
+═══════════════════════════════════════════════════════════════ */
+.content-wrapper{
+  max-width:1200px;margin:0 auto;
+  padding:60px clamp(16px,4vw,48px) 120px;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:48px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEFT COLUMN — Event Details
+═══════════════════════════════════════════════════════════════ */
+.event-main{display:flex;flex-direction:column;gap:40px}
+
+/* Lineup Section */
+.lineup-section{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px;
+}
+.section-title{
+  font-size:24px;font-weight:700;
+  margin-bottom:28px;
+  display:flex;align-items:center;gap:12px;
+}
+.lineup-grid{display:flex;flex-direction:column;gap:20px}
+.lineup-item{
+  display:flex;align-items:center;gap:20px;
+  padding:20px;border-radius:20px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  transition:all 0.3s;
+}
+.lineup-item:hover{border-color:var(--border-hover);transform:translateX(8px)}
+.lineup-avatar{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  flex-shrink:0;
+  overflow:hidden;
+}
+.lineup-avatar img{width:100%;height:100%;object-fit:cover}
+.lineup-info{flex:1}
+.lineup-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+.lineup-role{font-size:14px;color:var(--text-secondary);margin-bottom:8px}
+.lineup-time{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:100px;
+  background:rgba(167,139,250,0.1);
+  border:1px solid rgba(167,139,250,0.2);
+  font-size:13px;color:var(--accent-secondary);font-weight:500;
+}
+.lineup-socials{display:flex;gap:8px}
+.lineup-social{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;transition:all 0.2s;
+  text-decoration:none;color:var(--text-secondary);
+}
+.lineup-social:hover{background:var(--bg-card);border-color:var(--border-hover);color:var(--text)}
+
+/* Timeline */
+.timeline-section{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px;
+}
+.timeline{position:relative;padding-left:32px}
+.timeline::before{
+  content:'';position:absolute;
+  left:8px;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(180deg,var(--accent),var(--rose));
+  border-radius:1px;
+}
+.timeline-item{position:relative;padding-bottom:28px}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-dot{
+  position:absolute;left:-32px;top:4px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--bg);
+  border:3px solid var(--accent);
+}
+.timeline-item.current .timeline-dot{
+  background:var(--accent);
+  box-shadow:0 0 16px rgba(167,139,250,0.5);
+}
+.timeline-time{font-size:14px;color:var(--accent-secondary);font-weight:600;margin-bottom:4px}
+.timeline-label{font-size:16px;font-weight:500}
+
+/* About Section */
+.about-section{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px;
+}
+.about-text{
+  font-size:16px;line-height:1.8;color:var(--text-secondary);
+  margin-bottom:28px;
+}
+.tags-grid{display:flex;gap:10px;flex-wrap:wrap}
+.tag{
+  padding:8px 16px;border-radius:100px;
+  background:rgba(167,139,250,0.08);
+  border:1px solid rgba(167,139,250,0.15);
+  font-size:13px;color:var(--accent-secondary);
+}
+.tag.genre{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.15);color:var(--gold)}
+.tag.age{background:rgba(244,114,182,0.08);border-color:rgba(244,114,182,0.15);color:var(--rose)}
+
+/* Venue Card */
+.venue-section{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.venue-section:hover{border-color:var(--border-hover);transform:translateY(-4px)}
+.venue-header{display:flex;align-items:center;gap:20px;margin-bottom:20px}
+.venue-emoji{
+  width:64px;height:64px;border-radius:20px;
+  background:var(--glass);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+}
+.venue-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+.venue-type{font-size:14px;color:var(--text-tertiary);margin-top:4px}
+.venue-info{display:flex;gap:16px;flex-wrap:wrap}
+.venue-info-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;color:var(--text-secondary);
+}
+
+/* Friends Going */
+.friends-section{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px;
+}
+.friends-avatars{display:flex;margin-bottom:16px}
+.friend-avatar{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:600;
+  border:3px solid var(--bg-card);
+  margin-left:-12px;
+  transition:all 0.2s;
+}
+.friend-avatar:first-child{margin-left:0}
+.friend-avatar:hover{transform:scale(1.1);z-index:1}
+.friends-text{font-size:15px;color:var(--text-secondary)}
+.friends-text strong{color:var(--text)}
+
+/* ═══════════════════════════════════════════════════════════════
+   RIGHT COLUMN — Tickets
+═══════════════════════════════════════════════════════════════ */
+.tickets-wrapper{position:sticky;top:92px;height:fit-content}
+.tickets-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:32px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.3);
+}
+
+/* Ticket Options */
+.ticket-option{
+  padding:24px;border-radius:20px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  margin-bottom:16px;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.ticket-option:hover{border-color:var(--border-hover)}
+.ticket-option.selected{
+  background:rgba(167,139,250,0.08);
+  border-color:var(--accent);
+}
+.ticket-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.ticket-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.ticket-price{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--accent-secondary)}
+.ticket-price.free{color:var(--emerald)}
+.ticket-desc{font-size:14px;color:var(--text-secondary);line-height:1.5}
+.ticket-features{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.ticket-feature{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--text-secondary);
+}
+.ticket-feature::before{content:'&#10003;';color:var(--emerald)}
+
+.btn-tickets{
+  width:100%;padding:18px;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--rose));
+  border:none;color:#fff;
+  font-size:16px;font-weight:700;font-family:'Syne',sans-serif;
+  cursor:pointer;transition:all 0.3s;
+  margin-top:8px;
+  position:relative;overflow:hidden;
+}
+.btn-tickets::after{
+  content:'';position:absolute;
+  top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  transition:left 0.5s;
+}
+.btn-tickets:hover::after{left:100%}
+.btn-tickets:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(167,139,250,0.3)}
+.btn-tickets:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+.tickets-note{
+  font-size:13px;color:var(--text-tertiary);
+  text-align:center;margin-top:16px;
+}
+
+/* Share Buttons */
+.share-section{margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
+.share-title{font-size:14px;color:var(--text-tertiary);margin-bottom:16px;text-align:center}
+.share-buttons{display:flex;gap:12px;justify-content:center}
+.share-btn{
+  width:48px;height:48px;border-radius:14px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;transition:all 0.2s;
+}
+.share-btn:hover{background:var(--bg-card);border-color:var(--border-hover);transform:scale(1.05)}
+
+/* Success State */
+.tickets-success{display:none;text-align:center;padding:24px 0}
+.success-icon{font-size:64px;margin-bottom:20px}
+.success-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:10px}
+.success-msg{font-size:15px;color:var(--text-secondary);margin-bottom:20px}
+.success-ref{
+  font-family:monospace;padding:14px 28px;border-radius:14px;
+  background:var(--bg-elevated);border:1px solid var(--border);
+  font-size:16px;color:var(--accent);display:inline-block;
+}
+.btn-done{
+  margin-top:24px;padding:14px 32px;border-radius:14px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text);font-size:15px;cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-done:hover{background:var(--bg-card)}
+
+/* ═══════════════════════════════════════════════════════════════
+   LOADING & TOAST
+═══════════════════════════════════════════════════════════════ */
+.loading{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;
+}
+.spinner{
+  width:56px;height:56px;
+  border:3px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{
+  position:fixed;bottom:32px;right:32px;
+  background:var(--bg-elevated);border:1px solid var(--border);
+  border-radius:16px;padding:20px 28px;
+  z-index:3000;min-width:300px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.5);
+  display:none;
+  animation:toastIn 0.3s ease;
+}
+.toast.show{display:block}
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+.toast-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px}
+.toast-msg{font-size:14px;color:var(--text-tertiary)}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .content-wrapper{grid-template-columns:1fr}
+  .tickets-wrapper{position:relative;top:0;order:-1}
+  .event-hero{min-height:60vh}
+}
+@media(max-width:600px){
+  .event-hero{min-height:50vh;padding:100px 20px 40px}
+  .lineup-item{flex-direction:column;text-align:center;gap:16px}
+  .lineup-avatar{width:80px;height:80px}
+  .lineup-socials{justify-content:center}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED BACKGROUND — Premium multi-layer effect
+═══════════════════════════════════════════════════════════════ */
+.bg-animation {
+  position:fixed;inset:0;z-index:-1;overflow:hidden;background:#050505;pointer-events:none;
+}
+.bg-animation .mesh-gradient {
+  position:absolute;inset:-50%;width:200%;height:200%;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(167,139,250,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,114,182,0.14), transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(34,211,238,0.10), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(139,92,246,0.12), transparent 50%);
+  animation:bgMeshMove 25s ease-in-out infinite;will-change:transform;
+}
+@keyframes bgMeshMove{0%,100%{transform:translate(0,0) scale(1) rotate(0deg)}25%{transform:translate(5%,3%) scale(1.05) rotate(1deg)}50%{transform:translate(-3%,5%) scale(1.02) rotate(-0.5deg)}75%{transform:translate(3%,-3%) scale(1.03) rotate(0.5deg)}}
+.bg-animation .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.6;mix-blend-mode:screen;will-change:transform}
+.bg-animation .orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,0.45) 0%,rgba(167,139,250,0.15) 40%,transparent 70%);top:-10%;left:-10%;animation:bgFloat1 20s ease-in-out infinite}
+.bg-animation .orb-2{width:450px;height:450px;background:radial-gradient(circle,rgba(244,114,182,0.4) 0%,rgba(244,114,182,0.12) 40%,transparent 70%);top:45%;right:-8%;animation:bgFloat2 25s ease-in-out infinite}
+.bg-animation .orb-3{width:550px;height:550px;background:radial-gradient(circle,rgba(34,211,238,0.3) 0%,rgba(34,211,238,0.1) 40%,transparent 70%);bottom:-18%;left:25%;animation:bgFloat3 22s ease-in-out infinite}
+.bg-animation .orb-4{width:350px;height:350px;background:radial-gradient(circle,rgba(139,92,246,0.35) 0%,rgba(139,92,246,0.1) 40%,transparent 70%);top:25%;left:45%;animation:bgFloat4 18s ease-in-out infinite}
+@keyframes bgFloat1{0%,100%{transform:translate(0,0) scale(1)}20%{transform:translate(8%,4%) scale(1.03)}40%{transform:translate(4%,10%) scale(0.98)}60%{transform:translate(-4%,6%) scale(1.02)}80%{transform:translate(2%,-2%) scale(1)}}
+@keyframes bgFloat2{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(-10%,6%) scale(1.04)}50%{transform:translate(-5%,-8%) scale(0.97)}75%{transform:translate(5%,4%) scale(1.02)}}
+@keyframes bgFloat3{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-6%,-10%) scale(1.02)}66%{transform:translate(10%,-4%) scale(0.98)}}
+@keyframes bgFloat4{0%,100%{transform:translate(0,0) scale(1)}30%{transform:translate(-12%,8%) scale(1.05)}60%{transform:translate(8%,-6%) scale(0.96)}}
+.bg-animation .noise-overlay{position:absolute;inset:0;opacity:0.035;pointer-events:none;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@media(prefers-reduced-motion:reduce){.bg-animation .mesh-gradient,.bg-animation .orb{animation:none}}
+@media(max-width:768px){.bg-animation .mesh-gradient{animation-duration:35s}.bg-animation .orb{filter:blur(60px)}.bg-animation .orb-1{width:400px;height:400px}.bg-animation .orb-2{width:300px;height:300px}.bg-animation .orb-3,.bg-animation .orb-4{display:none}}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation">
+  <div class="mesh-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="noise-overlay"></div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="nav" id="nav">
+  <a href="discover.html" class="nav-logo">
+    <div class="nav-mark">NF</div>
+    <div class="nav-brand">Night<span>Flow</span></div>
+  </a>
+  <div class="nav-right">
+    <button class="btn-back" onclick="history.back()">&#8592; Back</button>
+    <div class="nav-avatar" id="nav-avatar">?</div>
+  </div>
+</nav>
+
+<!-- LOADING STATE -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <span style="color:var(--text-secondary)">Loading event...</span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
+
+<!-- EVENT HERO -->
+<section class="event-hero">
+  <div class="hero-image" id="hero-image">
+    <div class="hero-image-placeholder" id="hero-emoji">&#127925;</div>
+  </div>
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <div class="hero-badges" id="event-badges"></div>
+    <div class="event-date" id="event-date">
+      <span>&#128197;</span>
+      <span>Loading...</span>
+    </div>
+    <h1 class="event-title" id="event-title">Loading...</h1>
+    <div class="event-meta">
+      <div class="event-meta-item" id="meta-venue">
+        <span>&#128205;</span>
+        <a href="#">Loading...</a>
+      </div>
+      <div class="event-meta-item" id="meta-time">
+        <span>&#128336;</span>
+        <span>--:--</span>
+      </div>
+      <div class="event-meta-item" id="meta-genre">
+        <span>&#127925;</span>
+        <span>--</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div class="content-wrapper">
+
+  <!-- LEFT — Event Details -->
+  <main class="event-main">
+
+    <!-- Lineup -->
+    <section class="lineup-section">
+      <h2 class="section-title">&#127908; Lineup</h2>
+      <div class="lineup-grid" id="lineup-grid">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline-section">
+      <h2 class="section-title">&#128337; Schedule</h2>
+      <div class="timeline" id="timeline">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="about-section">
+      <h2 class="section-title">&#128196; About</h2>
+      <p class="about-text" id="event-description">Loading description...</p>
+      <div class="tags-grid" id="event-tags"></div>
+    </section>
+
+    <!-- Venue -->
+    <section class="venue-section" id="venue-section" onclick="goToVenue()">
+      <h2 class="section-title">&#127970; Venue</h2>
+      <div class="venue-header">
+        <div class="venue-emoji" id="venue-emoji">&#127925;</div>
+        <div>
+          <div class="venue-name" id="venue-name">Loading...</div>
+          <div class="venue-type" id="venue-type">Venue</div>
+        </div>
+      </div>
+      <div class="venue-info">
+        <div class="venue-info-item">
+          <span>&#128205;</span>
+          <span id="venue-address">Rethymno, Crete</span>
+        </div>
+        <div class="venue-info-item">
+          <span>&#128101;</span>
+          <span id="venue-capacity">-- capacity</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Friends Going -->
+    <section class="friends-section">
+      <h2 class="section-title">&#128106; Who's Going</h2>
+      <div class="friends-avatars" id="friends-avatars">
+        <div class="friend-avatar">M</div>
+        <div class="friend-avatar">S</div>
+        <div class="friend-avatar">A</div>
+        <div class="friend-avatar">+5</div>
+      </div>
+      <p class="friends-text"><strong>Maria, Sofia</strong> and <strong>8 others</strong> are going</p>
+    </section>
+
+  </main>
+
+  <!-- RIGHT — Tickets -->
+  <aside class="tickets-wrapper">
+    <div class="tickets-card">
+      <div id="tickets-form-container">
+        <h2 class="section-title" style="margin-bottom:20px">&#127903; Get Tickets</h2>
+
+        <div class="ticket-option selected" id="ticket-standard" onclick="selectTicket('standard')">
+          <div class="ticket-header">
+            <div class="ticket-name">General Entry</div>
+            <div class="ticket-price" id="price-standard">FREE</div>
+          </div>
+          <div class="ticket-desc">Standard entry to the event</div>
+          <div class="ticket-features">
+            <div class="ticket-feature">Access to main floor</div>
+            <div class="ticket-feature">Re-entry allowed</div>
+          </div>
+        </div>
+
+        <div class="ticket-option" id="ticket-vip" onclick="selectTicket('vip')">
+          <div class="ticket-header">
+            <div class="ticket-name">VIP Table</div>
+            <div class="ticket-price" id="price-vip">&#8364;150</div>
+          </div>
+          <div class="ticket-desc">Premium experience with reserved seating</div>
+          <div class="ticket-features">
+            <div class="ticket-feature">Reserved VIP table</div>
+            <div class="ticket-feature">Priority entry</div>
+            <div class="ticket-feature">Bottle service included</div>
+            <div class="ticket-feature">Dedicated host</div>
+          </div>
+        </div>
+
+        <button class="btn-tickets" id="btn-tickets" onclick="getTickets()">Get Tickets</button>
+        <div class="tickets-note">Tickets are non-refundable. By purchasing you agree to our terms.</div>
+
+        <div class="share-section">
+          <div class="share-title">Share this event</div>
+          <div class="share-buttons">
+            <button class="share-btn" title="Copy Link" onclick="copyLink()">&#128279;</button>
+            <button class="share-btn" title="WhatsApp" onclick="shareWhatsApp()">&#128172;</button>
+            <button class="share-btn" title="Instagram" onclick="shareInstagram()">&#128247;</button>
+            <button class="share-btn" title="Twitter" onclick="shareTwitter()">&#128038;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tickets-success" id="tickets-success">
+        <div class="success-icon">&#127881;</div>
+        <div class="success-title">You're In!</div>
+        <div class="success-msg">Check your email for confirmation.</div>
+        <div class="success-ref" id="success-ref">Ref: NF-XXXXXX</div>
+        <button class="btn-done" onclick="window.location.href='discover.html'">Back to Events</button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-msg" id="toast-msg"></div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+// Auth check
+const user = JSON.parse(localStorage.getItem('nightflow_user') || 'null');
+if (!user) window.location.href = 'auth.html';
+
+document.getElementById('nav-avatar').textContent = (user?.name || '?').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+
+// Get event ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const eventId = urlParams.get('id');
+
+if (!eventId) {
+  window.location.href = 'discover.html';
+}
+
+let currentEvent = null;
+let selectedTicket = 'standard';
+
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Unsplash photos for events
+const eventPhotos = {
+  dj: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
+  crowd: 'https://images.unsplash.com/photo-1574391884720-bbc049ec09ad?w=1200&q=80',
+  nightclub: 'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1200&q=80'
+};
+
+async function loadEvent() {
+  try {
+    const response = await NightFlowAPI.getEvent(eventId);
+    currentEvent = response;
+
+    if (!currentEvent) {
+      showToast('Event not found', 'Redirecting...');
+      setTimeout(() => window.location.href = 'discover.html', 2000);
+      return;
+    }
+
+    renderEvent();
+  } catch (err) {
+    console.error('Error loading event:', err);
+    showToast('Failed to load event', 'Please try again');
+  }
+}
+
+function renderEvent() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+
+  // Title
+  document.title = `${currentEvent.title} - NightFlow`;
+  document.getElementById('event-title').textContent = currentEvent.title;
+
+  // Hero image
+  const heroImage = document.getElementById('hero-image');
+  heroImage.innerHTML = `<img src="${eventPhotos.dj}" alt="${currentEvent.title}">`;
+
+  // Badges
+  const badgeMap = {
+    trending: ['badge-trending', '&#128293; Trending'],
+    live: ['badge-live', '&#9679; Live'],
+    vip: ['badge-vip', '&#128142; VIP'],
+    new: ['badge-new', '&#9889; New']
+  };
+  const badgesEl = document.getElementById('event-badges');
+  badgesEl.innerHTML = (currentEvent.badges || []).map(b => {
+    if (!badgeMap[b]) return '';
+    return `<span class="hero-badge ${badgeMap[b][0]}">${badgeMap[b][1]}</span>`;
+  }).join('');
+
+  // Date
+  const eventDate = currentEvent.date ? new Date(currentEvent.date) : new Date();
+  const dateStr = eventDate.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  });
+  document.getElementById('event-date').innerHTML = `<span>&#128197;</span><span>${dateStr}</span>`;
+
+  // Meta
+  document.getElementById('meta-venue').innerHTML = `
+    <span>&#128205;</span>
+    <a href="venue.html?id=${currentEvent.venue_id}">${currentEvent.venue_name}</a>
+  `;
+  document.getElementById('meta-time').innerHTML = `<span>&#128336;</span><span>${currentEvent.start_time} - ${currentEvent.end_time || 'Late'}</span>`;
+  document.getElementById('meta-genre').innerHTML = `<span>&#127925;</span><span>${currentEvent.genre}</span>`;
+
+  // Lineup
+  renderLineup();
+
+  // Timeline
+  renderTimeline();
+
+  // Description
+  document.getElementById('event-description').textContent = currentEvent.description ||
+    'Join us for an unforgettable night of music and entertainment. Experience the best DJs and atmosphere in Rethymno.';
+
+  // Tags
+  const tags = [];
+  if (currentEvent.genre) tags.push({ text: currentEvent.genre, class: 'genre' });
+  if (currentEvent.music_genres) {
+    currentEvent.music_genres.split(',').forEach(g => tags.push({ text: g.trim(), class: '' }));
+  }
+  if (currentEvent.age_restriction) tags.push({ text: currentEvent.age_restriction, class: 'age' });
+
+  document.getElementById('event-tags').innerHTML = tags.map(t =>
+    `<span class="tag ${t.class}">${t.text}</span>`
+  ).join('');
+
+  // Venue
+  document.getElementById('venue-emoji').textContent = currentEvent.image_emoji || '&#127925;';
+  document.getElementById('venue-name').textContent = currentEvent.venue_name;
+  document.getElementById('venue-type').textContent = currentEvent.venue_type || 'Nightclub';
+  document.getElementById('venue-address').textContent = currentEvent.venue_address || 'Rethymno, Crete';
+  document.getElementById('venue-capacity').textContent = `${currentEvent.venue_capacity || '--'} capacity`;
+
+  // Prices
+  const standardPrice = currentEvent.entry_price === 0 ? 'FREE' : `&#8364;${currentEvent.entry_price}`;
+  const vipPrice = currentEvent.min_spend_vip ? `&#8364;${currentEvent.min_spend_vip}` : '&#8364;150';
+
+  document.getElementById('price-standard').innerHTML = standardPrice;
+  document.getElementById('price-standard').classList.toggle('free', currentEvent.entry_price === 0);
+  document.getElementById('price-vip').innerHTML = vipPrice;
+}
+
+function renderLineup() {
+  const lineup = [
+    {
+      name: currentEvent.dj || 'DJ Resident',
+      role: 'Headliner',
+      time: currentEvent.start_time ? `${currentEvent.start_time} - Close` : '00:00 - Close',
+      avatar: '&#127911;'
+    },
+    {
+      name: 'Support DJ',
+      role: 'Opening Set',
+      time: '22:00 - 00:00',
+      avatar: '&#127925;'
+    }
+  ];
+
+  document.getElementById('lineup-grid').innerHTML = lineup.map(dj => `
+    <div class="lineup-item">
+      <div class="lineup-avatar">${dj.avatar}</div>
+      <div class="lineup-info">
+        <div class="lineup-name">${dj.name}</div>
+        <div class="lineup-role">${dj.role}</div>
+        <div class="lineup-time">&#128336; ${dj.time}</div>
+      </div>
+      <div class="lineup-socials">
+        <a href="#" class="lineup-social" title="Instagram">&#128247;</a>
+        <a href="#" class="lineup-social" title="Soundcloud">&#127925;</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTimeline() {
+  const now = new Date().getHours();
+  const timeline = [
+    { time: '21:00', label: 'Doors Open', current: now >= 21 && now < 22 },
+    { time: '22:00', label: 'Opening DJ', current: now >= 22 && now < 0 },
+    { time: '00:00', label: 'Headliner Set', current: now >= 0 && now < 3 },
+    { time: '03:00', label: 'After Hours', current: now >= 3 && now < 6 },
+    { time: '06:00', label: 'Closing', current: false }
+  ];
+
+  document.getElementById('timeline').innerHTML = timeline.map(item => `
+    <div class="timeline-item ${item.current ? 'current' : ''}">
+      <div class="timeline-dot"></div>
+      <div class="timeline-time">${item.time}</div>
+      <div class="timeline-label">${item.label}</div>
+    </div>
+  `).join('');
+}
+
+function selectTicket(type) {
+  selectedTicket = type;
+  document.querySelectorAll('.ticket-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById(`ticket-${type}`).classList.add('selected');
+}
+
+async function getTickets() {
+  const btn = document.getElementById('btn-tickets');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  if (selectedTicket === 'vip') {
+    const res = await NightFlowAPI.createReservation({
+      customer_name: user.name,
+      customer_id: user.customer_id || null,
+      guests: 2,
+      arrival_time: currentEvent.start_time,
+      table_type: 'vip',
+      venue_id: currentEvent.venue_id,
+      event_id: eventId,
+      notes: `VIP for ${currentEvent.title}`
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Get Tickets';
+
+    if (!res || res.error) {
+      showToast('Booking failed', res?.error || 'Please try again');
+      return;
+    }
+
+    document.getElementById('tickets-form-container').style.display = 'none';
+    document.getElementById('tickets-success').style.display = 'block';
+    document.getElementById('success-ref').textContent = 'Ref: NF-' + (res.id || '').slice(-6).toUpperCase();
+    showToast('VIP Table Reserved!', `You're all set for ${currentEvent.title}`);
+
+  } else {
+    const res = await NightFlowAPI.joinGuestList({
+      event_id: eventId,
+      event_title: currentEvent.title,
+      customer_name: user.name
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Get Tickets';
+
+    document.getElementById('tickets-form-container').style.display = 'none';
+    document.getElementById('tickets-success').style.display = 'block';
+    document.getElementById('success-ref').textContent = res?.reference ? `Ref: ${res.reference}` : 'Ref: NF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    showToast("You're on the list!", `See you at ${currentEvent.title}`);
+  }
+}
+
+function goToVenue() {
+  if (currentEvent?.venue_id) {
+    window.location.href = `venue.html?id=${currentEvent.venue_id}`;
+  }
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href);
+  showToast('Link Copied!', 'Share it with your friends');
+}
+
+function shareWhatsApp() {
+  const text = `Check out ${currentEvent?.title || 'this event'} on NightFlow! ${window.location.href}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function shareInstagram() {
+  showToast('Instagram', 'Screenshot and share to your story!');
+}
+
+function shareTwitter() {
+  const text = `Going to ${currentEvent?.title || 'this event'}! `;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+}
+
+// Toast
+let toastTimeout;
+function showToast(title, msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent = msg || '';
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// Init
+loadEvent();
+</script>
+</body>
+</html>
