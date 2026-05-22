@@ -3,7 +3,10 @@
  * JWT Authentication with refresh token support
  */
 
-const API_BASE = 'http://localhost:5000';
+// Auto-detect API base URL (works locally and in production)
+const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : '';
 
 const NightFlowAPI = {
     // Token management

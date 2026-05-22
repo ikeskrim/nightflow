@@ -3,7 +3,7 @@ NightFlow Backend API
 Flask REST API with SQLite + JWT Authentication
 """
 
-from flask import Flask, jsonify, request, make_response, g
+from flask import Flask, jsonify, request, make_response, g, send_from_directory
 from datetime import datetime, date, timedelta
 import sqlite3
 import json
@@ -14,7 +14,11 @@ import base64
 import os
 from functools import wraps
 
-app = Flask(__name__)
+# Get the project root (parent of backend folder)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, 'frontend')
+
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nightflow-secret-key-change-in-production')
 DB_PATH = os.path.join(os.path.dirname(__file__), 'nightflow.db')
 
@@ -1217,6 +1221,22 @@ def join_guest_list():
             "guest_list_position": 284,
         }
     })
+
+# ════════════════════════════════════════════════════════════
+#  STATIC FILE SERVING (for production deployment)
+# ════════════════════════════════════════════════════════════
+
+@app.route('/')
+def serve_index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    # Serve static files (html, css, js, images)
+    if os.path.exists(os.path.join(FRONTEND_DIR, path)):
+        return send_from_directory(FRONTEND_DIR, path)
+    # For SPA-style routing, fall back to index.html
+    return send_from_directory(FRONTEND_DIR, 'index.html')
 
 # ════════════════════════════════════════════════════════════
 #  INIT
