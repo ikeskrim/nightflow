@@ -646,8 +646,8 @@ def handle_options():
 #  ROUTES - Auth
 # ════════════════════════════════════════════════════════════
 
-@app.route("/")
-def index():
+@app.route("/api")
+def api_index():
     return jsonify({"service": "NightFlow API", "version": "2.0.0", "status": "running", "auth": "JWT"})
 
 @app.route("/api/auth/login", methods=["POST"])
