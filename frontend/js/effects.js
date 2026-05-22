@@ -1271,4 +1271,486 @@
 
   // Export to global scope
   window.NightFlowEffects = NightFlowEffects;
+
+  // ============================================================================
+  // TOAST NOTIFICATION SYSTEM
+  // ============================================================================
+
+  const ToastSystem = {
+    container: null,
+    queue: [],
+
+    init() {
+      if (this.container) return;
+
+      // Create toast container
+      this.container = document.createElement('div');
+      this.container.className = 'toast-container';
+      this.container.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 12px;
+        pointer-events: none;
+      `;
+      document.body.appendChild(this.container);
+
+      // Add CSS for toasts
+      if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+          .nf-toast {
+            background: rgba(15, 31, 53, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 280px;
+            max-width: 400px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+          }
+          .nf-toast.show {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          .nf-toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+          }
+          .nf-toast-success .nf-toast-icon { background: rgba(78, 205, 196, 0.15); color: #4ECDC4; }
+          .nf-toast-error .nf-toast-icon { background: rgba(255, 107, 107, 0.15); color: #FF6B6B; }
+          .nf-toast-warning .nf-toast-icon { background: rgba(255, 217, 61, 0.15); color: #FFD93D; }
+          .nf-toast-info .nf-toast-icon { background: rgba(78, 205, 196, 0.15); color: #4ECDC4; }
+          .nf-toast-content { flex: 1; min-width: 0; }
+          .nf-toast-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #F0F4F8;
+            margin-bottom: 2px;
+          }
+          .nf-toast-message {
+            font-size: 13px;
+            color: rgba(176, 190, 197, 0.9);
+            line-height: 1.4;
+          }
+          .nf-toast-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: rgba(176, 190, 197, 0.7);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .nf-toast-close:hover { background: rgba(255, 255, 255, 0.1); color: #F0F4F8; }
+          .nf-toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+            border-radius: 0 0 14px 14px;
+            transition: width linear;
+          }
+          .nf-toast-success .nf-toast-progress { background: linear-gradient(90deg, #4ECDC4, #45B7AA); }
+          @media (max-width: 480px) {
+            .toast-container { left: 16px; right: 16px; bottom: 16px; }
+            .nf-toast { min-width: auto; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    },
+
+    show(title, message = '', type = 'info', duration = 4000) {
+      this.init();
+
+      const icons = {
+        success: '✓',
+        error: '✗',
+        warning: '⚠',
+        info: 'ℹ'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `nf-toast nf-toast-${type}`;
+      toast.style.position = 'relative';
+      toast.innerHTML = `
+        <div class="nf-toast-icon">${icons[type] || icons.info}</div>
+        <div class="nf-toast-content">
+          <div class="nf-toast-title">${title}</div>
+          ${message ? `<div class="nf-toast-message">${message}</div>` : ''}
+        </div>
+        <button class="nf-toast-close">✕</button>
+        <div class="nf-toast-progress" style="width: 100%"></div>
+      `;
+
+      this.container.appendChild(toast);
+
+      // Close button handler
+      const closeBtn = toast.querySelector('.nf-toast-close');
+      closeBtn.addEventListener('click', () => this.dismiss(toast));
+
+      // Show animation
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+        // Start progress bar animation
+        const progress = toast.querySelector('.nf-toast-progress');
+        progress.style.transitionDuration = `${duration}ms`;
+        requestAnimationFrame(() => {
+          progress.style.width = '0%';
+        });
+      });
+
+      // Auto dismiss
+      const timeoutId = setTimeout(() => this.dismiss(toast), duration);
+
+      // Pause on hover
+      toast.addEventListener('mouseenter', () => {
+        clearTimeout(timeoutId);
+        const progress = toast.querySelector('.nf-toast-progress');
+        const computed = getComputedStyle(progress);
+        progress.style.transitionDuration = '0ms';
+        progress.style.width = computed.width;
+      });
+
+      toast.addEventListener('mouseleave', () => {
+        const progress = toast.querySelector('.nf-toast-progress');
+        const currentWidth = parseFloat(progress.style.width);
+        const remainingTime = (currentWidth / 100) * duration;
+        progress.style.transitionDuration = `${remainingTime}ms`;
+        progress.style.width = '0%';
+        setTimeout(() => this.dismiss(toast), remainingTime);
+      });
+
+      return toast;
+    },
+
+    dismiss(toast) {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 350);
+    },
+
+    success(title, message = '', duration = 4000) {
+      return this.show(title, message, 'success', duration);
+    },
+
+    error(title, message = '', duration = 5000) {
+      return this.show(title, message, 'error', duration);
+    },
+
+    warning(title, message = '', duration = 4500) {
+      return this.show(title, message, 'warning', duration);
+    },
+
+    info(title, message = '', duration = 4000) {
+      return this.show(title, message, 'info', duration);
+    }
+  };
+
+  // ============================================================================
+  // SHARE FUNCTIONALITY
+  // ============================================================================
+
+  const ShareUtils = {
+    async share(data) {
+      const { title, text, url } = data;
+
+      // Try native Web Share API first
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text, url });
+          return { success: true, method: 'native' };
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Native share failed, falling back to clipboard');
+          }
+        }
+      }
+
+      // Fallback to clipboard
+      return this.copyToClipboard(url);
+    },
+
+    async copyToClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        ToastSystem.success('Link Copied!', 'Share it with your friends');
+        return { success: true, method: 'clipboard' };
+      } catch (err) {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          ToastSystem.success('Link Copied!', 'Share it with your friends');
+          return { success: true, method: 'execCommand' };
+        } catch {
+          ToastSystem.error('Copy Failed', 'Please copy the link manually');
+          return { success: false };
+        } finally {
+          textarea.remove();
+        }
+      }
+    },
+
+    shareVenue(venueId, venueName) {
+      const url = `${window.location.origin}/venue.html?id=${venueId}`;
+      this.share({
+        title: venueName,
+        text: `Check out ${venueName} on NightFlow`,
+        url
+      });
+    },
+
+    shareEvent(eventId, eventTitle) {
+      const url = `${window.location.origin}/event.html?id=${eventId}`;
+      this.share({
+        title: eventTitle,
+        text: `Join me at ${eventTitle}!`,
+        url
+      });
+    },
+
+    shareToWhatsApp(text, url) {
+      const msg = encodeURIComponent(`${text} ${url}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    },
+
+    shareToTwitter(text, url) {
+      const tweet = encodeURIComponent(text);
+      const link = encodeURIComponent(url);
+      window.open(`https://twitter.com/intent/tweet?text=${tweet}&url=${link}`, '_blank');
+    },
+
+    shareToFacebook(url) {
+      const link = encodeURIComponent(url);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${link}`, '_blank');
+    }
+  };
+
+  // ============================================================================
+  // FORM VALIDATION UTILITIES
+  // ============================================================================
+
+  const FormValidation = {
+    patterns: {
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      phone: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
+      password: /^.{6,}$/,
+      name: /^[a-zA-ZͰ-Ͽἀ-῿\s]{2,}$/
+    },
+
+    validate(value, type) {
+      if (!value || !value.trim()) return { valid: false, error: 'This field is required' };
+
+      switch (type) {
+        case 'email':
+          return this.patterns.email.test(value)
+            ? { valid: true }
+            : { valid: false, error: 'Please enter a valid email' };
+        case 'password':
+          return value.length >= 6
+            ? { valid: true }
+            : { valid: false, error: 'Password must be at least 6 characters' };
+        case 'name':
+          return value.trim().length >= 2
+            ? { valid: true }
+            : { valid: false, error: 'Name must be at least 2 characters' };
+        case 'phone':
+          return !value || this.patterns.phone.test(value)
+            ? { valid: true }
+            : { valid: false, error: 'Please enter a valid phone number' };
+        default:
+          return { valid: true };
+      }
+    },
+
+    showFieldError(input, message) {
+      this.clearFieldError(input);
+
+      const wrapper = input.closest('.form-group') || input.parentElement;
+      const errorEl = document.createElement('div');
+      errorEl.className = 'field-error';
+      errorEl.textContent = message;
+      errorEl.style.cssText = `
+        color: #FF6B6B;
+        font-size: 12px;
+        margin-top: 6px;
+        animation: fadeIn 0.2s ease;
+      `;
+
+      wrapper.appendChild(errorEl);
+      input.style.borderColor = '#FF6B6B';
+      input.classList.add('input-error');
+    },
+
+    clearFieldError(input) {
+      const wrapper = input.closest('.form-group') || input.parentElement;
+      const existing = wrapper.querySelector('.field-error');
+      if (existing) existing.remove();
+      input.style.borderColor = '';
+      input.classList.remove('input-error');
+    },
+
+    validateForm(form, fields) {
+      let isValid = true;
+
+      fields.forEach(({ input, type }) => {
+        const result = this.validate(input.value, type);
+        if (!result.valid) {
+          this.showFieldError(input, result.error);
+          isValid = false;
+        } else {
+          this.clearFieldError(input);
+        }
+      });
+
+      return isValid;
+    }
+  };
+
+  // ============================================================================
+  // LOADING STATE UTILITIES
+  // ============================================================================
+
+  const LoadingState = {
+    set(button, loading, loadingText = 'Loading...') {
+      if (loading) {
+        button.dataset.originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = `
+          <span class="btn-spinner" style="
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+          "></span>${loadingText}
+        `;
+        button.style.opacity = '0.7';
+        button.style.pointerEvents = 'none';
+      } else {
+        button.innerHTML = button.dataset.originalText || button.innerHTML;
+        button.disabled = false;
+        button.style.opacity = '';
+        button.style.pointerEvents = '';
+      }
+    }
+  };
+
+  // Add spin animation if not exists
+  if (!document.getElementById('spin-animation')) {
+    const style = document.createElement('style');
+    style.id = 'spin-animation';
+    style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(style);
+  }
+
+  // ============================================================================
+  // FAVORITES FUNCTIONALITY
+  // ============================================================================
+
+  const FavoritesManager = {
+    getKey() {
+      return 'nightflow_favorites';
+    },
+
+    getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(this.getKey()) || '[]');
+      } catch {
+        return [];
+      }
+    },
+
+    isFavorited(venueId) {
+      return this.getFavorites().includes(venueId);
+    },
+
+    async toggle(venueId, button) {
+      const isFavorited = this.isFavorited(venueId);
+      let favorites = this.getFavorites();
+
+      if (isFavorited) {
+        favorites = favorites.filter(id => id !== venueId);
+        if (button) {
+          button.classList.remove('favorited');
+          button.querySelector('.heart-icon')?.classList.remove('filled');
+        }
+        ToastSystem.info('Removed from favorites');
+      } else {
+        favorites.push(venueId);
+        if (button) {
+          button.classList.add('favorited');
+          button.querySelector('.heart-icon')?.classList.add('filled');
+        }
+        ToastSystem.success('Added to favorites!');
+      }
+
+      localStorage.setItem(this.getKey(), JSON.stringify(favorites));
+
+      // Try to sync with server if authenticated
+      const token = localStorage.getItem('nightflow_token');
+      if (token && window.NightFlowAPI) {
+        try {
+          if (isFavorited) {
+            await NightFlowAPI.request(`/api/favorites/${venueId}`, { method: 'DELETE' });
+          } else {
+            await NightFlowAPI.request('/api/favorites', {
+              method: 'POST',
+              body: JSON.stringify({ venue_id: venueId })
+            });
+          }
+        } catch {
+          // Server sync failed, but local storage is updated
+        }
+      }
+
+      return !isFavorited;
+    }
+  };
+
+  // Export utilities to global scope
+  window.NightFlowToast = ToastSystem;
+  window.NightFlowShare = ShareUtils;
+  window.NightFlowValidation = FormValidation;
+  window.NightFlowLoading = LoadingState;
+  window.NightFlowFavorites = FavoritesManager;
+
+  // Global convenience function
+  window.showToast = function(title, message, type = 'info') {
+    return ToastSystem.show(title, message, type);
+  };
 })();

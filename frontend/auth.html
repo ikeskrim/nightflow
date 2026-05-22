@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="css/design-system.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#0A1628">
 <style>
 *, *::before, *::after {
   margin: 0;
@@ -17,25 +17,26 @@
 }
 
 :root {
-  --bg-deep: #050508;
-  --purple-deep: #4a1d96;
-  --purple-mid: #7c3aed;
-  --purple-light: #a78bfa;
-  --blue-deep: #1e3a8a;
-  --blue-mid: #3b82f6;
-  --pink-deep: #831843;
-  --pink-mid: #ec4899;
-  --pink-light: #f9a8d4;
+  /* Mediterranean Ocean Navy & Coral Palette */
+  --bg-deep: #0A1628;
+  --purple-deep: #E04848;
+  --purple-mid: #FF6B6B;
+  --purple-light: #FF8E8E;
+  --blue-deep: #44A08D;
+  --blue-mid: #4ECDC4;
+  --pink-deep: #E04848;
+  --pink-mid: #FF6B6B;
+  --pink-light: #FF8E8E;
   --surface-glass: rgba(255, 255, 255, 0.03);
   --border-glass: rgba(255, 255, 255, 0.08);
   --border-glass-hover: rgba(255, 255, 255, 0.15);
-  --text-primary: #f8fafc;
-  --text-secondary: rgba(248, 250, 252, 0.7);
-  --text-tertiary: rgba(248, 250, 252, 0.4);
-  --accent-glow: rgba(167, 139, 250, 0.4);
-  --success: #22c55e;
-  --error: #ef4444;
-  --sky: #38bdf8;
+  --text-primary: #F0F4F8;
+  --text-secondary: rgba(240, 244, 248, 0.7);
+  --text-tertiary: rgba(240, 244, 248, 0.4);
+  --accent-glow: rgba(255, 107, 107, 0.4);
+  --success: #4ECDC4;
+  --error: #FF6B6B;
+  --sky: #4ECDC4;
 }
 
 html, body {
@@ -67,11 +68,11 @@ body {
   width: 200%;
   height: 200%;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(167,139,250,0.18), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,114,182,0.14), transparent 55%),
-    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(34,211,238,0.10), transparent 50%),
-    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(139,92,246,0.12), transparent 50%),
-    radial-gradient(ellipse 70% 50% at 30% 30%, rgba(249,115,22,0.06), transparent 45%);
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255,107,107,0.15), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(78,205,196,0.12), transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(255,217,61,0.10), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(255,142,142,0.10), transparent 50%),
+    radial-gradient(ellipse 70% 50% at 30% 30%, rgba(78,205,196,0.08), transparent 45%);
   animation: meshMove 25s ease-in-out infinite;
   will-change: transform;
 }
@@ -104,7 +105,7 @@ body {
 .orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(167,139,250,0.45) 0%, rgba(167,139,250,0.15) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,107,107,0.40) 0%, rgba(255,107,107,0.12) 40%, transparent 70%);
   top: -10%;
   left: -10%;
   animation: float1 20s ease-in-out infinite;
@@ -113,7 +114,7 @@ body {
 .orb-2 {
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(244,114,182,0.4) 0%, rgba(244,114,182,0.12) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(78,205,196,0.35) 0%, rgba(78,205,196,0.10) 40%, transparent 70%);
   top: 45%;
   right: -8%;
   animation: float2 25s ease-in-out infinite;
@@ -122,7 +123,7 @@ body {
 .orb-3 {
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, rgba(34,211,238,0.3) 0%, rgba(34,211,238,0.1) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,217,61,0.28) 0%, rgba(255,217,61,0.08) 40%, transparent 70%);
   bottom: -18%;
   left: 25%;
   animation: float3 22s ease-in-out infinite;
@@ -131,7 +132,7 @@ body {
 .orb-4 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, rgba(139,92,246,0.35) 0%, rgba(139,92,246,0.1) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,142,142,0.32) 0%, rgba(255,142,142,0.08) 40%, transparent 70%);
   top: 25%;
   left: 45%;
   animation: float4 18s ease-in-out infinite;
@@ -230,7 +231,7 @@ body {
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: rgba(10, 10, 15, 0.6);
+  background: rgba(15, 31, 53, 0.6);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--border-glass);
@@ -239,7 +240,7 @@ body {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.05) inset,
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 100px rgba(167, 139, 250, 0.1);
+    0 0 100px rgba(255, 107, 107, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   animation: cardAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -260,7 +261,7 @@ body {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08) inset,
     0 30px 60px -15px rgba(0, 0, 0, 0.6),
-    0 0 120px rgba(167, 139, 250, 0.15);
+    0 0 120px rgba(255, 107, 107, 0.15);
 }
 
 /* ========================================
@@ -282,7 +283,7 @@ body {
   width: 52px;
   height: 52px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--purple-mid), var(--pink-mid));
+  background: linear-gradient(135deg, var(--purple-mid), var(--blue-mid));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -291,21 +292,21 @@ body {
   font-size: 18px;
   color: #fff;
   box-shadow:
-    0 0 30px rgba(124, 58, 237, 0.5),
-    0 0 60px rgba(236, 72, 153, 0.3);
+    0 0 30px rgba(255, 107, 107, 0.5),
+    0 0 60px rgba(78, 205, 196, 0.3);
   animation: logoGlow 3s ease-in-out infinite;
 }
 
 @keyframes logoGlow {
   0%, 100% {
     box-shadow:
-      0 0 30px rgba(124, 58, 237, 0.5),
-      0 0 60px rgba(236, 72, 153, 0.3);
+      0 0 30px rgba(255, 107, 107, 0.5),
+      0 0 60px rgba(78, 205, 196, 0.3);
   }
   50% {
     box-shadow:
-      0 0 40px rgba(124, 58, 237, 0.7),
-      0 0 80px rgba(236, 72, 153, 0.5);
+      0 0 40px rgba(255, 107, 107, 0.7),
+      0 0 80px rgba(78, 205, 196, 0.5);
   }
 }
 
@@ -346,10 +347,10 @@ body {
   left: 4px;
   width: calc(50% - 4px);
   height: calc(100% - 8px);
-  background: linear-gradient(135deg, var(--purple-mid), var(--pink-mid));
+  background: linear-gradient(135deg, var(--purple-mid), var(--blue-mid));
   border-radius: 10px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
 }
 
 .tabs-container[data-active="signup"] .tab-indicator {
@@ -503,9 +504,9 @@ body {
 }
 
 .form-input:focus {
-  background: rgba(124, 58, 237, 0.06);
+  background: rgba(255, 107, 107, 0.06);
   border-color: var(--purple-mid);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
 }
 
 .form-label {
@@ -559,9 +560,9 @@ body {
 }
 
 .role-card.selected {
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(255, 107, 107, 0.1);
   border-color: var(--purple-mid);
-  box-shadow: 0 0 30px rgba(124, 58, 237, 0.2);
+  box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
 }
 
 .role-icon {
@@ -603,7 +604,7 @@ body {
   position: relative;
   width: 100%;
   padding: 16px 24px;
-  background: linear-gradient(135deg, var(--purple-mid), var(--pink-mid));
+  background: linear-gradient(135deg, var(--purple-mid), var(--blue-mid));
   border: none;
   border-radius: 14px;
   font-family: 'Syne', sans-serif;
@@ -614,8 +615,8 @@ body {
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
-    0 0 30px rgba(124, 58, 237, 0.3),
-    0 10px 40px rgba(236, 72, 153, 0.2);
+    0 0 30px rgba(255, 107, 107, 0.3),
+    0 10px 40px rgba(78, 205, 196, 0.2);
   margin-top: 8px;
 }
 
@@ -631,8 +632,8 @@ body {
 .submit-btn:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow:
-    0 0 40px rgba(124, 58, 237, 0.5),
-    0 15px 50px rgba(236, 72, 153, 0.3);
+    0 0 40px rgba(255, 107, 107, 0.5),
+    0 15px 50px rgba(78, 205, 196, 0.3);
 }
 
 .submit-btn:hover::before {

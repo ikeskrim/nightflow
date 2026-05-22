@@ -1,0 +1,17 @@
+{
+  "name": "NightFlow",
+  "short_name": "NightFlow",
+  "description": "Rethymno Nightlife Operating System",
+  "start_url": "/discover.html",
+  "display": "standalone",
+  "background_color": "#0A1628",
+  "theme_color": "#0A1628",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

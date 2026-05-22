@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow — Club Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#05030D;--bg2:#0A071A;--bg3:#0F0C20;--bg4:#141128;
+  --card:rgba(255,255,255,.05);--card2:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --text:#f0ecff;--text2:#a89fd4;--text3:#5a5080;
+  --neon:#7C3AFF;--neon2:#9B5FFF;--neon3:#C4AEFF;
+  --cyan:#00D4FF;--cyan2:#00A8D4;--pink:#FF2D8A;--pink2:#FF6BB0;
+  --gold:#FFB800;--gold2:#FFD466;--green:#00E5A0;--red:#FF4545;
+  --mono:'JetBrains Mono',monospace;
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(124,58,255,.3) transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:grid;grid-template-columns:228px 1fr;min-height:100vh;position:relative}
+h1,h2,h3,h4{font-family:'Syne',sans-serif}
+
+/* SCANLINE OVERLAY */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);
+  animation:scan-drift 8s linear infinite}
+@keyframes scan-drift{from{background-position:0 0}to{background-position:0 80px}}
+
+/* BG GLOW */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 50% 40% at 15% 50%,rgba(124,58,255,.1),transparent 60%),
+             radial-gradient(ellipse 30% 30% at 85% 20%,rgba(0,212,255,.06),transparent 60%)}
+
+/* SIDEBAR */
+aside{background:rgba(6,4,16,.97);border-right:1px solid rgba(124,58,255,.18);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:50;
+  box-shadow:4px 0 32px rgba(124,58,255,.13),inset -1px 0 0 rgba(124,58,255,.1)}
+.sb-logo{padding:20px 16px 18px;border-bottom:1px solid rgba(124,58,255,.12)}
+.sb-mark{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sb-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--neon),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;box-shadow:0 0 18px rgba(124,58,255,.4)}
+.sb-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.5px}
+.sb-brand span{color:var(--neon3)}
+.sb-venue{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;font-family:var(--mono)}
+.sb-status{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--green);font-family:var(--mono)}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:ldot 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes ldot{0%,100%{opacity:1}50%{opacity:.4}}
+.sb-nav{flex:1;padding:8px 0}
+.sb-grp{font-size:10px;color:rgba(124,58,255,.6);text-transform:uppercase;letter-spacing:1.5px;padding:14px 16px 4px;font-weight:600;font-family:var(--mono)}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:12px;color:var(--text2);border:none;background:none;text-align:left;width:calc(100% - 16px);font-family:var(--mono);letter-spacing:-.2px}
+.sb-btn:hover{background:rgba(124,58,255,.08);color:var(--text);border-color:rgba(124,58,255,.15)}
+.sb-btn.on{background:linear-gradient(135deg,rgba(124,58,255,.22),rgba(0,212,255,.08));border:1px solid rgba(124,58,255,.35);color:var(--neon3);box-shadow:0 0 14px rgba(124,58,255,.15),inset 0 0 12px rgba(124,58,255,.05)}
+.sb-badge{margin-left:auto;padding:1px 7px;border-radius:50px;font-size:9px;font-weight:700;font-family:var(--mono)}
+.live-badge-s{background:var(--neon);color:#fff;box-shadow:0 0 8px rgba(124,58,255,.5)}
+.num-badge{background:var(--card2);color:var(--text3)}
+.sb-bottom{padding:12px 8px;border-top:1px solid rgba(124,58,255,.1);margin-top:auto}
+
+/* MAIN */
+main{position:relative;z-index:1;overflow-x:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--border);background:rgba(5,3,13,.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:40;gap:16px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.page-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:var(--mono)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.chip-info{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--text2);font-family:var(--mono)}
+.btn-p{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;border:none}
+.btn-prim{background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff}
+.btn-prim:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,255,.4)}
+.btn-ghost-s{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost-s:hover{background:var(--card2);color:var(--text)}
+
+/* CONTENT */
+.content{padding:24px 28px}
+.crm-sec{display:none;animation:fade-in .3s ease}
+.crm-sec.on{display:block}
+@keyframes fade-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.mc.p::before{background:linear-gradient(90deg,var(--neon),var(--neon2))}.mc.c::before{background:linear-gradient(90deg,var(--cyan),var(--cyan2))}.mc.k::before{background:linear-gradient(90deg,var(--pink),var(--pink2))}.mc.g::before{background:linear-gradient(90deg,var(--gold),var(--gold2))}.mc.gr::before{background:linear-gradient(90deg,var(--green),var(--cyan2))}
+.mc:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.mc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px;font-family:var(--mono)}
+.mc-val{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1}
+.mc.p .mc-val{color:var(--neon3)}.mc.c .mc-val{color:var(--cyan)}.mc.k .mc-val{color:var(--pink2)}.mc.g .mc-val{color:var(--gold)}.mc.gr .mc-val{color:var(--green)}
+.mc-sub{font-size:10px;color:var(--text3);margin-top:5px;font-family:var(--mono)}
+
+/* CHARTS */
+.ch-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.ch-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+.ch-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:-.2px;margin-bottom:3px}
+.ch-sub{font-size:11px;color:var(--text3);margin-bottom:16px;font-family:var(--mono)}
+
+/* FLOOR */
+.res-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.floor-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+.floor-map{position:relative;width:100%;height:310px;background:rgba(8,5,20,.8);border-radius:12px;border:1px solid rgba(124,58,255,.15);overflow:hidden;margin-top:14px}
+.floor-stage{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(124,58,255,.2),rgba(0,212,255,.1));border:1px solid rgba(124,58,255,.3);border-radius:8px;padding:5px 24px;font-size:11px;color:var(--neon3);font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px}
+.floor-dj{position:absolute;top:46px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--neon),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px rgba(124,58,255,.55)}
+.ftable{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all .2s}
+.ftable:hover .ft-circle{transform:scale(1.2)}
+.ft-circle{width:44px;height:44px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono);transition:transform .2s;position:relative}
+.ft-vip .ft-circle{border-color:rgba(124,58,255,.8);background:rgba(124,58,255,.2);color:var(--neon3);box-shadow:0 0 14px rgba(124,58,255,.3)}
+.ft-res .ft-circle{border-color:rgba(255,45,138,.7);background:rgba(255,45,138,.15);color:var(--pink2)}
+.ft-pend .ft-circle{border-color:rgba(255,184,0,.7);background:rgba(255,184,0,.12);color:var(--gold)}
+.ft-free .ft-circle{border-color:rgba(0,229,160,.6);background:rgba(0,229,160,.08);color:var(--green)}
+.ft-cin .ft-circle{border-color:rgba(0,212,255,.7);background:rgba(0,212,255,.15);color:var(--cyan)}
+.ftable .ft-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(8,5,20,.97);border:1px solid var(--border2);border-radius:8px;padding:5px 10px;font-size:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10;color:var(--text);font-family:var(--mono)}
+.ftable:hover .ft-tooltip{opacity:1}
+.floor-bar{position:absolute;bottom:0;left:0;right:0;height:40px;background:rgba(124,58,255,.06);border-top:1px solid rgba(124,58,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--neon3);font-family:var(--mono)}
+.floor-leg{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);font-family:var(--mono)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* RES LIST */
+.res-list-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;overflow:hidden}
+.res-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);transition:all .15s}
+.res-item:last-child{border-bottom:none}
+.res-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'Syne',sans-serif}
+.res-info{flex:1;min-width:0}
+.res-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.res-detail{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--mono)}
+.res-st{padding:3px 9px;border-radius:50px;font-size:9px;font-weight:700;flex-shrink:0;font-family:var(--mono)}
+.st-conf{background:rgba(0,229,160,.1);color:var(--green);border:1px solid rgba(0,229,160,.2)}
+.st-pend{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.2)}
+.st-vip{background:rgba(124,58,255,.15);color:var(--neon3);border:1px solid rgba(124,58,255,.3)}
+.st-cin{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
+.res-actions{display:flex;gap:5px;flex-shrink:0}
+.ra-btn{padding:4px 10px;border-radius:50px;font-size:9px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:none;color:var(--text2);transition:all .15s;font-family:var(--mono)}
+.ra-btn:hover{background:var(--card2)}
+.ra-conf{border-color:rgba(0,229,160,.3);color:var(--green)}
+.ra-rej{border-color:rgba(255,69,69,.3);color:var(--red)}
+.ra-cin{background:linear-gradient(135deg,var(--green),var(--cyan2));border:none;color:var(--bg);font-weight:700}
+
+/* CUSTOMERS */
+.cust-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.cust-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:all .25s;animation:fade-in .4s ease both}
+.cust-card:hover{transform:translateY(-3px);border-color:rgba(124,58,255,.3);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.cust-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.cust-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;font-family:'Syne',sans-serif}
+.cust-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px}
+.cust-since{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.tier-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:3px 9px;border-radius:50px;font-weight:700;margin-bottom:10px;font-family:var(--mono)}
+.tg{background:rgba(255,184,0,.12);color:var(--gold);border:1px solid rgba(255,184,0,.25)}
+.tb{background:rgba(124,58,255,.12);color:var(--neon3);border:1px solid rgba(124,58,255,.25)}
+.ts{background:rgba(156,163,175,.12);color:#9ca3af;border:1px solid rgba(156,163,175,.25)}
+.cust-genre{font-size:12px;color:var(--text2);margin-bottom:12px}
+.cust-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding-top:12px;border-top:1px solid var(--border)}
+.cs-num{font-family:var(--mono);font-size:13px;font-weight:600}
+.cs-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;font-family:var(--mono)}
+.crm-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.crm-tab{padding:7px 16px;border-radius:50px;font-size:11px;font-weight:500;color:var(--text2);border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .2s;font-family:var(--mono)}
+.crm-tab.on{background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff;border-color:transparent}
+
+/* PROMO TABLE */
+.ptable{width:100%;border-collapse:collapse}
+.ptable th{text-align:left;padding:10px 14px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.ptable td{padding:11px 14px;font-size:12px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.ptable tr:last-child td{border-bottom:none}
+.ptable tr:hover td{background:rgba(255,255,255,.02)}
+.pbar{width:80px;height:5px;border-radius:3px;background:var(--border);overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--neon),var(--cyan))}
+
+/* STAFF */
+.occ-zone{margin-bottom:18px}
+.oz-hdr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;font-family:var(--mono)}
+.oz-pct{font-weight:700}
+.oz-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.oz-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.oz-count{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--mono)}
+
+/* ANALYTICS */
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* MARKETING */
+.mk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.mk-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;cursor:pointer;transition:all .25s}
+.mk-card:hover{border-color:rgba(124,58,255,.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.mk-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.mk-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:7px}
+.mk-desc{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:14px}
+.mk-stats{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--border);margin-bottom:12px;font-size:11px;color:var(--text3);font-family:var(--mono)}
+.mk-stats strong{color:var(--text);font-size:13px;font-family:var(--mono);display:block}
+.mk-btn{width:100%;padding:9px;border-radius:8px;font-size:12px;font-weight:500;background:rgba(124,58,255,.1);border:1px solid rgba(124,58,255,.2);color:var(--neon3);cursor:pointer;transition:all .2s;font-family:var(--mono)}
+.mk-btn:hover{background:rgba(124,58,255,.2)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:m-in .3s cubic-bezier(.16,1,.3,1)}
+@keyframes m-in{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:none}}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 28px 0}
+.modal-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:700}
+.modal-x{width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:14px;transition:all .2s}
+.modal-x:hover{background:var(--card2)}
+.modal-body{padding:22px 28px}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:0 28px 22px}
+.mf{margin-bottom:13px}
+.mf label{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-family:var(--mono)}
+.mf input,.mf select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.mf input:focus,.mf select:focus{border-color:rgba(124,58,255,.5)}
+.mf select option{background:var(--bg2)}
+.btn-g{padding:9px 18px;border-radius:10px;font-size:13px;background:none;border:1px solid var(--border2);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-g:hover{background:var(--card2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(8,5,20,.98);border:1px solid rgba(124,58,255,.25);border-radius:14px;padding:14px 20px;z-index:9997;display:none;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(124,58,255,.1);animation:toast-in .3s ease}
+.toast.show{display:block}
+@keyframes toast-in{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+.toast-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px}
+.toast-msg{font-size:11px;color:var(--text3);font-family:var(--mono)}
+
+@media(max-width:900px){body{grid-template-columns:1fr}aside{display:none}.ch-row{grid-template-columns:1fr}.res-layout{grid-template-columns:1fr}.an-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="sb-logo">
+    <div class="sb-mark">
+      <div class="sb-icon">NF</div>
+      <div class="sb-brand">Night<span>Flow</span></div>
+    </div>
+    <div class="sb-venue" id="sb-venue">loading...</div>
+    <div class="sb-status"><span class="ldot"></span>open · tonight</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-grp">// operations</div>
+    <button class="sb-btn on" data-sec="overview">📊 overview <span class="sb-badge live-badge-s">live</span></button>
+    <button class="sb-btn" data-sec="reservations">📋 reservations <span class="sb-badge num-badge" id="res-count">0</span></button>
+    <button class="sb-btn" data-sec="staff">🚪 door &amp; staff</button>
+    <div class="sb-grp">// crm</div>
+    <button class="sb-btn" data-sec="customers">👥 customers</button>
+    <button class="sb-btn" data-sec="promoters">📣 promoters</button>
+    <button class="sb-btn" data-sec="marketing">📨 marketing</button>
+    <div class="sb-grp">// intelligence</div>
+    <button class="sb-btn" data-sec="analytics">📈 analytics</button>
+    <div class="sb-bottom">
+      <button class="sb-btn" onclick="window.location.href='discover.html'">🌐 public app</button>
+      <button class="sb-btn" onclick="doLogout()">↩ logout</button>
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <!-- OVERVIEW -->
+  <div class="crm-sec on" id="sec-overview">
+    <div class="topbar">
+      <div><div class="page-title">Tonight's Overview</div><div class="page-sub" id="ov-date">// loading...</div></div>
+      <div class="topbar-right">
+        <span class="chip-info" id="term-clock" style="font-family:var(--mono);color:var(--green)">00:00:00</span>
+        <span class="chip-info" id="ov-venue">📍 —</span>
+        <button class="btn-p btn-prim" onclick="showToast('📤 Εξαγωγή αναφοράς...','Export')">Export Report</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="metrics" id="ov-metrics"></div>
+      <div class="ch-row">
+        <div class="ch-card"><div class="ch-title">Αφίξεις &amp; Έσοδα Ανά Ώρα</div><div class="ch-sub">// timeline tonight</div><div style="height:200px"><canvas id="ch-arr"></canvas></div></div>
+        <div class="ch-card"><div class="ch-title">Μουσική</div><div class="ch-sub">// genre split</div><div style="height:200px"><canvas id="ch-gen"></canvas></div></div>
+      </div>
+      <div class="ch-row">
+        <div class="ch-card"><div class="ch-title">Εβδομαδιαία Απόδοση</div><div class="ch-sub">// revenue vs occupancy</div><div style="height:180px"><canvas id="ch-wk"></canvas></div></div>
+        <div class="ch-card"><div class="ch-title">New vs Returning</div><div class="ch-sub">// retention this month</div><div style="height:180px"><canvas id="ch-ret"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESERVATIONS -->
+  <div class="crm-sec" id="sec-reservations">
+    <div class="topbar">
+      <div><div class="page-title">Reservations</div><div class="page-sub">// floor plan + guest list</div></div>
+      <div class="topbar-right">
+        <button class="btn-p btn-ghost-s" onclick="showToast('📋 Εξαγωγή PDF...','Export')">Export</button>
+        <button class="btn-p btn-prim" onclick="openModal('modal-res')">+ Νέα Κράτηση</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="res-layout">
+        <div class="floor-wrap">
+          <div class="ch-title">Floor Plan — Live</div>
+          <div class="floor-map" id="floor-map">
+            <div class="floor-stage">stage</div>
+            <div class="floor-dj">🎧</div>
+            <div class="ftable ft-vip" style="left:16%;top:24%"><span class="ft-circle">V1</span><div class="ft-tooltip">V1 · Kostas P. · VIP · 8pax</div></div>
+            <div class="ftable ft-vip" style="left:34%;top:24%"><span class="ft-circle">V2</span><div class="ft-tooltip">V2 · Maria K. · VIP · 6pax</div></div>
+            <div class="ftable ft-vip" style="left:54%;top:24%"><span class="ft-circle">V3</span><div class="ft-tooltip">V3 · Elena D. · VIP · 10pax</div></div>
+            <div class="ftable ft-free" style="left:74%;top:24%"><span class="ft-circle">V4</span><div class="ft-tooltip">V4 · Available</div></div>
+            <div class="ftable ft-res" style="left:12%;top:48%"><span class="ft-circle">T1</span><div class="ft-tooltip">T1 · Nikos V. · 5pax</div></div>
+            <div class="ftable ft-cin" style="left:28%;top:48%"><span class="ft-circle">T2</span><div class="ft-tooltip">T2 · Alex M. ✓ Checked In</div></div>
+            <div class="ftable ft-pend" style="left:44%;top:48%"><span class="ft-circle">T3</span><div class="ft-tooltip">T3 · James P. · Pending</div></div>
+            <div class="ftable ft-free" style="left:60%;top:48%"><span class="ft-circle">T4</span><div class="ft-tooltip">T4 · Available</div></div>
+            <div class="ftable ft-res" style="left:76%;top:48%"><span class="ft-circle">T5</span><div class="ft-tooltip">T5 · Sofia P. · 6pax</div></div>
+            <div class="ftable ft-free" style="left:20%;top:71%"><span class="ft-circle">T6</span><div class="ft-tooltip">T6 · Available</div></div>
+            <div class="ftable ft-res" style="left:42%;top:71%"><span class="ft-circle">T7</span><div class="ft-tooltip">T7 · Group · 8pax</div></div>
+            <div class="ftable ft-free" style="left:64%;top:71%"><span class="ft-circle">T8</span><div class="ft-tooltip">T8 · Available</div></div>
+            <div class="floor-bar">🍸 bar</div>
+          </div>
+          <div class="floor-leg">
+            <div class="leg-item"><div class="leg-dot" style="background:var(--neon)"></div>VIP</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--pink2)"></div>Reserved</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--cyan)"></div>Checked In</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--gold)"></div>Pending</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Free</div>
+          </div>
+        </div>
+        <div class="res-list-card">
+          <div class="ch-title" style="margin-bottom:14px">Κρατήσεις Απόψε</div>
+          <div id="res-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="crm-sec" id="sec-customers">
+    <div class="topbar">
+      <div><div class="page-title">Customer CRM</div><div class="page-sub">// loyalty · spend · visits</div></div>
+      <div class="topbar-right">
+        <button class="btn-p btn-ghost-s" onclick="showToast('📤 Εξαγωγή CSV...','Export')">Export CSV</button>
+        <button class="btn-p btn-prim" onclick="openModal('modal-cust')">+ Νέος Πελάτης</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="crm-tabs" id="cust-tabs">
+        <button class="crm-tab on" data-tf="all">all</button>
+        <button class="crm-tab" data-tf="black">💎 black</button>
+        <button class="crm-tab" data-tf="gold">🥇 gold</button>
+        <button class="crm-tab" data-tf="silver">🥈 silver</button>
+      </div>
+      <div class="cust-grid" id="cust-grid"></div>
+    </div>
+  </div>
+
+  <!-- PROMOTERS -->
+  <div class="crm-sec" id="sec-promoters">
+    <div class="topbar">
+      <div><div class="page-title">Promoter Dashboard</div><div class="page-sub">// guest tracking · commissions</div></div>
+      <div class="topbar-right"><button class="btn-p btn-prim" onclick="openModal('modal-promo')">+ Promoter</button></div>
+    </div>
+    <div class="content">
+      <div class="metrics" id="promo-metrics"></div>
+      <div class="ch-card" style="overflow-x:auto">
+        <div class="ch-title" style="margin-bottom:4px">Performance — Ιούνιος 2025</div>
+        <div class="ch-sub">// june season summary</div>
+        <table class="ptable" id="promo-table"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="crm-sec" id="sec-analytics">
+    <div class="topbar">
+      <div><div class="page-title">Analytics</div><div class="page-sub">// season report · june 2025</div></div>
+    </div>
+    <div class="content">
+      <div class="metrics" id="an-metrics"></div>
+      <div class="an-grid">
+        <div class="ch-card"><div class="ch-title">Μηνιαία Έσοδα</div><div class="ch-sub">// jan–jun 2025</div><div style="height:200px"><canvas id="ch-monthly"></canvas></div></div>
+        <div class="ch-card"><div class="ch-title">Καλύτερες Μέρες</div><div class="ch-sub">// avg revenue/day</div><div style="height:200px"><canvas id="ch-best"></canvas></div></div>
+        <div class="ch-card"><div class="ch-title">Ώρες Αιχμής</div><div class="ch-sub">// arrivals by hour</div><div style="height:200px"><canvas id="ch-peak"></canvas></div></div>
+        <div class="ch-card"><div class="ch-title">Δαπάνη ανά Tier</div><div class="ch-sub">// avg spend per visit</div><div style="height:200px"><canvas id="ch-spend"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKETING -->
+  <div class="crm-sec" id="sec-marketing">
+    <div class="topbar">
+      <div><div class="page-title">Marketing Tools</div><div class="page-sub">// campaigns · segments · automation</div></div>
+      <div class="topbar-right"><span class="chip-info">842 contacts</span></div>
+    </div>
+    <div class="content">
+      <div class="mk-grid">
+        <div class="mk-card"><div class="mk-icon" style="background:rgba(255,184,0,.12)">🎂</div><div class="mk-title">Birthday Campaigns</div><div class="mk-desc">Αυτόματα birthday messages με VIP offers και δωρεάν ποτά για κάθε πελάτη.</div><div class="mk-stats"><div><strong>24</strong>Birthdays</div><div><strong>68%</strong>Open rate</div></div><button class="mk-btn" onclick="sendCampaign('birthday',24)">→ launch campaign</button></div>
+        <div class="mk-card"><div class="mk-icon" style="background:rgba(124,58,255,.12)">💎</div><div class="mk-title">VIP Invitations</div><div class="mk-desc">Αποκλειστικές προσκλήσεις σε Black &amp; Gold members για premium events.</div><div class="mk-stats"><div><strong>56</strong>VIP members</div><div><strong>92%</strong>Accept rate</div></div><button class="mk-btn" onclick="sendCampaign('vip_invite',56)">→ send vip invites</button></div>
+        <div class="mk-card"><div class="mk-icon" style="background:rgba(0,229,160,.1)">📲</div><div class="mk-title">Push Notifications</div><div class="mk-desc">Real-time push για last-minute deals, lineup αλλαγές και flash offers.</div><div class="mk-stats"><div><strong>1.284</strong>Subscribers</div><div><strong>54%</strong>CTR</div></div><button class="mk-btn" onclick="sendCampaign('push',1284)">→ create push</button></div>
+        <div class="mk-card"><div class="mk-icon" style="background:rgba(0,212,255,.1)">🎫</div><div class="mk-title">Event Promotions</div><div class="mk-desc">Κωδικοί έκπτωσης, early bird τιμές και limited-time offers.</div><div class="mk-stats"><div><strong>6</strong>Active promos</div><div><strong>€4.2K</strong>Revenue</div></div><button class="mk-btn" onclick="showToast('🎫 Promo builder...','Marketing')">→ create promo</button></div>
+        <div class="mk-card"><div class="mk-icon" style="background:rgba(255,45,138,.1)">💌</div><div class="mk-title">Winback Campaigns</div><div class="mk-desc">Re-engage πελάτες που δεν ήρθαν 30+ μέρες με welcome-back offers.</div><div class="mk-stats"><div><strong>142</strong>Lapsed</div><div><strong>31%</strong>Re-activation</div></div><button class="mk-btn" onclick="sendCampaign('winback',142)">→ run winback</button></div>
+        <div class="mk-card"><div class="mk-icon" style="background:rgba(255,184,0,.1)">🎯</div><div class="mk-title">Audience Builder</div><div class="mk-desc">Segmentation ανά spend, μουσική προτίμηση, visit frequency.</div><div class="mk-stats"><div><strong>12</strong>Segments</div><div><strong>840</strong>Targetable</div></div><button class="mk-btn" onclick="showToast('🎯 Audience builder...','Marketing')">→ build audience</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="crm-sec" id="sec-staff">
+    <div class="topbar">
+      <div><div class="page-title">Door &amp; Staff Interface</div><div class="page-sub">// real-time check-in · capacity</div></div>
+      <div class="topbar-right"><span class="chip-info" style="color:var(--red);border-color:rgba(255,69,69,.3)">🔴 live mode</span></div>
+    </div>
+    <div class="content">
+      <div class="metrics" id="staff-metrics"></div>
+      <div class="res-layout">
+        <div class="ch-card">
+          <div class="ch-title" style="margin-bottom:4px">Venue Capacity</div>
+          <div class="ch-sub">// zone breakdown</div>
+          <div style="margin-top:14px">
+            <div class="occ-zone"><div class="oz-hdr"><span>total</span><span class="oz-pct" style="color:var(--green)">74%</span></div><div class="oz-track"><div class="oz-fill" style="width:74%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div><div class="oz-count">156 / 210 guests</div></div>
+            <div class="occ-zone"><div class="oz-hdr"><span>main floor</span><span class="oz-pct" style="color:var(--green)">78%</span></div><div class="oz-track"><div class="oz-fill" style="width:78%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div><div class="oz-count">110 / 140 guests</div></div>
+            <div class="occ-zone"><div class="oz-hdr"><span>vip area</span><span class="oz-pct" style="color:var(--neon3)">65%</span></div><div class="oz-track"><div class="oz-fill" style="width:65%;background:linear-gradient(90deg,var(--neon),var(--neon2))"></div></div><div class="oz-count">26 / 40 guests</div></div>
+            <div class="occ-zone"><div class="oz-hdr"><span>terrace</span><span class="oz-pct" style="color:var(--cyan)">67%</span></div><div class="oz-track"><div class="oz-fill" style="width:67%;background:linear-gradient(90deg,var(--cyan),var(--cyan2))"></div></div><div class="oz-count">20 / 30 guests</div></div>
+          </div>
+        </div>
+        <div class="ch-card">
+          <div class="ch-title" style="margin-bottom:4px">Check-In Queue</div>
+          <div class="ch-sub">// pending arrivals</div>
+          <div id="staff-queue" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-res">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Νέα Κράτηση</div><button class="modal-x" onclick="closeModal('modal-res')">✕</button></div>
+    <div class="modal-body">
+      <div class="mf"><label>Όνομα Πελάτη</label><input type="text" id="nr-name" placeholder="Ονοματεπώνυμο"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="mf"><label>Άτομα</label><select id="nr-guests"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>8</option></select></div>
+        <div class="mf"><label>Ώρα</label><select id="nr-time"><option>21:00</option><option>22:00</option><option selected>23:00</option><option>00:00</option></select></div>
+      </div>
+      <div class="mf"><label>Τύπος</label><select id="nr-type"><option value="standard">Standard</option><option value="vip">VIP</option></select></div>
+      <div class="mf"><label>Σημειώσεις</label><input type="text" id="nr-notes" placeholder="γενέθλια, πανό..."></div>
+    </div>
+    <div class="modal-footer"><button class="btn-g" onclick="closeModal('modal-res')">Ακύρωση</button><button class="btn-p btn-prim" onclick="submitNewRes()">Αποθήκευση →</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cust">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Νέος Πελάτης</div><button class="modal-x" onclick="closeModal('modal-cust')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="mf"><label>Όνομα</label><input type="text" id="nc-name" placeholder="Ονοματεπώνυμο"></div>
+        <div class="mf"><label>Email</label><input type="email" id="nc-email" placeholder="email@example.com"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="mf"><label>Τηλέφωνο</label><input type="tel" id="nc-phone" placeholder="+30 69X XXX XXXX"></div>
+        <div class="mf"><label>Γενέθλια</label><input type="date" id="nc-bday"></div>
+      </div>
+      <div class="mf"><label>Αγαπημένο Είδος</label><select id="nc-genre"><option>Progressive House</option><option>Deep House</option><option>R&amp;B / Hip-Hop</option><option>Techno</option><option>Pop / Dance</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn-g" onclick="closeModal('modal-cust')">Ακύρωση</button><button class="btn-p btn-prim" onclick="submitNewCust()">Αποθήκευση →</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-promo">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Νέος Promoter</div><button class="modal-x" onclick="closeModal('modal-promo')">✕</button></div>
+    <div class="modal-body">
+      <div class="mf"><label>Όνομα</label><input type="text" id="np-name" placeholder="Ονοματεπώνυμο"></div>
+      <div class="mf"><label>Email</label><input type="email" id="np-email" placeholder="email@example.com"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-g" onclick="closeModal('modal-promo')">Ακύρωση</button><button class="btn-p btn-prim" onclick="submitNewPromo()">Αποθήκευση →</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"><div class="toast-title" id="t-ttl"></div><div class="toast-msg" id="t-msg"></div></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// API CLIENT — JWT AUTH + DATA UNWRAPPING
+// ══════════════════════════════════════════════════════════════
+const API_BASE = "http://localhost:5000";
+
+function authHeaders() {
+  const t = localStorage.getItem("nightflow_token");
+  return t ? { "Authorization": "Bearer " + t } : {};
+}
+
+function unwrap(response) {
+  if (!response) return null;
+  if (response.error) return response;
+  if (response.data !== undefined) return response.data;
+  return response;
+}
+
+const api = {
+  async get(p) {
+    try {
+      const r = await fetch(API_BASE + p, { headers: authHeaders() });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401) { doLogout(); return null; }
+      if (!r.ok) return { error: j.error || "Error" };
+      return unwrap(j);
+    } catch (e) { return null; }
+  },
+  async post(p, d) {
+    try {
+      const r = await fetch(API_BASE + p, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(d)
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401) { doLogout(); return null; }
+      if (!r.ok) return { error: j.error || "Error" };
+      return unwrap(j);
+    } catch (e) { return null; }
+  },
+  async patch(p, d) {
+    try {
+      const r = await fetch(API_BASE + p, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(d)
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401) { doLogout(); return null; }
+      if (!r.ok) return { error: j.error || "Error" };
+      return unwrap(j);
+    } catch (e) { return null; }
+  },
+  me: () => api.get("/api/auth/me"),
+  logout: () => api.post("/api/auth/logout", { refresh_token: localStorage.getItem("nightflow_refresh_token") }),
+  getTonightStats: () => api.get("/api/tonight-stats"),
+  getEvents: (p) => api.get("/api/events" + (p || "")),
+  getReservations: (p) => api.get("/api/reservations" + (p || "")),
+  createReservation: (d) => api.post("/api/reservations", d),
+  updateReservation: (id, d) => api.patch("/api/reservations/" + id, d),
+  checkinReservation: (id) => api.post("/api/reservations/" + id + "/checkin", {}),
+  getCustomers: (t) => api.get("/api/customers" + (t ? "?tier=" + t : "")),
+  createCustomer: (d) => api.post("/api/customers", d),
+  getPromoters: () => api.get("/api/promoters"),
+  createPromoter: (d) => api.post("/api/promoters", d),
+  getAnalytics: () => api.get("/api/analytics"),
+  getOverview: () => api.get("/api/analytics/overview"),
+  sendCampaign: (t, c) => api.post("/api/marketing/send", { type: t, count: c })
+};
+
+// ── INIT ───────────────────────────────────────────────────────
+const user = JSON.parse(localStorage.getItem('nightflow_user') || 'null');
+if (!user || user.role !== 'club') window.location.href = 'auth.html';
+document.getElementById('sb-venue').textContent = user?.venue_name || 'my venue';
+document.getElementById('ov-venue').textContent  = '📍 ' + (user?.venue_name || 'Venue');
+
+// ── SIDEBAR NAV ────────────────────────────────────────────────
+document.querySelectorAll('.sb-btn[data-sec]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('on'));
+    document.querySelectorAll('.crm-sec').forEach(s => s.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('sec-' + btn.dataset.sec).classList.add('on');
+    const sec = btn.dataset.sec;
+    if (sec === 'overview')     loadOv();
+    if (sec === 'reservations') loadRes();
+    if (sec === 'customers')    loadCust();
+    if (sec === 'promoters')    loadPromo();
+    if (sec === 'analytics')    loadAn();
+    if (sec === 'staff')        loadStaff();
+  });
+});
+
+// ── CHART DEFAULTS ─────────────────────────────────────────────
+const CO = {
+  plugins:{legend:{labels:{color:'#a89fd4',font:{size:11,family:'JetBrains Mono'},boxWidth:12}},tooltip:{backgroundColor:'rgba(8,5,20,.97)',borderColor:'rgba(124,58,255,.3)',borderWidth:1,titleColor:'#f0ecff',bodyColor:'#a89fd4',titleFont:{family:'Syne',size:13},bodyFont:{family:'JetBrains Mono',size:11}}},
+  scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#5a5080',font:{size:10,family:'JetBrains Mono'}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#5a5080',font:{size:10,family:'JetBrains Mono'}}}},
+  responsive:true,maintainAspectRatio:false,
+};
+const charts = {};
+function mkChart(id, type, data, opts) {
+  if (charts[id]) charts[id].destroy();
+  const c = document.getElementById(id);
+  if (c) charts[id] = new Chart(c, {type, data, options: opts || CO});
+}
+
+// ── OVERVIEW ───────────────────────────────────────────────────
+let ovDone = false;
+async function loadOv() {
+  if (ovDone) return; ovDone = true;
+  const d = await api.getOverview();
+  if (d && !d.error) {
+    document.getElementById('ov-metrics').innerHTML =
+      mc('Κρατήσεις', d.reservations_tonight, 'p', 'neon3', '↑ +23 vs παρ') +
+      mc('Occupancy',  d.occupancy_pct+'%',    'c', 'cyan',  d.current_guests+'/'+d.capacity) +
+      mc('Εκτιμ. Έσοδα', '€'+((d.revenue_estimate||0)/1000).toFixed(1)+'K', 'g', 'gold', '+12% vs avg') +
+      mc('VIP Guests', d.vip_guests,            'k', 'pink2', 'avg spend €290') +
+      mc('Επαναλαμβ.', d.repeat_customers_pct+'%','gr','green','↑ excellent') +
+      mc('Guest List', d.guest_list_count,       'p', 'gold',  d.confirmed+' confirmed');
+    document.getElementById('res-count').textContent = d.reservations_tonight;
+  }
+  const a = await api.getAnalytics(); if (!a || a.error) return;
+  mkChart('ch-arr', 'bar', {labels:a.hours, datasets:[
+    {label:'Αφίξεις',data:a.arrivals_by_hour,backgroundColor:'rgba(124,58,255,.45)',borderColor:'rgba(124,58,255,.8)',borderWidth:1,borderRadius:4,yAxisID:'y'},
+    {label:'Έσοδα',data:a.arrivals_by_hour.map(v=>Math.round(v*.82)),borderColor:'rgba(0,212,255,.8)',backgroundColor:'rgba(0,212,255,.1)',borderWidth:2,type:'line',tension:.4,fill:true,yAxisID:'y1'},
+  ]},{...CO,scales:{...CO.scales,y1:{position:'right',grid:{display:false},ticks:{color:'#5a5080',font:{size:10,family:'JetBrains Mono'}}}}});
+  mkChart('ch-gen','doughnut',{labels:a.genres,datasets:[{data:a.genre_split,backgroundColor:['rgba(124,58,255,.85)','rgba(0,212,255,.75)','rgba(255,45,138,.75)','rgba(255,184,0,.75)','rgba(0,229,160,.75)','rgba(90,80,128,.6)'],borderWidth:0,hoverOffset:8}]},{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{...CO.plugins,legend:{position:'right',labels:{color:'#a89fd4',font:{size:10,family:'JetBrains Mono'},boxWidth:10}}}});
+  mkChart('ch-wk','line',{labels:a.days,datasets:[
+    {label:'Έσοδα (€K)',data:a.weekly_revenue,borderColor:'rgba(124,58,255,.9)',backgroundColor:'rgba(124,58,255,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:4},
+    {label:'Occupancy %',data:a.weekly_occupancy,borderColor:'rgba(0,212,255,.7)',tension:.4,borderWidth:2,borderDash:[4,3],pointRadius:3},
+  ]}, CO);
+  mkChart('ch-ret','bar',{labels:a.retention.weeks,datasets:[
+    {label:'Νέοι',data:a.retention.new,backgroundColor:'rgba(0,212,255,.55)',borderRadius:4},
+    {label:'Επαναλαμβ.',data:a.retention.returning,backgroundColor:'rgba(124,58,255,.55)',borderRadius:4},
+  ]},{...CO,scales:{...CO.scales,x:{...CO.scales.x,stacked:true},y:{...CO.scales.y,stacked:true}}});
+}
+
+function mc(lbl, val, cls, vcls, sub) {
+  return `<div class="mc ${cls}" onclick="showToast('📊 ${lbl}','Details')">
+    <div class="mc-lbl">${lbl}</div>
+    <div class="mc-val" style="color:var(--${vcls})">${val}</div>
+    ${sub ? `<div class="mc-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ── RESERVATIONS ───────────────────────────────────────────────
+async function loadRes() {
+  const data = await api.getReservations('?venue_id=v1'); if (!data || data.error || !Array.isArray(data)) return;
+  const avGrads = [
+    'linear-gradient(135deg,rgba(124,58,255,.3),rgba(0,212,255,.2))',
+    'linear-gradient(135deg,rgba(255,45,138,.25),rgba(124,58,255,.15))',
+    'linear-gradient(135deg,rgba(255,184,0,.25),rgba(255,45,138,.15))',
+    'linear-gradient(135deg,rgba(0,229,160,.2),rgba(0,212,255,.15))',
+    'rgba(255,184,0,.2)',
+    'linear-gradient(135deg,rgba(0,212,255,.2),rgba(124,58,255,.15))'
+  ];
+  document.getElementById('res-list').innerHTML = data.map((r, i) => {
+    const vip = r.table_type === 'vip', ci = r.checked_in;
+    let actions = '';
+    if (ci) actions = `<span class="res-st st-cin">✓ in</span>`;
+    else if (r.status === 'pending') actions = `<div class="res-actions"><button class="ra-btn ra-conf" onclick="confRes('${r.id}')">confirm</button><button class="ra-btn ra-rej" onclick="rejRes('${r.id}')">reject</button></div>`;
+    else actions = `<div class="res-actions"><button class="ra-btn ra-cin" onclick="cinRes('${r.id}')">check in</button><span class="res-st ${vip?'st-vip':'st-conf'}">${vip?'vip':'ok'}</span></div>`;
+    return `<div class="res-item" id="ritem-${r.id}">
+      <div class="res-av" style="background:${avGrads[i%avGrads.length]}">${r.customer_initials}</div>
+      <div class="res-info">
+        <div class="res-name">${r.customer_name}</div>
+        <div class="res-detail">tbl ${r.table} · ${r.guests}pax · ${r.arrival_time}${r.notes?' · '+r.notes:''}</div>
+      </div>
+      ${actions}
+    </div>`;
+  }).join('');
+}
+
+async function confRes(id) { await api.updateReservation(id,{status:'confirmed'}); showToast('✅ Κράτηση επιβεβαιώθηκε!','confirmed'); loadRes(); }
+async function rejRes(id)  { await api.updateReservation(id,{status:'rejected'});  showToast('❌ Κράτηση απορρίφθηκε.','rejected');  loadRes(); }
+async function cinRes(id)  { await api.checkinReservation(id); showToast('✅ Check-in ολοκληρώθηκε!','check in'); loadRes(); }
+
+// ── CUSTOMERS ──────────────────────────────────────────────────
+async function loadCust(tier = '') {
+  const data = await api.getCustomers(tier); if (!data || data.error || !Array.isArray(data)) return;
+  const grads = ['linear-gradient(135deg,#7C3AFF,#FF2D8A)','linear-gradient(135deg,#FF2D8A,#FFB800)','linear-gradient(135deg,#00D4FF,#7C3AFF)','linear-gradient(135deg,#FFB800,#FF6BB0)','linear-gradient(135deg,#9B5FFF,#00A8D4)','linear-gradient(135deg,#6b7280,#9ca3af)'];
+  const tm = {gold:'🥇 gold',black:'💎 black',silver:'🥈 silver'};
+  const tc = {gold:'tg',black:'tb',silver:'ts'};
+  document.getElementById('cust-grid').innerHTML = data.map((c, i) => `
+    <div class="cust-card" style="animation-delay:${i*.06}s" onclick="showToast('👤 ${c.name}','Customer Profile')">
+      <div class="cust-hdr">
+        <div class="cust-av" style="background:${grads[i%grads.length]}">${c.initials}</div>
+        <div><div class="cust-name">${c.name}</div><div class="cust-since">since ${new Date(c.customer_since).toLocaleDateString('el-GR',{month:'short',year:'numeric'})}</div></div>
+      </div>
+      <span class="tier-tag ${tc[c.tier]||'ts'}">${tm[c.tier]||c.tier}</span>
+      <div class="cust-genre">🎵 ${c.fav_genre||'—'}</div>
+      <div class="cust-stats">
+        <div><div class="cs-num" style="color:var(--gold)">€${(c.avg_spend_month/1000).toFixed(1)}K</div><div class="cs-lbl">avg/mo</div></div>
+        <div><div class="cs-num">${c.total_visits}</div><div class="cs-lbl">visits</div></div>
+        <div><div class="cs-num" style="color:var(--neon3)">${c.points.toLocaleString()}</div><div class="cs-lbl">pts</div></div>
+      </div>
+    </div>`).join('');
+}
+document.querySelectorAll('[data-tf]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('[data-tf]').forEach(t => t.classList.remove('on'));
+    tab.classList.add('on'); loadCust(tab.dataset.tf === 'all' ? '' : tab.dataset.tf);
+  });
+});
+
+// ── PROMOTERS ──────────────────────────────────────────────────
+async function loadPromo() {
+  const data = await api.getPromoters(); if (!data || data.error || !Array.isArray(data)) return;
+  const tot = data.reduce((s, p) => s + p.guests_brought, 0);
+  const top = data.reduce((a, b) => a.guests_brought > b.guests_brought ? a : b, data[0]);
+  document.getElementById('promo-metrics').innerHTML =
+    mc('Promoters', data.length, 'c', 'cyan', '') +
+    mc('Guests', tot, 'g', 'gold', 'tonight') +
+    mc('Commissions', '€'+data.reduce((s,p)=>s+p.commission,0).toLocaleString(), 'p', 'neon3', 'this month') +
+    mc('Top', top?.name.split(' ')[0]||'—', 'gr', 'green', top?.guests_brought+' guests');
+  const mx = Math.max(...data.map(p => p.guests_brought));
+  const sm = {active:'st-conf',top:'st-vip',pending:'st-pend'};
+  document.getElementById('promo-table').innerHTML =
+    `<thead><tr><th>Promoter</th><th>Guests</th><th>Performance</th><th>Revenue</th><th>Commission</th><th>Status</th></tr></thead>
+    <tbody>${data.map(p=>`<tr>
+      <td><strong>${p.name}</strong></td>
+      <td style="color:var(--cyan)">${p.guests_brought}</td>
+      <td><div class="pbar"><div class="pbar-fill" style="width:${Math.round(p.guests_brought/mx*100)}%"></div></div></td>
+      <td style="color:var(--gold)">€${p.revenue_generated.toLocaleString()}</td>
+      <td style="color:var(--green)">€${p.commission.toLocaleString()}</td>
+      <td><span class="res-st ${sm[p.status]||'st-conf'}">${p.status}</span></td>
+    </tr>`).join('')}</tbody>`;
+}
+
+// ── ANALYTICS ──────────────────────────────────────────────────
+let anDone = false;
+async function loadAn() {
+  if (anDone) return; anDone = true;
+  document.getElementById('an-metrics').innerHTML =
+    mc('Μηνιαία Έσοδα','€284K','g','gold','+28% vs last season') +
+    mc('Avg Occupancy','76%','c','cyan','peak: 97%') +
+    mc('Events','24','p','neon3','this month') +
+    mc('Retention','67%','gr','green','industry: 43%');
+  const a = await api.getAnalytics(); if (!a || a.error) return;
+  mkChart('ch-monthly','bar',{labels:a.months,datasets:[{label:'€K',data:a.monthly_revenue,backgroundColor:a.monthly_revenue.map((_,i)=>`rgba(124,58,255,${.28+i*.12})`),borderRadius:5}]},{...CO,plugins:{...CO.plugins,legend:{display:false}}});
+  mkChart('ch-best','bar',{labels:a.days,datasets:[{label:'€K',data:a.best_nights,backgroundColor:a.best_nights.map(v=>v>15?'rgba(0,212,255,.8)':v>8?'rgba(124,58,255,.7)':'rgba(90,80,128,.5)'),borderRadius:5}]},{...CO,plugins:{...CO.plugins,legend:{display:false}}});
+  mkChart('ch-peak','line',{labels:a.hours,datasets:[{label:'Αφίξεις',data:a.arrivals_by_hour,borderColor:'rgba(255,45,138,.85)',backgroundColor:'rgba(255,45,138,.12)',fill:true,tension:.4,borderWidth:2,pointRadius:4}]},{...CO,plugins:{...CO.plugins,legend:{display:false}}});
+  mkChart('ch-spend','bar',{labels:a.tiers,datasets:[{label:'€',data:a.spend_by_tier,backgroundColor:['rgba(90,80,128,.55)','rgba(156,163,175,.65)','rgba(255,184,0,.75)','rgba(124,58,255,.85)'],borderRadius:7}]},{...CO,plugins:{...CO.plugins,legend:{display:false}}});
+}
+
+// ── STAFF ──────────────────────────────────────────────────────
+async function loadStaff() {
+  const [ov, rs] = await Promise.all([api.getOverview(), api.getReservations('?venue_id=v1')]);
+  const ovOk = ov && !ov.error;
+  const rsOk = rs && !rs.error && Array.isArray(rs);
+  if (ovOk) document.getElementById('staff-metrics').innerHTML =
+    mc('Checked In', rsOk ? rs.filter(r=>r.checked_in).length : 0, 'gr','green','of '+(ov.guest_list_count||0)+' expected') +
+    mc('Occupancy', ov.occupancy_pct+'%','c','cyan','') +
+    mc('Queue','42','k','pink2','~18 min wait') +
+    mc('No-Shows','8','g','gold','4 tables freed');
+  if (rsOk) {
+    const grads=['linear-gradient(135deg,rgba(124,58,255,.3),rgba(0,212,255,.2))','linear-gradient(135deg,rgba(255,45,138,.25),rgba(124,58,255,.15))','linear-gradient(135deg,rgba(0,229,160,.2),rgba(0,212,255,.15))','rgba(255,184,0,.2)'];
+    const pending = rs.filter(r => !r.checked_in).slice(0, 6);
+    document.getElementById('staff-queue').innerHTML = pending.map((r, i) => `
+      <div class="res-item">
+        <div class="res-av" style="background:${grads[i%grads.length]}">${r.customer_initials}</div>
+        <div class="res-info"><div class="res-name">${r.customer_name}</div><div class="res-detail">tbl ${r.table} · ${r.guests}pax · ${r.arrival_time}</div></div>
+        <button class="ra-btn ra-cin" onclick="cinRes('${r.id}')">check in</button>
+      </div>`).join('');
+  }
+}
+
+// ── MODAL SUBMITS ──────────────────────────────────────────────
+async function submitNewRes() {
+  const name = document.getElementById('nr-name').value.trim();
+  if (!name) { showToast('⚠️ Γράψε όνομα','Error'); return; }
+  const res = await api.createReservation({customer_name:name,guests:parseInt(document.getElementById('nr-guests').value),arrival_time:document.getElementById('nr-time').value,table_type:document.getElementById('nr-type').value,notes:document.getElementById('nr-notes').value,venue_id:'v1',event_id:'e1'});
+  if (res && !res.error) { showToast('✅ Κράτηση αποθηκεύτηκε!','New Reservation'); closeModal('modal-res'); loadRes(); }
+  else showToast('❌ Σφάλμα','Error');
+}
+async function submitNewCust() {
+  const name = document.getElementById('nc-name').value.trim();
+  if (!name) { showToast('⚠️ Γράψε όνομα','Error'); return; }
+  const res = await api.createCustomer({name,email:document.getElementById('nc-email').value,phone:document.getElementById('nc-phone').value,birthday:document.getElementById('nc-bday').value,fav_genre:document.getElementById('nc-genre').value});
+  if (res && !res.error) { showToast('✅ Πελάτης προστέθηκε!','New Customer'); closeModal('modal-cust'); loadCust(); }
+  else showToast('❌ Σφάλμα','Error');
+}
+async function submitNewPromo() {
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) { showToast('⚠️ Γράψε όνομα','Error'); return; }
+  const res = await api.createPromoter({name});
+  if (res && !res.error) { showToast('✅ Promoter προστέθηκε!','New Promoter'); closeModal('modal-promo'); loadPromo(); }
+  else showToast('❌ Σφάλμα','Error');
+}
+async function sendCampaign(type, count) {
+  const res = await api.sendCampaign(type, count);
+  if (res?.success) showToast(`📨 Campaign στάλθηκε σε ${count} contacts!`, 'Campaign Sent');
+}
+
+// ── MODAL HELPERS ──────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open');    }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
+);
+
+let toastT;
+function showToast(title, msg) {
+  const el = document.getElementById('toast-el');
+  document.getElementById('t-ttl').textContent = title;
+  document.getElementById('t-msg').textContent = msg || '';
+  el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function doLogout() {
+  api.logout();
+  localStorage.removeItem('nightflow_token');
+  localStorage.removeItem('nightflow_refresh_token');
+  localStorage.removeItem('nightflow_user');
+  window.location.href = 'auth.html';
+}
+
+// Terminal clock
+function updateClock() {
+  const now = new Date();
+  const clock = document.getElementById('term-clock');
+  if (clock) clock.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Set date in terminal style
+const today = new Date();
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+document.getElementById('ov-date').textContent = `// ${dayNames[today.getDay()]} ${today.getDate()} ${monthNames[today.getMonth()]} ${today.getFullYear()} · season_peak`;
+
+// Initial load
+loadOv();
+</script>
+</body>
+</html>

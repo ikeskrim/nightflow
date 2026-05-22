@@ -9,12 +9,13 @@
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background: #050505;
+  background: #0A1628;
   pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    LAYER 1: ANIMATED MESH GRADIENT (Linear.app style)
+   Mediterranean Ocean Navy base with coral/cyan/gold hints
    ═══════════════════════════════════════════════════════════════════════════ */
 .mesh-gradient {
   position: absolute;
@@ -22,11 +23,11 @@
   width: 200%;
   height: 200%;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(167,139,250,0.18), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,114,182,0.14), transparent 55%),
-    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(34,211,238,0.10), transparent 50%),
-    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(139,92,246,0.12), transparent 50%),
-    radial-gradient(ellipse 70% 50% at 30% 30%, rgba(249,115,22,0.06), transparent 45%);
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255,107,107,0.15), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(78,205,196,0.12), transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(255,217,61,0.10), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(255,142,142,0.10), transparent 50%),
+    radial-gradient(ellipse 70% 50% at 30% 30%, rgba(78,205,196,0.08), transparent 45%);
   animation: meshMove 25s ease-in-out infinite;
   will-change: transform;
 }
@@ -59,41 +60,41 @@
   will-change: transform;
 }
 
-/* Orb 1: Large purple - top left */
+/* Orb 1: Coral - top left */
 .orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(167,139,250,0.45) 0%, rgba(167,139,250,0.15) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,107,107,0.40) 0%, rgba(255,107,107,0.12) 40%, transparent 70%);
   top: -10%;
   left: -10%;
   animation: float1 20s ease-in-out infinite;
 }
 
-/* Orb 2: Medium pink - right side */
+/* Orb 2: Cyan - right side */
 .orb-2 {
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(244,114,182,0.4) 0%, rgba(244,114,182,0.12) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(78,205,196,0.35) 0%, rgba(78,205,196,0.10) 40%, transparent 70%);
   top: 45%;
   right: -8%;
   animation: float2 25s ease-in-out infinite;
 }
 
-/* Orb 3: Large cyan - bottom center */
+/* Orb 3: Gold - bottom center */
 .orb-3 {
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, rgba(34,211,238,0.3) 0%, rgba(34,211,238,0.1) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,217,61,0.28) 0%, rgba(255,217,61,0.08) 40%, transparent 70%);
   bottom: -18%;
   left: 25%;
   animation: float3 22s ease-in-out infinite;
 }
 
-/* Orb 4: Small violet - center float */
+/* Orb 4: Coral-light - center float */
 .orb-4 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, rgba(139,92,246,0.35) 0%, rgba(139,92,246,0.1) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,142,142,0.32) 0%, rgba(255,142,142,0.08) 40%, transparent 70%);
   top: 25%;
   left: 45%;
   animation: float4 18s ease-in-out infinite;

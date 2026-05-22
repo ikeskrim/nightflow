@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — NightFlow</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="theme-color" content="#0A1628">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .profile-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 24px 80px;
+    }
+
+    /* Profile Header */
+    .profile-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      padding: 40px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      margin-bottom: 32px;
+      backdrop-filter: blur(var(--blur-xl));
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .profile-email {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .profile-tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .tier-silver { background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); }
+    .tier-gold { background: rgba(255, 217, 61, 0.15); color: var(--gold); border: 1px solid rgba(255, 217, 61, 0.3); }
+    .tier-black { background: rgba(255, 107, 107, 0.15); color: var(--coral); border: 1px solid rgba(255, 107, 107, 0.3); }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      padding: 28px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      text-align: center;
+      backdrop-filter: blur(var(--blur-xl));
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 700;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    /* Tier Progress */
+    .tier-progress-section {
+      padding: 32px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      margin-bottom: 32px;
+      backdrop-filter: blur(var(--blur-xl));
+    }
+
+    .tier-progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .tier-progress-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .tier-progress-points {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .tier-progress-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .tier-icon {
+      font-size: 24px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-full);
+      transition: width 0.5s ease;
+    }
+
+    .tier-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    /* Reservations List */
+    .reservations-section {
+      margin-bottom: 32px;
+    }
+
+    .reservation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .reservation-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .reservation-item:hover {
+      border-color: var(--border-strong);
+      transform: translateX(4px);
+    }
+
+    .reservation-venue-img {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .reservation-info {
+      flex: 1;
+    }
+
+    .reservation-venue {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .reservation-details {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .reservation-status {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-confirmed { background: rgba(78, 205, 196, 0.15); color: var(--cyan); }
+    .status-pending { background: rgba(255, 217, 61, 0.15); color: var(--gold); }
+    .status-cancelled { background: rgba(255, 107, 107, 0.15); color: var(--coral); }
+
+    /* Favorites Grid */
+    .favorites-section {
+      margin-bottom: 32px;
+    }
+
+    .favorites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .favorite-card {
+      padding: 20px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .favorite-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-4px);
+    }
+
+    .favorite-emoji {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .favorite-name {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .favorite-type {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    /* Settings Section */
+    .settings-section {
+      padding: 32px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      margin-bottom: 32px;
+      backdrop-filter: blur(var(--blur-xl));
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      font-size: 15px;
+    }
+
+    .setting-description {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Toggle Switch */
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 26px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      transition: var(--duration-normal) var(--ease-out);
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: var(--duration-normal) var(--ease-out);
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--accent-gradient);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(22px);
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: var(--radius-lg);
+      color: var(--coral);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 107, 107, 0.2);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 32px 24px;
+      }
+
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+
+      .favorites-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation">
+  <div class="mesh-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="noise-overlay"></div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <a href="discover.html" class="nav-logo">
+    <div class="nav-mark">NF</div>
+    <div class="nav-brand">Night<span>Flow</span></div>
+  </a>
+  <div class="nav-center">
+    <div class="nav-links">
+      <a href="discover.html" class="nav-link">Discover</a>
+      <a href="reservations.html" class="nav-link">My Reservations</a>
+      <a href="profile.html" class="nav-link active">Profile</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-points" id="nav-points">0 pts</div>
+    <div class="nav-avatar" id="nav-avatar">?</div>
+  </div>
+</nav>
+
+<main class="profile-container">
+  <!-- Profile Header -->
+  <section class="profile-header">
+    <div class="profile-avatar" id="profile-avatar">?</div>
+    <div class="profile-info">
+      <h1 class="profile-name" id="profile-name">Loading...</h1>
+      <p class="profile-email" id="profile-email">...</p>
+      <span class="profile-tier-badge tier-silver" id="tier-badge">
+        <span>&#129352;</span> Silver Member
+      </span>
+    </div>
+  </section>
+
+  <!-- Stats Row -->
+  <section class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-visits">0</div>
+      <div class="stat-label">Total Visits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-points">0</div>
+      <div class="stat-label">NightFlow Points</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-member-since">-</div>
+      <div class="stat-label">Member Since</div>
+    </div>
+  </section>
+
+  <!-- Tier Progress -->
+  <section class="tier-progress-section">
+    <div class="tier-progress-header">
+      <h2 class="tier-progress-title">Tier Progress</h2>
+      <span class="tier-progress-points" id="progress-points">0 / 1,000 pts to Gold</span>
+    </div>
+    <div class="tier-progress-bar">
+      <span class="tier-icon">&#129352;</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <span class="tier-icon">&#129351;</span>
+    </div>
+    <div class="tier-labels">
+      <span>Silver</span>
+      <span>Gold</span>
+      <span>Black</span>
+    </div>
+  </section>
+
+  <!-- Recent Reservations -->
+  <section class="reservations-section">
+    <h2 class="section-title">Recent Reservations</h2>
+    <div class="reservation-list" id="reservations-list">
+      <div class="empty-state">
+        <div class="empty-icon">&#128197;</div>
+        <p>No reservations yet</p>
+      </div>
+    </div>
+    <a href="reservations.html" class="btn btn-secondary mt-4" style="display: inline-flex;">View All Reservations</a>
+  </section>
+
+  <!-- Favorite Venues -->
+  <section class="favorites-section">
+    <h2 class="section-title">Favorite Venues</h2>
+    <div class="favorites-grid" id="favorites-grid">
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-icon">&#10084;</div>
+        <p>No favorite venues yet</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section class="settings-section">
+    <h2 class="section-title">Notification Preferences</h2>
+
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">Event Alerts</div>
+        <div class="setting-description">Get notified about new events at your favorite venues</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" checked id="pref-events">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">Booking Reminders</div>
+        <div class="setting-description">Receive reminders before your reservations</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" checked id="pref-reminders">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">Promotional Offers</div>
+        <div class="setting-description">Exclusive deals and special offers</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pref-promos">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">Points Updates</div>
+        <div class="setting-description">Get notified when you earn or use points</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" checked id="pref-points">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Logout -->
+  <button class="logout-btn" onclick="doLogout()">
+    Log Out
+  </button>
+</main>
+
+<script src="js/api.js"></script>
+<script>
+  // Check auth
+  const user = NightFlowAPI.getUser();
+  if (!user) window.location.href = 'auth.html';
+
+  // Update nav
+  document.getElementById('nav-avatar').textContent = (user?.name || '?').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+  document.getElementById('nav-points').textContent = `${(user?.points || 0).toLocaleString()} pts`;
+
+  // Profile data
+  const initials = (user?.name || '?').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+  document.getElementById('profile-avatar').textContent = initials;
+  document.getElementById('profile-name').textContent = user?.name || 'Guest User';
+  document.getElementById('profile-email').textContent = user?.email || '';
+
+  // Tier badge
+  const tier = user?.tier || 'silver';
+  const tierBadge = document.getElementById('tier-badge');
+  const tierIcons = { silver: '&#129352;', gold: '&#129351;', black: '&#128142;' };
+  const tierNames = { silver: 'Silver Member', gold: 'Gold Member', black: 'Black Member' };
+  tierBadge.className = `profile-tier-badge tier-${tier}`;
+  tierBadge.innerHTML = `<span>${tierIcons[tier]}</span> ${tierNames[tier]}`;
+
+  // Stats
+  const points = user?.points || 0;
+  document.getElementById('stat-visits').textContent = user?.total_visits || Math.floor(points / 50);
+  document.getElementById('stat-points').textContent = points.toLocaleString();
+
+  // Member since
+  const memberSince = user?.created_at ? new Date(user.created_at).getFullYear() : new Date().getFullYear();
+  document.getElementById('stat-member-since').textContent = memberSince;
+
+  // Tier progress
+  const tiers = {
+    silver: { next: 1000, nextName: 'Gold' },
+    gold: { next: 4000, nextName: 'Black' },
+    black: { next: 99999, nextName: 'Max' }
+  };
+  const t = tiers[tier] || tiers.silver;
+  const progress = tier === 'black' ? 100 : Math.min(100, Math.round(points / t.next * 100));
+  document.getElementById('progress-fill').style.width = progress + '%';
+  document.getElementById('progress-points').textContent = tier === 'black'
+    ? 'Maximum tier reached!'
+    : `${points.toLocaleString()} / ${t.next.toLocaleString()} pts to ${t.nextName}`;
+
+  // Load reservations
+  async function loadReservations() {
+    try {
+      const reservations = await NightFlowAPI.getReservations('limit=3');
+      const container = document.getElementById('reservations-list');
+
+      if (!reservations || reservations.length === 0) {
+        return;
+      }
+
+      container.innerHTML = reservations.map(r => {
+        const statusClass = r.status === 'confirmed' ? 'status-confirmed' :
+                           r.status === 'pending' ? 'status-pending' : 'status-cancelled';
+        const statusText = r.status.charAt(0).toUpperCase() + r.status.slice(1);
+
+        return `<div class="reservation-item" onclick="window.location.href='venue.html?id=${r.venue_id}'">
+          <div class="reservation-venue-img">${r.venue_emoji || '&#127926;'}</div>
+          <div class="reservation-info">
+            <div class="reservation-venue">${r.venue_name || 'Venue'}</div>
+            <div class="reservation-details">${r.date || 'TBD'} at ${r.time || ''} - ${r.guests || 2} guests</div>
+          </div>
+          <span class="reservation-status ${statusClass}">${statusText}</span>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      console.log('Could not load reservations');
+    }
+  }
+
+  // Load favorites
+  async function loadFavorites() {
+    try {
+      const response = await fetch('/api/favorites', {
+        headers: NightFlowAPI.authHeaders()
+      });
+      const data = await response.json();
+      const favorites = data.data || [];
+
+      if (!favorites || favorites.length === 0) {
+        return;
+      }
+
+      const container = document.getElementById('favorites-grid');
+      container.innerHTML = favorites.map(f => `
+        <div class="favorite-card" onclick="window.location.href='venue.html?id=${f.venue_id}'">
+          <div class="favorite-emoji">${f.emoji || '&#127926;'}</div>
+          <div class="favorite-name">${f.name}</div>
+          <div class="favorite-type">${f.type || 'Venue'}</div>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.log('Could not load favorites');
+    }
+  }
+
+  async function doLogout() {
+    await NightFlowAPI.logout();
+    window.location.href = 'auth.html';
+  }
+
+  // Init
+  loadReservations();
+  loadFavorites();
+
+  // Nav scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+  });
+</script>
+</body>
+</html>

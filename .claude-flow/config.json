@@ -1,0 +1,48 @@
+{
+  "version": "3.7.0",
+  "project": "nightflow",
+  "initialized": "2026-05-22",
+  "swarm": {
+    "topology": "hierarchical",
+    "maxAgents": 6,
+    "strategy": "specialized",
+    "consensus": "raft"
+  },
+  "memory": {
+    "backend": "hybrid",
+    "path": "./.claude-flow/memory"
+  },
+  "agents": {
+    "default": ["coder", "reviewer", "tester"],
+    "routing": {
+      "flask": "backend-dev",
+      "css": "coder",
+      "javascript": "coder",
+      "security": "security-auditor"
+    }
+  },
+  "hooks": {
+    "enabled": true,
+    "workers": ["optimize", "audit"]
+  },
+  "stack": {
+    "backend": {
+      "framework": "flask",
+      "language": "python",
+      "dataStore": "json"
+    },
+    "frontend": {
+      "type": "vanilla",
+      "html": true,
+      "css": true,
+      "javascript": true,
+      "frameworks": []
+    }
+  },
+  "theme": {
+    "name": "dark-nightclub",
+    "fonts": ["DM Sans", "Syne"],
+    "primaryColor": "#7C3AFF",
+    "accentColors": ["#00D4FF", "#FF2D8A", "#FFB800", "#00E5A0"]
+  }
+}

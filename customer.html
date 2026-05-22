@@ -7,9 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css">
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="apple-touch-icon" href="favicon.svg">
-<meta name="theme-color" content="#0A1628">
 <style>
 .profile-layout{max-width:960px;margin:0 auto;padding:84px 24px 60px;display:grid;grid-template-columns:300px 1fr;gap:24px}
 .profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:28px;height:fit-content;position:sticky;top:84px}
@@ -54,17 +51,6 @@
 </style>
 </head>
 <body>
-
-<!-- Animated Background -->
-<div class="bg-animation">
-  <div class="mesh-gradient"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
-  <div class="noise-overlay"></div>
-</div>
-
 <nav style="position:fixed;top:0;left:0;right:0;z-index:200;height:64px;display:flex;align-items:center;gap:16px;padding:0 24px;background:rgba(8,6,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)">
   <a href="index.html?page=dashboard" style="display:flex;align-items:center;gap:10px;text-decoration:none">
     <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--neon),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff">NF</div>
@@ -138,11 +124,11 @@ document.getElementById('nav-user').textContent = user?.name || '';
 const TIER_LABELS = { gold:'🥇 Gold', black:'💎 Black', silver:'🥈 Silver' };
 const TIER_CSS = { gold:'tier-gold', black:'tier-black', silver:'tier-silver' };
 const GRAD_COLORS = [
-  'linear-gradient(135deg,#FF6B6B,#4ECDC4)',
-  'linear-gradient(135deg,#4ECDC4,#FFD93D)',
-  'linear-gradient(135deg,#4ECDC4,#FF6B6B)',
-  'linear-gradient(135deg,#FFD93D,#FF8E53)',
-  'linear-gradient(135deg,#FF6B6B,#4ECDC4)',
+  'linear-gradient(135deg,#7C3AFF,#FF2D8A)',
+  'linear-gradient(135deg,#FF2D8A,#FFB800)',
+  'linear-gradient(135deg,#00D4FF,#7C3AFF)',
+  'linear-gradient(135deg,#FFB800,#FF6BB0)',
+  'linear-gradient(135deg,#9B5FFF,#00A8D4)',
   'linear-gradient(135deg,#6b7280,#9ca3af)',
 ];
 

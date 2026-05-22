@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — NightFlow</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="theme-color" content="#0A1628">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0A1628;
+      --bg-secondary: #0F1F35;
+      --coral: #FF6B6B;
+      --cyan: #4ECDC4;
+      --text-primary: #F0F4F8;
+      --text-secondary: #B0BEC5;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .container { max-width: 500px; }
+    .code {
+      font-family: 'Syne', sans-serif;
+      font-size: 160px;
+      font-weight: 800;
+      color: var(--coral);
+      line-height: 1;
+      margin-bottom: 24px;
+      text-shadow: 0 0 60px rgba(255,107,107,0.3);
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .links {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--coral), #FF8E8E);
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,107,0.3); }
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { border-color: var(--cyan); }
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.4;
+      z-index: -1;
+    }
+    .orb-1 { width: 400px; height: 400px; background: var(--coral); top: -100px; left: -100px; }
+    .orb-2 { width: 300px; height: 300px; background: var(--cyan); bottom: -50px; right: -50px; }
+  </style>
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="container">
+    <div class="code">404</div>
+    <h1>Η σελίδα δεν βρέθηκε</h1>
+    <p>The page you're looking for doesn't exist or has been moved.</p>
+    <div class="links">
+      <a href="discover.html" class="btn btn-primary">Discover Venues</a>
+      <a href="index.html" class="btn btn-secondary">Home</a>
+    </div>
+  </div>
+</body>
+</html>

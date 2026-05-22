@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow — Event</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<style>
+.event-hero{min-height:380px;position:relative;display:flex;align-items:flex-end;padding:40px;overflow:hidden}
+.event-hero-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:160px;opacity:.18}
+.event-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,15,.3) 0%,rgba(8,6,15,.95) 100%)}
+.event-hero-content{position:relative;z-index:1;width:100%;max-width:900px;margin:0 auto}
+.back-btn{display:inline-flex;align-items:center;gap:8px;color:var(--text2);font-size:14px;text-decoration:none;margin-bottom:24px;transition:color .2s}
+.back-btn:hover{color:var(--text)}
+.event-detail-title{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+.event-meta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.event-meta-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:50px;padding:5px 14px;font-size:13px;color:var(--text2)}
+
+.event-body{max-width:900px;margin:0 auto;padding:40px 24px;display:grid;grid-template-columns:1fr 340px;gap:32px}
+.event-desc-card,.event-reserve-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:28px}
+.block-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;letter-spacing:-.3px}
+.event-description{font-size:15px;color:var(--text2);line-height:1.7}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.info-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:16px}
+.info-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}
+.info-value{font-family:'Syne',sans-serif;font-size:20px;font-weight:700}
+
+.pop-section{margin-top:20px}
+.pop-label{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:8px}
+.pop-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.pop-fill-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neon),var(--cyan))}
+
+/* Reserve card */
+.price-display{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--neon3);margin-bottom:4px}
+.price-note{font-size:13px;color:var(--text3);margin-bottom:24px}
+.reserve-form .field{margin-bottom:14px}
+.reserve-form .field label{display:block;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.reserve-form .field input,
+.reserve-form .field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.reserve-form .field input:focus,
+.reserve-form .field select:focus{border-color:rgba(124,58,255,.6)}
+.reserve-form .field select option{background:var(--bg2)}
+.btn-reserve{width:100%;padding:14px;background:linear-gradient(135deg,var(--neon),var(--neon2));border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;transition:all .2s;margin-top:4px}
+.btn-reserve:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(124,58,255,.4)}
+.btn-reserve:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn-guestlist{width:100%;padding:12px;background:none;border:1px solid var(--border2);border-radius:12px;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:10px}
+.btn-guestlist:hover{border-color:rgba(124,58,255,.4);color:var(--neon3)}
+.reserve-success{display:none;text-align:center;padding:20px}
+.reserve-success .big-icon{font-size:48px;margin-bottom:12px}
+.reserve-success .ref{font-family:monospace;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 16px;font-size:14px;color:var(--neon3);display:inline-block;margin-top:8px}
+.divider-or{text-align:center;color:var(--text3);font-size:12px;margin:14px 0;position:relative}
+.divider-or::before,.divider-or::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.divider-or::before{left:0}.divider-or::after{right:0}
+
+.error-inline{color:var(--red);font-size:12px;margin-top:8px;display:none}
+.error-inline.show{display:block}
+
+@media(max-width:700px){
+  .event-body{grid-template-columns:1fr}
+  .event-hero{padding:24px 16px;min-height:280px}
+}
+</style>
+</head>
+<body>
+<div class="bg-glow" style="position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(124,58,255,.2) 0%,transparent 65%)"></div>
+
+<!-- NAV -->
+<nav id="main-nav" style="position:fixed;top:0;left:0;right:0;z-index:200;height:64px;display:flex;align-items:center;gap:16px;padding:0 24px;background:rgba(8,6,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)">
+  <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--neon),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff">NF</div>
+    <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.5px;color:var(--text)">Night<span style="color:var(--neon3)">Flow</span></span>
+  </a>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <span id="nav-user-info" style="font-size:13px;color:var(--text2)"></span>
+    <button id="nav-logout-btn" onclick="doLogout()" style="display:none;padding:6px 16px;border-radius:50px;font-size:13px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer">Έξοδος</button>
+    <button id="nav-login-btn" onclick="window.location.href='auth.html'" style="padding:7px 18px;border-radius:50px;font-size:13px;background:linear-gradient(135deg,var(--neon),var(--neon2));border:none;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">Σύνδεση</button>
+  </div>
+</nav>
+
+<div style="padding-top:64px">
+
+  <!-- EVENT HERO -->
+  <div class="event-hero img-club1" id="event-hero">
+    <div class="event-hero-bg" id="hero-emoji">🎧</div>
+    <div class="event-hero-overlay"></div>
+    <div class="event-hero-content">
+      <a href="index.html" class="back-btn">← Πίσω στα events</a>
+      <div id="event-badges" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+      <h1 class="event-detail-title" id="event-title">Φόρτωση...</h1>
+      <div class="event-meta-row">
+        <div class="event-meta-chip" id="meta-venue">📍</div>
+        <div class="event-meta-chip" id="meta-genre">🎧</div>
+        <div class="event-meta-chip" id="meta-time">🕐</div>
+        <div class="event-meta-chip" id="meta-dj">🎤</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="event-body">
+    <!-- LEFT: Info -->
+    <div>
+      <div class="event-desc-card">
+        <div class="block-title">Σχετικά με το Event</div>
+        <div class="event-description" id="event-description">Φόρτωση...</div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Είσοδος</div>
+            <div class="info-value" id="info-price">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Min. VIP Spend</div>
+            <div class="info-value" id="info-vip">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Κόσμος τώρα</div>
+            <div class="info-value" id="info-crowd">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Ώρα έναρξης</div>
+            <div class="info-value" id="info-time">—</div>
+          </div>
+        </div>
+
+        <div class="pop-section">
+          <div class="pop-label">
+            <span>Δημοτικότητα</span>
+            <span id="pop-pct">—</span>
+          </div>
+          <div class="pop-track"><div class="pop-fill-bar" id="pop-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Venue info -->
+      <div class="event-desc-card" style="margin-top:20px">
+        <div class="block-title">Venue</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div id="venue-emoji" style="font-size:36px"></div>
+          <div>
+            <div id="venue-name" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px"></div>
+            <div id="venue-address" style="font-size:13px;color:var(--text2)"></div>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <span id="venue-type" class="genre-tag"></span>
+              <span id="venue-verified" style="display:none" class="genre-tag" style="color:var(--green)">✅ Verified</span>
+              <span id="venue-english" style="display:none" class="genre-tag">🇬🇧 English Staff</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Reserve -->
+    <div>
+      <div class="event-reserve-card" style="position:sticky;top:84px">
+        <div id="reserve-form-wrap">
+          <div class="block-title">Κράτηση Τραπεζιού</div>
+          <div class="price-display" id="reserve-price">€0</div>
+          <div class="price-note" id="reserve-price-note">Τιμή εισόδου ανά άτομο</div>
+
+          <div class="reserve-form">
+            <div class="field">
+              <label>Αριθμός ατόμων</label>
+              <select id="r-guests">
+                <option value="1">1 άτομο</option>
+                <option value="2">2 άτομα</option>
+                <option value="3" selected>3 άτομα</option>
+                <option value="4">4 άτομα</option>
+                <option value="5">5 άτομα</option>
+                <option value="6">6 άτομα</option>
+                <option value="8">8 άτομα</option>
+                <option value="10">10+ άτομα</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Ώρα άφιξης</label>
+              <select id="r-time">
+                <option>21:00</option><option>22:00</option>
+                <option selected>23:00</option><option>00:00</option><option>01:00</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Τύπος</label>
+              <select id="r-type">
+                <option value="standard">Standard Table</option>
+                <option value="vip">VIP Table</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Σημειώσεις (προαιρετικά)</label>
+              <input type="text" id="r-notes" placeholder="π.χ. γενέθλια, πανό..." />
+            </div>
+            <div class="error-inline" id="r-error"></div>
+            <button class="btn-reserve" id="btn-do-reserve" onclick="submitReservation()">Κράτηση →</button>
+            <div class="divider-or">ή</div>
+            <button class="btn-guestlist" id="btn-guestlist" onclick="joinGuestList()">Μπες στη Λίστα (δωρεάν)</button>
+          </div>
+        </div>
+
+        <div class="reserve-success" id="reserve-success">
+          <div class="big-icon">🎉</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px">Η κράτησή σου έγινε!</div>
+          <div style="font-size:14px;color:var(--text2);margin-bottom:12px">Θα λάβεις επιβεβαίωση σύντομα.</div>
+          <div class="ref" id="booking-ref"></div>
+          <button onclick="window.location.href='index.html'" style="margin-top:20px;width:100%;padding:12px;background:linear-gradient(135deg,var(--neon),var(--neon2));border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif">← Πίσω στα Events</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const eventId = params.get('id');
+let currentEvent = null;
+
+// Auth check
+const user = JSON.parse(localStorage.getItem('nightflow_user') || 'null');
+if (user) {
+  document.getElementById('nav-user-info').textContent = user.name;
+  document.getElementById('nav-logout-btn').style.display = 'inline-block';
+  document.getElementById('nav-login-btn').style.display = 'none';
+}
+
+function doLogout() {
+  api.logout();
+  localStorage.removeItem('nightflow_token');
+  localStorage.removeItem('nightflow_user');
+  window.location.href = 'auth.html';
+}
+
+async function loadEvent() {
+  if (!eventId) { document.getElementById('event-title').textContent = 'Event not found'; return; }
+
+  const ev = await api.getEvent(eventId);
+  if (!ev || ev.error) { document.getElementById('event-title').textContent = 'Event not found'; return; }
+  currentEvent = ev;
+
+  // Hero
+  document.title = `NightFlow — ${ev.title}`;
+  document.getElementById('event-hero').className = `event-hero ${ev.image_class || 'img-club1'}`;
+  document.getElementById('hero-emoji').textContent = ev.image_emoji || '🎧';
+  document.getElementById('event-title').textContent = ev.title;
+
+  // Badges
+  const badgeMap = { trending:'badge-trending 🔥 Trending', live:'badge-live ● LIVE', vip:'badge-vip 💎 VIP', tourist:'badge-tourist ✈️ Tourist', new:'badge-new ⚡ New' };
+  document.getElementById('event-badges').innerHTML = (ev.badges||[]).map(b => {
+    const parts = (badgeMap[b]||'').split(' ');
+    const cls = parts.shift();
+    return `<span class="badge ${cls}">${parts.join(' ')}</span>`;
+  }).join('');
+
+  // Meta
+  document.getElementById('meta-venue').textContent = `📍 ${ev.venue_name}`;
+  document.getElementById('meta-genre').textContent = `${ev.genre_icon} ${ev.genre}`;
+  document.getElementById('meta-time').textContent = `🕐 ${ev.start_time}`;
+  document.getElementById('meta-dj').textContent = `🎤 ${ev.dj}`;
+
+  // Body
+  document.getElementById('event-description').textContent = ev.description || 'Δεν υπάρχει περιγραφή.';
+  document.getElementById('info-price').textContent = ev.entry_price === 0 ? 'FREE' : `€${ev.entry_price}`;
+  document.getElementById('info-vip').textContent = ev.min_spend_vip > 0 ? `€${ev.min_spend_vip}` : 'N/A';
+  document.getElementById('info-crowd').textContent = `${ev.venue_current} / ${ev.venue_capacity}`;
+  document.getElementById('info-time').textContent = ev.start_time;
+  document.getElementById('pop-pct').textContent = `${ev.popularity}%`;
+  document.getElementById('pop-bar').style.width = ev.popularity + '%';
+
+  // Reserve card
+  document.getElementById('reserve-price').textContent = ev.entry_price === 0 ? 'FREE' : `€${ev.entry_price}`;
+  document.getElementById('reserve-price-note').textContent = ev.entry_price === 0 ? 'Ελεύθερη είσοδος' : 'Τιμή εισόδου ανά άτομο';
+  if (!ev.guest_list_open) document.getElementById('btn-guestlist').style.display = 'none';
+
+  // Venue
+  document.getElementById('venue-emoji').textContent = ev.image_emoji;
+  document.getElementById('venue-name').textContent = ev.venue_name;
+  document.getElementById('venue-address').textContent = '📍 Ρέθυμνο, Κρήτη';
+}
+
+async function submitReservation() {
+  if (!user) { window.location.href = 'auth.html'; return; }
+
+  const btn = document.getElementById('btn-do-reserve');
+  const errEl = document.getElementById('r-error');
+  errEl.classList.remove('show');
+  btn.disabled = true; btn.textContent = 'Αποστολή...';
+
+  const result = await api.createReservation({
+    customer_name: user.name,
+    customer_id: user.customer_id || null,
+    guests: parseInt(document.getElementById('r-guests').value),
+    arrival_time: document.getElementById('r-time').value,
+    table_type: document.getElementById('r-type').value,
+    notes: document.getElementById('r-notes').value,
+    venue_id: currentEvent?.venue_id || 'v1',
+    event_id: eventId,
+  });
+
+  btn.disabled = false; btn.textContent = 'Κράτηση →';
+
+  if (!result || result.error) {
+    errEl.textContent = result?.error || 'Σφάλμα. Δοκίμασε ξανά.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  // Show success
+  document.getElementById('reserve-form-wrap').style.display = 'none';
+  document.getElementById('reserve-success').style.display = 'block';
+  document.getElementById('booking-ref').textContent = `Ref: NF-${result.id?.toUpperCase()}`;
+}
+
+async function joinGuestList() {
+  if (!user) { window.location.href = 'auth.html'; return; }
+
+  const result = await api.joinGuestList({
+    event_id: eventId,
+    event_title: currentEvent?.title,
+    customer_name: user.name,
+  });
+
+  if (result && !result.error) {
+    document.getElementById('reserve-form-wrap').style.display = 'none';
+    document.getElementById('reserve-success').style.display = 'block';
+    document.getElementById('booking-ref').textContent = `List Ref: ${result.reference}`;
+  }
+}
+
+loadEvent();
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — NightFlow</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1628">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0A1628;
+      --bg-secondary: #0F1F35;
+      --bg-tertiary: #16294A;
+      --coral: #FF6B6B;
+      --coral-light: #FF8E8E;
+      --cyan: #4ECDC4;
+      --gold: #FFD93D;
+      --text-primary: #F0F4F8;
+      --text-secondary: #B0BEC5;
+      --border: rgba(255,255,255,0.08);
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(10,22,40,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--coral); }
+    .hero {
+      padding: 140px 24px 80px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 8vw, 64px);
+      margin-bottom: 20px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--coral), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .section {
+      padding: 80px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--coral);
+      transform: translateY(-4px);
+    }
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--coral), var(--coral-light));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 24px;
+      margin-top: 60px;
+      padding: 40px;
+      background: var(--bg-tertiary);
+      border-radius: 24px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--coral);
+    }
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .cta {
+      text-align: center;
+      padding: 80px 24px;
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    }
+    .cta h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    .cta p {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--coral), var(--coral-light));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,107,107,0.3);
+    }
+    .footer {
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">Night<span>Flow</span></a>
+    <a href="discover.html" style="color:var(--coral);text-decoration:none;font-weight:500;">Discover →</a>
+  </nav>
+
+  <section class="hero">
+    <h1>Your <span>Nightlife</span><br>Operating System</h1>
+    <p>NightFlow connects you with the best nightlife in Rethymno, Crete. Discover venues, book tables, earn rewards, and skip the line.</p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Why NightFlow?</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Discover</h3>
+        <p>Find the hottest clubs, beach bars, and events happening tonight in Rethymno.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎫</div>
+        <h3>Book Instantly</h3>
+        <p>Reserve tables, join guest lists, and get VIP access with just a tap.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⭐</div>
+        <h3>Earn Rewards</h3>
+        <p>Collect points with every visit and unlock exclusive perks and upgrades.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Skip the Line</h3>
+        <p>Priority entry at partner venues. Your QR code is your VIP pass.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">7</div>
+        <div class="stat-label">Partner Venues</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">2K+</div>
+        <div class="stat-label">Guests Tonight</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">94%</div>
+        <div class="stat-label">Satisfaction</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">Support</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Ready to experience Rethymno nightlife?</h2>
+    <p>Join thousands of party-goers discovering the best nights out.</p>
+    <a href="discover.html" class="btn-primary">Start Exploring →</a>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 NightFlow. Made with ❤️ in Rethymno, Crete.</p>
+  </footer>
+</body>
+</html>

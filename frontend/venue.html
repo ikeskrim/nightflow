@@ -9,26 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#0A1628">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
 :root {
-  --bg: #050505;
-  --bg-elevated: #0a0a0a;
-  --bg-card: #111111;
-  --bg-card-hover: #161616;
+  /* Mediterranean Ocean Navy & Coral Palette */
+  --bg: #0A1628;
+  --bg-elevated: #0F1F35;
+  --bg-card: #16294A;
+  --bg-card-hover: #1D3457;
   --border: rgba(255,255,255,0.06);
   --border-hover: rgba(255,255,255,0.12);
-  --text: #ffffff;
-  --text-secondary: #a1a1a1;
-  --text-tertiary: #666666;
-  --accent: #a78bfa;
-  --accent-secondary: #c4b5fd;
-  --gold: #f59e0b;
-  --emerald: #10b981;
-  --rose: #f472b6;
-  --cyan: #22d3ee;
+  --text: #F0F4F8;
+  --text-secondary: #B0BEC5;
+  --text-tertiary: #6B7B8C;
+  --accent: #FF6B6B;
+  --accent-secondary: #FF8E8E;
+  --gold: #FFD93D;
+  --emerald: #4ECDC4;
+  --rose: #FF6B6B;
+  --cyan: #4ECDC4;
   --glass: rgba(255,255,255,0.03);
   --glass-border: rgba(255,255,255,0.08);
 }
@@ -50,13 +51,13 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
   height:72px;
   display:flex;align-items:center;
   padding:0 clamp(16px,4vw,48px);
-  background:rgba(5,5,5,0.7);
+  background:rgba(10,22,40,0.7);
   backdrop-filter:blur(20px) saturate(180%);
   -webkit-backdrop-filter:blur(20px) saturate(180%);
   border-bottom:1px solid transparent;
   transition:all 0.3s;
 }
-.nav.scrolled{height:60px;background:rgba(5,5,5,0.95);border-bottom-color:var(--border)}
+.nav.scrolled{height:60px;background:rgba(10,22,40,0.95);border-bottom-color:var(--border)}
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
 .nav-mark{
   width:42px;height:42px;border-radius:12px;
@@ -111,7 +112,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
 .gallery-overlay{
   position:absolute;bottom:0;left:0;right:0;
   height:50%;
-  background:linear-gradient(to top,rgba(5,5,5,0.9),transparent);
+  background:linear-gradient(to top,rgba(10,22,40,0.9),transparent);
   pointer-events:none;
 }
 .gallery-count{
@@ -158,7 +159,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
 }
 .badge-open{background:rgba(16,185,129,0.1);color:var(--emerald);border:1px solid rgba(16,185,129,0.2)}
 .badge-party{background:rgba(245,158,11,0.1);color:var(--gold);border:1px solid rgba(245,158,11,0.2)}
-.badge-club{background:rgba(167,139,250,0.1);color:var(--accent-secondary);border:1px solid rgba(167,139,250,0.2)}
+.badge-club{background:rgba(255,107,107,0.1);color:var(--accent-secondary);border:1px solid rgba(255,107,107,0.2)}
 .badge-closed{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.15)}
 
 .venue-title{
@@ -197,8 +198,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
 
 /* Crowd Meter */
 .crowd-section{
-  background:linear-gradient(145deg,rgba(167,139,250,0.05),rgba(244,114,182,0.03));
-  border:1px solid rgba(167,139,250,0.15);
+  background:linear-gradient(145deg,rgba(255,107,107,0.05),rgba(78,205,196,0.03));
+  border:1px solid rgba(255,107,107,0.15);
   border-radius:20px;
   padding:24px;
   margin-bottom:32px;
@@ -234,7 +235,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
   font-size:14px;font-weight:600;
   cursor:pointer;transition:all 0.2s;
 }
-.map-btn:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(167,139,250,0.3)}
+.map-btn:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(255,107,107,0.3)}
 
 /* Info Section */
 .info-section{margin-bottom:32px}
@@ -264,8 +265,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
 .tags-grid{display:flex;gap:10px;flex-wrap:wrap}
 .tag{
   padding:8px 16px;border-radius:100px;
-  background:rgba(167,139,250,0.08);
-  border:1px solid rgba(167,139,250,0.15);
+  background:rgba(255,107,107,0.08);
+  border:1px solid rgba(255,107,107,0.15);
   font-size:13px;color:var(--accent-secondary);
 }
 
@@ -356,7 +357,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
   transition:left 0.5s;
 }
 .btn-book:hover::after{left:100%}
-.btn-book:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(167,139,250,0.3)}
+.btn-book:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(255,107,107,0.3)}
 .btn-book:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 .btn-guestlist{
@@ -491,23 +492,23 @@ h1,h2,h3,h4,h5,h6{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:-
    ANIMATED BACKGROUND — Premium multi-layer effect
 ═══════════════════════════════════════════════════════════════ */
 .bg-animation {
-  position:fixed;inset:0;z-index:-1;overflow:hidden;background:#050505;pointer-events:none;
+  position:fixed;inset:0;z-index:-1;overflow:hidden;background:#0A1628;pointer-events:none;
 }
 .bg-animation .mesh-gradient {
   position:absolute;inset:-50%;width:200%;height:200%;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(167,139,250,0.18), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244,114,182,0.14), transparent 55%),
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255,107,107,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(78,205,196,0.14), transparent 55%),
     radial-gradient(ellipse 50% 60% at 50% 80%, rgba(34,211,238,0.10), transparent 50%),
-    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(139,92,246,0.12), transparent 50%);
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(255,142,142,0.12), transparent 50%);
   animation:bgMeshMove 25s ease-in-out infinite;will-change:transform;
 }
 @keyframes bgMeshMove{0%,100%{transform:translate(0,0) scale(1) rotate(0deg)}25%{transform:translate(5%,3%) scale(1.05) rotate(1deg)}50%{transform:translate(-3%,5%) scale(1.02) rotate(-0.5deg)}75%{transform:translate(3%,-3%) scale(1.03) rotate(0.5deg)}}
 .bg-animation .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.6;mix-blend-mode:screen;will-change:transform}
-.bg-animation .orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,0.45) 0%,rgba(167,139,250,0.15) 40%,transparent 70%);top:-10%;left:-10%;animation:bgFloat1 20s ease-in-out infinite}
-.bg-animation .orb-2{width:450px;height:450px;background:radial-gradient(circle,rgba(244,114,182,0.4) 0%,rgba(244,114,182,0.12) 40%,transparent 70%);top:45%;right:-8%;animation:bgFloat2 25s ease-in-out infinite}
+.bg-animation .orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(255,107,107,0.45) 0%,rgba(255,107,107,0.15) 40%,transparent 70%);top:-10%;left:-10%;animation:bgFloat1 20s ease-in-out infinite}
+.bg-animation .orb-2{width:450px;height:450px;background:radial-gradient(circle,rgba(78,205,196,0.4) 0%,rgba(78,205,196,0.12) 40%,transparent 70%);top:45%;right:-8%;animation:bgFloat2 25s ease-in-out infinite}
 .bg-animation .orb-3{width:550px;height:550px;background:radial-gradient(circle,rgba(34,211,238,0.3) 0%,rgba(34,211,238,0.1) 40%,transparent 70%);bottom:-18%;left:25%;animation:bgFloat3 22s ease-in-out infinite}
-.bg-animation .orb-4{width:350px;height:350px;background:radial-gradient(circle,rgba(139,92,246,0.35) 0%,rgba(139,92,246,0.1) 40%,transparent 70%);top:25%;left:45%;animation:bgFloat4 18s ease-in-out infinite}
+.bg-animation .orb-4{width:350px;height:350px;background:radial-gradient(circle,rgba(255,142,142,0.35) 0%,rgba(255,142,142,0.1) 40%,transparent 70%);top:25%;left:45%;animation:bgFloat4 18s ease-in-out infinite}
 @keyframes bgFloat1{0%,100%{transform:translate(0,0) scale(1)}20%{transform:translate(8%,4%) scale(1.03)}40%{transform:translate(4%,10%) scale(0.98)}60%{transform:translate(-4%,6%) scale(1.02)}80%{transform:translate(2%,-2%) scale(1)}}
 @keyframes bgFloat2{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(-10%,6%) scale(1.04)}50%{transform:translate(-5%,-8%) scale(0.97)}75%{transform:translate(5%,4%) scale(1.02)}}
 @keyframes bgFloat3{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-6%,-10%) scale(1.02)}66%{transform:translate(10%,-4%) scale(0.98)}}

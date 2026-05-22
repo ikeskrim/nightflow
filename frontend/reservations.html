@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Reservations — NightFlow</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1628">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0A1628;
+      --bg-secondary: #0F1F35;
+      --bg-tertiary: #16294A;
+      --bg-elevated: #1D3457;
+      --coral: #FF6B6B;
+      --coral-light: #FF8E8E;
+      --cyan: #4ECDC4;
+      --gold: #FFD93D;
+      --text-primary: #F0F4F8;
+      --text-secondary: #B0BEC5;
+      --text-tertiary: #6B7B8C;
+      --border: rgba(255,255,255,0.08);
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(10,22,40,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--coral); }
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .nav-back:hover { color: var(--text-primary); }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 88px 24px 24px;
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    .tab {
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: var(--text-primary); }
+    .tab.active {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    .reservation-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 20px;
+      transition: all 0.2s;
+    }
+    .reservation-card:hover {
+      border-color: var(--coral);
+      transform: translateY(-2px);
+    }
+    .venue-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .reservation-info { flex: 1; }
+    .venue-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .reservation-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-badge {
+      display: inline-flex;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .status-confirmed { background: rgba(78,205,196,0.15); color: var(--cyan); }
+    .status-pending { background: rgba(255,217,61,0.15); color: var(--gold); }
+    .status-cancelled { background: rgba(255,107,107,0.15); color: var(--coral); }
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-secondary);
+    }
+    .empty-state h3 {
+      font-size: 20px;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--coral), var(--coral-light));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 12px 0;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+    @media (max-width: 768px) {
+      .mobile-nav { display: flex; justify-content: space-around; }
+      .reservation-card { flex-direction: column; }
+      .venue-image { width: 100%; height: 160px; }
+    }
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 11px;
+    }
+    .mobile-nav-item.active { color: var(--coral); }
+    .mobile-nav-item svg { width: 24px; height: 24px; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="discover.html" class="nav-back">← Back</a>
+    <a href="index.html" class="nav-logo">Night<span>Flow</span></a>
+    <a href="profile.html" style="width:32px;height:32px;background:var(--coral);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;text-decoration:none;color:white;">N</a>
+  </nav>
+
+  <div class="container">
+    <h1>My Reservations</h1>
+
+    <div class="tabs">
+      <button class="tab active" data-filter="upcoming">Upcoming</button>
+      <button class="tab" data-filter="past">Past</button>
+      <button class="tab" data-filter="cancelled">Cancelled</button>
+    </div>
+
+    <div id="reservations-list">
+      <div class="empty-state" id="loading">
+        <p>Loading reservations...</p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="mobile-nav">
+    <a href="discover.html" class="mobile-nav-item">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <span>Discover</span>
+    </a>
+    <a href="reservations.html" class="mobile-nav-item active">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <span>Bookings</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="js/api.js"></script>
+  <script>
+    const listEl = document.getElementById('reservations-list');
+    let allReservations = [];
+
+    async function loadReservations() {
+      const user = NightFlowAPI.getUser();
+      if (!user) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      try {
+        const res = await NightFlowAPI.request('/api/user/reservations');
+        allReservations = res.data || [];
+        renderReservations('upcoming');
+      } catch (e) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <h3>No reservations yet</h3>
+            <p>Discover venues and make your first reservation!</p>
+            <a href="discover.html" class="btn-primary">Discover Venues</a>
+          </div>
+        `;
+      }
+    }
+
+    function renderReservations(filter) {
+      const now = new Date();
+      let filtered = allReservations;
+
+      if (filter === 'upcoming') {
+        filtered = allReservations.filter(r => r.status !== 'cancelled' && new Date(r.created_at) >= now);
+      } else if (filter === 'past') {
+        filtered = allReservations.filter(r => r.status !== 'cancelled' && new Date(r.created_at) < now);
+      } else if (filter === 'cancelled') {
+        filtered = allReservations.filter(r => r.status === 'cancelled');
+      }
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <h3>No ${filter} reservations</h3>
+            <p>${filter === 'upcoming' ? 'Book your next night out!' : 'Nothing here yet.'}</p>
+            ${filter === 'upcoming' ? '<a href="discover.html" class="btn-primary">Discover Venues</a>' : ''}
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(r => `
+        <div class="reservation-card">
+          <img src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=200" class="venue-image" alt="">
+          <div class="reservation-info">
+            <div class="venue-name">${r.customer_name || 'Reservation'}</div>
+            <div class="reservation-meta">
+              <span class="meta-item">📅 ${r.arrival_time || 'TBD'}</span>
+              <span class="meta-item">👥 ${r.guests} guests</span>
+              <span class="meta-item">🪑 ${r.table_type || 'Standard'}</span>
+            </div>
+            <span class="status-badge status-${r.status}">${r.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderReservations(tab.dataset.filter);
+      });
+    });
+
+    loadReservations();
+  </script>
+</body>
+</html>

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightFlow — Enter the Night</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#02010A;--bg2:#08051A;
+  --text:#f0ecff;--text2:#a89fd4;--text3:#5a5080;
+  --neon:#7C3AFF;--neon2:#9B5FFF;--neon3:#C4AEFF;
+  --cyan:#00D4FF;--pink:#FF2D8A;--green:#00E5A0;--red:#FF4545;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+
+/* CINEMATIC 3D CANVAS */
+#cinema{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* LAYOUT */
+.layout{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden}
+
+/* LEFT PANEL - CINEMATIC */
+.left{
+  flex:0 0 58%;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:48px 56px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(2,1,10,.1),rgba(8,5,26,.3));
+}
+
+/* Fog overlay */
+.left::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 30% 100%,rgba(124,58,255,.08),transparent 70%);
+  pointer-events:none;
+}
+.left::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(2,1,10,.85) 0%,transparent 40%);
+  pointer-events:none;
+}
+
+.left-content{position:relative;z-index:2;max-width:520px}
+
+.llogo{display:flex;align-items:center;gap:14px;margin-bottom:48px}
+.lmark{
+  width:54px;height:54px;border-radius:16px;
+  background:linear-gradient(135deg,var(--neon),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#fff;
+  box-shadow:0 0 40px rgba(124,58,255,.6),0 0 80px rgba(0,212,255,.2);
+  animation:logoGlow 4s ease-in-out infinite;
+}
+@keyframes logoGlow{
+  0%,100%{box-shadow:0 0 40px rgba(124,58,255,.5),0 0 80px rgba(0,212,255,.2)}
+  50%{box-shadow:0 0 60px rgba(124,58,255,.8),0 0 120px rgba(0,212,255,.4),0 0 160px rgba(255,45,138,.2)}
+}
+.lbrand{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:-1px}
+.lbrand span{background:linear-gradient(135deg,var(--neon3),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+.left h1{
+  font-family:'Syne',sans-serif;font-size:clamp(54px,5.8vw,84px);font-weight:800;
+  letter-spacing:-4px;line-height:.88;margin-bottom:24px;
+}
+.grad{
+  background:linear-gradient(135deg,var(--neon3) 0%,var(--cyan) 40%,var(--pink) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:200% 200%;animation:gradShift 8s ease-in-out infinite;
+}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.left-sub{font-size:15px;color:var(--text2);font-weight:300;line-height:1.7;margin-bottom:44px;max-width:400px}
+
+/* LIVE VENUE CARDS */
+.venue-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.venue-card{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.02);
+  backdrop-filter:blur(20px);
+  transition:all .3s;cursor:default;
+}
+.venue-card:hover{
+  border-color:rgba(124,58,255,.3);
+  background:rgba(124,58,255,.06);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+}
+.venue-card.live{
+  border-color:rgba(0,229,160,.25);
+  background:rgba(0,229,160,.04);
+}
+.venue-card.live:hover{
+  background:rgba(0,229,160,.08);
+  box-shadow:0 0 30px rgba(0,229,160,.1);
+}
+.venue-icon{font-size:22px;flex-shrink:0}
+.venue-info{flex:1;min-width:0}
+.venue-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.venue-stat{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;margin-top:2px}
+.venue-card.live .venue-stat{color:var(--green)}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+
+/* RIGHT PANEL */
+.right{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:32px 40px;
+  background:linear-gradient(135deg,rgba(8,5,26,.8),rgba(2,1,10,.95));
+  backdrop-filter:blur(8px);
+  border-left:1px solid rgba(255,255,255,.04);
+  overflow-y:auto;
+}
+
+/* CARD */
+.card{
+  width:100%;max-width:420px;
+  background:rgba(12,8,28,.85);
+  border:1px solid rgba(124,58,255,.15);
+  border-radius:28px;padding:38px;
+  backdrop-filter:blur(40px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.03) inset,
+    0 40px 100px rgba(0,0,0,.6),
+    0 0 60px rgba(124,58,255,.08);
+  transition:transform .15s ease,box-shadow .3s;
+  animation:cardIn .7s cubic-bezier(.16,1,.3,1) both;
+  transform-style:preserve-3d;
+  perspective:1000px;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.94) rotateX(5deg)}to{opacity:1;transform:none}}
+
+.card:hover{box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 45px 110px rgba(0,0,0,.65),0 0 80px rgba(124,58,255,.12)}
+
+/* TABS */
+.tabs{display:flex;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:5px;margin-bottom:28px;gap:4px}
+.tab{
+  flex:1;padding:11px 0;border-radius:12px;font-size:14px;font-weight:600;
+  font-family:'DM Sans',sans-serif;border:none;background:none;color:var(--text2);
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.tab::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--neon),var(--neon2));opacity:0;transition:opacity .25s}
+.tab span{position:relative;z-index:1}
+.tab.on{color:#fff}
+.tab.on::before{opacity:1}
+.tab.on{box-shadow:0 4px 20px rgba(124,58,255,.45)}
+
+/* ROLES */
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.role{
+  padding:20px 12px;border:1px solid rgba(255,255,255,.07);border-radius:16px;
+  cursor:pointer;text-align:center;transition:all .25s;
+  background:rgba(255,255,255,.015);position:relative;overflow:hidden;
+}
+.role::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(124,58,255,.15),transparent 70%);opacity:0;transition:opacity .25s}
+.role:hover{border-color:rgba(124,58,255,.35)}
+.role:hover::before{opacity:1}
+.role.sel{
+  border-color:rgba(124,58,255,.6);
+  background:rgba(124,58,255,.1);
+  box-shadow:0 0 30px rgba(124,58,255,.15),inset 0 0 20px rgba(124,58,255,.05);
+}
+.role.sel::before{opacity:1}
+.ri{font-size:32px;margin-bottom:10px}
+.rn{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px}
+.rd{font-size:11px;color:var(--text3)}
+
+/* FORM */
+.ftitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px}
+.fsub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.f{margin-bottom:14px}
+.f label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.f input,.f select{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  padding:14px 18px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;
+  outline:none;transition:all .25s;
+}
+.f input:focus,.f select:focus{
+  border-color:rgba(124,58,255,.5);
+  background:rgba(124,58,255,.06);
+  box-shadow:0 0 0 4px rgba(124,58,255,.1),0 0 20px rgba(124,58,255,.1);
+}
+.f input::placeholder{color:var(--text3)}
+.f select option{background:#0A071A}
+
+/* DEMO SECTION */
+.demo{
+  background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(124,58,255,.04));
+  border:1px solid rgba(0,212,255,.15);border-radius:14px;
+  padding:16px;margin-bottom:20px;
+}
+.dtitle{font-size:11px;color:var(--cyan);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.drow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.drow:last-child{margin-bottom:0}
+.dlabel{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.dpill{
+  font-size:11px;font-family:'DM Sans',monospace;
+  background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);
+  border-radius:8px;padding:5px 12px;color:var(--cyan);
+  cursor:pointer;transition:all .2s;
+}
+.dpill:hover{background:rgba(0,212,255,.18);transform:translateX(3px)}
+
+/* BTN */
+.btn{
+  width:100%;padding:15px;margin-top:8px;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  border:none;border-radius:16px;font-size:15px;font-weight:700;color:#fff;
+  cursor:pointer;font-family:'Syne',sans-serif;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.15),transparent);pointer-events:none}
+.btn::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);
+  transition:left .5s;
+}
+.btn:hover::after{left:100%}
+.btn:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(124,58,255,.5)}
+.btn:active{transform:translateY(-1px)}
+.btn:disabled{opacity:.5;transform:none;cursor:not-allowed}
+
+/* MESSAGES */
+.msg{border-radius:12px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:none;animation:msgIn .3s ease}
+.msg.show{display:flex;align-items:center;gap:8px}
+.err{background:rgba(255,69,69,.1);border:1px solid rgba(255,69,69,.25);color:var(--red)}
+.ok{background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);color:var(--green)}
+@keyframes msgIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+.slink{text-align:center;margin-top:18px;font-size:13px;color:var(--text3)}
+.slink a{color:var(--neon3);text-decoration:none;font-weight:500;transition:color .2s}
+.slink a:hover{color:var(--cyan)}
+
+/* SPINNER */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* FORM ANIMATION */
+@keyframes formSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.anim-in{animation:formSlide .3s ease forwards}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.left{flex:0 0 50%}}
+@media(max-width:900px){
+  .left{flex:0 0 45%;padding:36px}
+  .left h1{font-size:clamp(42px,5vw,58px)}
+  .venue-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .layout{flex-direction:column}
+  .left{flex:0 0 auto;padding:24px 20px 20px;justify-content:flex-start}
+  .left h1{font-size:38px;letter-spacing:-2px;margin-bottom:16px}
+  .left-sub{display:none}
+  .venue-grid{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+  .venue-card{flex:0 0 auto;min-width:150px}
+  .right{flex:1;border-left:none;border-top:1px solid rgba(255,255,255,.04);padding:24px 20px;align-items:flex-start}
+  .llogo{margin-bottom:20px}
+}
+@media(max-width:480px){
+  .left{display:none}
+  .right{height:100vh;align-items:center;padding:28px 20px}
+  .card{padding:30px 24px}
+}
+</style>
+</head>
+<body>
+<canvas id="cinema"></canvas>
+
+<div class="layout">
+  <!-- LEFT PANEL - CINEMATIC -->
+  <div class="left">
+    <div class="left-content">
+      <div class="llogo">
+        <div class="lmark">NF</div>
+        <div class="lbrand">Night<span>Flow</span></div>
+      </div>
+      <h1>Enter<br><span class="grad">the Night.</span></h1>
+      <p class="left-sub">Η πλατφόρμα που συνδέει το Ρέθυμνο nightlife.<br>Κρατήσεις, loyalty & analytics — σε ένα μέρος.</p>
+      <div class="venue-grid">
+        <div class="venue-card live">
+          <span class="venue-icon">🏰</span>
+          <div class="venue-info">
+            <div class="venue-name">Fortezza Club</div>
+            <div class="venue-stat"><span class="live-dot"></span>156 guests · LIVE</div>
+          </div>
+        </div>
+        <div class="venue-card">
+          <span class="venue-icon">⚓</span>
+          <div class="venue-info">
+            <div class="venue-name">Harbor Nights</div>
+            <div class="venue-stat">128 inside</div>
+          </div>
+        </div>
+        <div class="venue-card">
+          <span class="venue-icon">🎓</span>
+          <div class="venue-info">
+            <div class="venue-name">Campus Beat</div>
+            <div class="venue-stat">132 inside</div>
+          </div>
+        </div>
+        <div class="venue-card">
+          <span class="venue-icon">🌊</span>
+          <div class="venue-info">
+            <div class="venue-name">Beach Strip</div>
+            <div class="venue-stat">171 inside</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right">
+    <div class="card" id="card">
+      <div class="tabs">
+        <button class="tab on" id="tl" onclick="sw('login')"><span>Σύνδεση</span></button>
+        <button class="tab" id="ts" onclick="sw('signup')"><span>Εγγραφή</span></button>
+      </div>
+      <div class="msg err" id="merr"></div>
+      <div class="msg ok" id="mok"></div>
+
+      <!-- LOGIN -->
+      <div id="fl">
+        <div class="ftitle">Καλωσήρθες πίσω 🌙</div>
+        <div class="fsub">Σύνδεσε στον λογαριασμό σου</div>
+        <div class="demo">
+          <div class="dtitle">⚡ Demo Credentials</div>
+          <div class="drow">
+            <span class="dlabel">🏠 Club Owner</span>
+            <span class="dpill" onclick="fill('club@nightflow.gr','club123')">club@... / club123</span>
+          </div>
+          <div class="drow">
+            <span class="dlabel">🎉 Customer</span>
+            <span class="dpill" onclick="fill('customer@nightflow.gr','customer123')">customer@... / customer123</span>
+          </div>
+        </div>
+        <div class="f"><label>Email</label><input type="email" id="le" placeholder="email@example.com"></div>
+        <div class="f"><label>Κωδικός</label><input type="password" id="lp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn" id="bl" onclick="doLogin()">Είσοδος →</button>
+        <div class="slink">Δεν έχεις account; <a href="#" onclick="sw('signup');return false">Εγγράψου δωρεάν</a></div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="fs" style="display:none">
+        <div class="ftitle">Δημιούργησε account ✨</div>
+        <div class="fsub">Επίλεξε τον τύπο σου</div>
+        <div class="roles">
+          <div class="role sel" id="rc" onclick="sr('customer')"><div class="ri">🎉</div><div class="rn">Customer</div><div class="rd">Events & κρατήσεις</div></div>
+          <div class="role" id="rk" onclick="sr('club')"><div class="ri">🏠</div><div class="rn">Club Owner</div><div class="rd">Διαχείριση venue</div></div>
+        </div>
+        <div class="f"><label>Πλήρες Όνομα</label><input type="text" id="sn" placeholder="Γιώργος Παπαδάκης"></div>
+        <div class="f"><label>Email</label><input type="email" id="se" placeholder="email@example.com"></div>
+        <div class="f"><label>Κωδικός</label><input type="password" id="sp" placeholder="Τουλάχιστον 4 χαρακτήρες"></div>
+        <div class="f" id="fv" style="display:none"><label>Όνομα Venue</label><input type="text" id="sv" placeholder="π.χ. Fortezza Club"></div>
+        <button class="btn" id="bs" onclick="doSignup()">Δημιουργία Account →</button>
+        <div class="slink">Έχεις ήδη account; <a href="#" onclick="sw('login');return false">Σύνδεση</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// CINEMATIC 3D CANVAS — NIGHTCLUB ATMOSPHERE
+// ══════════════════════════════════════════════════════════════
+const canvas = document.getElementById('cinema');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Spotlight configuration
+const spotlights = [
+  { x: 0.15, angle: 0.4, speed: 0.0004, amplitude: 0.35, color: [124, 58, 255], width: 0.12 },
+  { x: 0.35, angle: -0.2, speed: -0.0003, amplitude: 0.28, color: [0, 212, 255], width: 0.10 },
+  { x: 0.50, angle: 0.1, speed: 0.00035, amplitude: 0.32, color: [255, 45, 138], width: 0.09 },
+  { x: 0.70, angle: -0.3, speed: 0.00025, amplitude: 0.25, color: [124, 58, 255], width: 0.08 },
+];
+
+// Floating particles
+const particles = Array.from({ length: 100 }, () => ({
+  x: Math.random(),
+  y: Math.random(),
+  z: 0.3 + Math.random() * 0.7,
+  size: 0.5 + Math.random() * 2,
+  speed: 0.0001 + Math.random() * 0.0003,
+  phase: Math.random() * Math.PI * 2,
+  color: Math.random() > 0.5 ? [196, 174, 255] : (Math.random() > 0.5 ? [0, 212, 255] : [255, 45, 138])
+}));
+
+// Fog layers
+const fogLayers = [
+  { y: 0.7, height: 0.35, opacity: 0.04, speed: 0.00008 },
+  { y: 0.8, height: 0.25, opacity: 0.06, speed: 0.00012 },
+  { y: 0.9, height: 0.15, opacity: 0.08, speed: 0.00015 },
+];
+
+// Laser beams
+const lasers = [
+  { x1: 0.1, y1: 0, x2: 0.9, y2: 1, color: [124, 58, 255], width: 1.5, speed: 0.001 },
+  { x1: 0.2, y1: 0, x2: 0.8, y2: 1, color: [0, 212, 255], width: 1, speed: -0.0012 },
+  { x1: 0.4, y1: 0, x2: 0.6, y2: 1, color: [255, 45, 138], width: 1.2, speed: 0.0008 },
+];
+
+function drawSpotlight(t, spot) {
+  const angle = spot.angle + Math.sin(t * spot.speed) * spot.amplitude;
+  const ox = W * spot.x;
+  const oy = -20;
+  const length = H * 2.5;
+  const halfWidth = spot.width;
+
+  const gradient = ctx.createLinearGradient(
+    ox, oy,
+    ox + Math.sin(angle) * length * 0.5,
+    oy + Math.cos(angle) * length * 0.5
+  );
+
+  const [r, g, b] = spot.color;
+  gradient.addColorStop(0, `rgba(${r},${g},${b},0.18)`);
+  gradient.addColorStop(0.3, `rgba(${r},${g},${b},0.08)`);
+  gradient.addColorStop(0.6, `rgba(${r},${g},${b},0.03)`);
+  gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
+
+  ctx.beginPath();
+  ctx.moveTo(ox, oy);
+  ctx.lineTo(ox + Math.sin(angle - halfWidth) * length, oy + Math.cos(angle - halfWidth) * length);
+  ctx.lineTo(ox + Math.sin(angle + halfWidth) * length, oy + Math.cos(angle + halfWidth) * length);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Volumetric core
+  const coreGrad = ctx.createLinearGradient(ox, oy, ox + Math.sin(angle) * length * 0.3, oy + Math.cos(angle) * length * 0.3);
+  coreGrad.addColorStop(0, `rgba(${r},${g},${b},0.25)`);
+  coreGrad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+
+  ctx.beginPath();
+  ctx.moveTo(ox, oy);
+  ctx.lineTo(ox + Math.sin(angle - halfWidth * 0.3) * length * 0.4, oy + Math.cos(angle - halfWidth * 0.3) * length * 0.4);
+  ctx.lineTo(ox + Math.sin(angle + halfWidth * 0.3) * length * 0.4, oy + Math.cos(angle + halfWidth * 0.3) * length * 0.4);
+  ctx.closePath();
+  ctx.fillStyle = coreGrad;
+  ctx.fill();
+}
+
+function drawPerspectiveGrid() {
+  const vpx = W * 0.28;
+  const vpy = H * 0.52;
+
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+
+  // Radial lines
+  for (let i = 0; i <= 24; i++) {
+    const angle = -Math.PI * 0.7 + Math.PI * 1.4 * (i / 24);
+    const alpha = 0.02 + (1 - Math.abs(i / 12 - 1)) * 0.03;
+    ctx.strokeStyle = `rgba(124,58,255,${alpha})`;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(vpx, vpy);
+    ctx.lineTo(vpx + Math.cos(angle) * W * 3, vpy + Math.sin(angle) * H * 3);
+    ctx.stroke();
+  }
+
+  // Horizontal recession
+  for (let i = 1; i <= 12; i++) {
+    const p = i / 12;
+    const y = vpy + (H - vpy + 100) * (p * p);
+    ctx.strokeStyle = `rgba(124,58,255,${0.015 + p * 0.05})`;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawFog(t) {
+  fogLayers.forEach(fog => {
+    const offset = Math.sin(t * fog.speed) * 0.1;
+    const gradient = ctx.createLinearGradient(0, H * (fog.y + offset), 0, H * (fog.y + fog.height + offset));
+    gradient.addColorStop(0, `rgba(124,58,255,0)`);
+    gradient.addColorStop(0.5, `rgba(124,58,255,${fog.opacity})`);
+    gradient.addColorStop(1, `rgba(124,58,255,0)`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, H * (fog.y - 0.1 + offset), W, H * (fog.height + 0.2));
+  });
+}
+
+function drawLasers(t) {
+  lasers.forEach(laser => {
+    const offset = Math.sin(t * laser.speed) * 0.3;
+    const [r, g, b] = laser.color;
+
+    ctx.save();
+    ctx.globalAlpha = 0.15 + Math.sin(t * 0.002) * 0.1;
+    ctx.strokeStyle = `rgb(${r},${g},${b})`;
+    ctx.lineWidth = laser.width;
+    ctx.shadowColor = `rgb(${r},${g},${b})`;
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.moveTo(W * (laser.x1 + offset), H * laser.y1);
+    ctx.lineTo(W * (laser.x2 - offset), H * laser.y2);
+    ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function drawParticles(t) {
+  particles.forEach(p => {
+    p.y -= p.speed;
+    if (p.y < -0.05) {
+      p.y = 1.1;
+      p.x = Math.random();
+    }
+
+    const alpha = (Math.sin(t * 0.001 + p.phase) * 0.4 + 0.6) * p.z;
+    const size = p.size * p.z;
+    const [r, g, b] = p.color;
+
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.7;
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.shadowColor = `rgb(${r},${g},${b})`;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(p.x * W, p.y * H, size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function render(t) {
+  // Deep black background
+  ctx.fillStyle = '#02010A';
+  ctx.fillRect(0, 0, W, H);
+
+  // Ambient glow
+  const ambientGlow = ctx.createRadialGradient(W * 0.3, H * 0.4, 0, W * 0.3, H * 0.4, W * 0.6);
+  ambientGlow.addColorStop(0, 'rgba(124,58,255,0.06)');
+  ambientGlow.addColorStop(0.5, 'rgba(124,58,255,0.02)');
+  ambientGlow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = ambientGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw elements
+  drawPerspectiveGrid();
+  spotlights.forEach(spot => drawSpotlight(t, spot));
+  drawLasers(t);
+  drawFog(t);
+  drawParticles(t);
+
+  // Vignette
+  const vignette = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
+  vignette.addColorStop(0, 'rgba(0,0,0,0)');
+  vignette.addColorStop(0.7, 'rgba(0,0,0,0.1)');
+  vignette.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+// ══════════════════════════════════════════════════════════════
+// 3D CARD TILT EFFECT
+// ══════════════════════════════════════════════════════════════
+const card = document.getElementById('card');
+let tiltX = 0, tiltY = 0;
+
+document.addEventListener('mousemove', e => {
+  const rect = card.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const dx = (e.clientX - cx) / (rect.width / 2);
+  const dy = (e.clientY - cy) / (rect.height / 2);
+  tiltX = dx * 6;
+  tiltY = -dy * 4;
+  card.style.transform = `perspective(1000px) rotateY(${tiltX}deg) rotateX(${tiltY}deg)`;
+});
+
+document.addEventListener('mouseleave', () => {
+  card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+});
+
+// ══════════════════════════════════════════════════════════════
+// AUTH LOGIC WITH JWT
+// ══════════════════════════════════════════════════════════════
+const API_BASE = "http://localhost:5000";
+
+function authHeaders() {
+  const t = localStorage.getItem("nightflow_token");
+  return t ? { "Authorization": "Bearer " + t } : {};
+}
+
+const api = {
+  async request(path, options = {}) {
+    try {
+      const res = await fetch(API_BASE + path, {
+        headers: { "Content-Type": "application/json", ...authHeaders(), ...options.headers },
+        ...options
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) return { error: json.error || 'Request failed' };
+      return json;
+    } catch (e) {
+      return { error: 'Network error' };
+    }
+  },
+  login: (e, p) => api.request("/api/auth/login", { method: "POST", body: JSON.stringify({ email: e, password: p }) }),
+  register: (d) => api.request("/api/auth/register", { method: "POST", body: JSON.stringify(d) }),
+  me: () => api.request("/api/auth/me"),
+  logout: () => api.request("/api/auth/logout", { method: "POST", body: JSON.stringify({ refresh_token: localStorage.getItem("nightflow_refresh_token") }) })
+};
+
+let role = 'customer';
+
+function sw(t) {
+  document.getElementById('tl').classList.toggle('on', t === 'login');
+  document.getElementById('ts').classList.toggle('on', t === 'signup');
+  const fl = document.getElementById('fl');
+  const fs = document.getElementById('fs');
+  if (t === 'login') {
+    fl.style.display = 'block';
+    fl.classList.remove('anim-in'); void fl.offsetWidth; fl.classList.add('anim-in');
+    fs.style.display = 'none';
+  } else {
+    fs.style.display = 'block';
+    fs.classList.remove('anim-in'); void fs.offsetWidth; fs.classList.add('anim-in');
+    fl.style.display = 'none';
+  }
+  clr();
+}
+
+function sr(r) {
+  role = r;
+  document.getElementById('rc').classList.toggle('sel', r === 'customer');
+  document.getElementById('rk').classList.toggle('sel', r === 'club');
+  document.getElementById('fv').style.display = r === 'club' ? 'block' : 'none';
+}
+
+function fill(e, p) {
+  document.getElementById('le').value = e;
+  document.getElementById('lp').value = p;
+}
+
+function serr(m) {
+  const el = document.getElementById('merr');
+  el.innerHTML = '⚠️ ' + m;
+  el.classList.add('show');
+  document.getElementById('mok').classList.remove('show');
+}
+
+function sok(m) {
+  const el = document.getElementById('mok');
+  el.innerHTML = m;
+  el.classList.add('show');
+  document.getElementById('merr').classList.remove('show');
+}
+
+function clr() {
+  document.getElementById('merr').classList.remove('show');
+  document.getElementById('mok').classList.remove('show');
+}
+
+async function doLogin() {
+  const email = document.getElementById('le').value.trim();
+  const pass = document.getElementById('lp').value;
+  if (!email || !pass) { serr('Συμπλήρωσε email και κωδικό'); return; }
+
+  const btn = document.getElementById('bl');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Σύνδεση...';
+
+  const res = await api.login(email, pass);
+
+  btn.disabled = false;
+  btn.textContent = 'Είσοδος →';
+
+  if (!res || res.error) {
+    serr(res?.error || 'Λάθος στοιχεία. Δοκίμασε ξανά.');
+    return;
+  }
+
+  localStorage.setItem('nightflow_token', res.token);
+  if (res.refresh_token) localStorage.setItem('nightflow_refresh_token', res.refresh_token);
+  localStorage.setItem('nightflow_user', JSON.stringify(res.user));
+
+  sok('✅ Επιτυχής σύνδεση! Μεταφορά...');
+  setTimeout(() => {
+    window.location.href = res.user.role === 'club' ? 'dashboard.html' : 'discover.html';
+  }, 800);
+}
+
+async function doSignup() {
+  const name = document.getElementById('sn').value.trim();
+  const email = document.getElementById('se').value.trim();
+  const pass = document.getElementById('sp').value;
+  const venue = document.getElementById('sv').value.trim();
+
+  if (!name || !email || !pass) { serr('Συμπλήρωσε όλα τα πεδία'); return; }
+  if (pass.length < 4) { serr('Κωδικός τουλάχιστον 4 χαρακτήρες'); return; }
+  if (role === 'club' && !venue) { serr('Γράψε το όνομα του venue'); return; }
+
+  const btn = document.getElementById('bs');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Δημιουργία...';
+
+  const res = await api.register({ name, email, password: pass, role, venue_name: venue });
+
+  btn.disabled = false;
+  btn.textContent = 'Δημιουργία Account →';
+
+  if (!res || res.error) {
+    serr(res?.error || 'Σφάλμα εγγραφής');
+    return;
+  }
+
+  localStorage.setItem('nightflow_token', res.token);
+  if (res.refresh_token) localStorage.setItem('nightflow_refresh_token', res.refresh_token);
+  localStorage.setItem('nightflow_user', JSON.stringify(res.user));
+
+  sok('🎉 Έγινε! Μεταφορά...');
+  setTimeout(() => {
+    window.location.href = res.user.role === 'club' ? 'dashboard.html' : 'discover.html';
+  }, 800);
+}
+
+// Auto-redirect if already logged in
+(async () => {
+  const token = localStorage.getItem('nightflow_token');
+  if (!token) return;
+  const res = await api.me();
+  if (res?.user || res?.data?.user) {
+    const user = res.user || res.data?.user;
+    window.location.href = user.role === 'club' ? 'dashboard.html' : 'discover.html';
+  }
+})();
+
+// Handle URL params
+if (new URLSearchParams(location.search).get('tab') === 'signup') sw('signup');
+</script>
+</body>
+</html>

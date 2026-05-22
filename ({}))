@@ -1,0 +1,1 @@
+async patch(p,d){try{const r=await fetch(API_BASE+p,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(d)});const j=await r.json().catch(()=;if(!r.ok)return{error:j.error

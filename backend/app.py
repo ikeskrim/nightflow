@@ -1,9 +1,11 @@
 """
 NightFlow Backend API
-Flask REST API with SQLite + JWT Authentication
+Flask REST API with SQLAlchemy ORM + JWT Authentication
 """
 
 from flask import Flask, jsonify, request, make_response, g, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime, date, timedelta
 import sqlite3
 import json
@@ -13,17 +15,195 @@ import hmac
 import base64
 import os
 from functools import wraps
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Get the project root (parent of backend folder)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(PROJECT_ROOT, 'frontend')
 
+# SQLAlchemy Base class
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nightflow-secret-key-change-in-production')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'nightflow-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///nightflow.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy with app
+db.init_app(app)
+
+# Legacy DB_PATH for backwards compatibility with raw sqlite
 DB_PATH = os.path.join(os.path.dirname(__file__), 'nightflow.db')
 
 # ════════════════════════════════════════════════════════════
-#  DATABASE
+#  SQLALCHEMY MODELS
+# ════════════════════════════════════════════════════════════
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    role = db.Column(db.String(20), default='customer')
+    venue_id = db.Column(db.String(50), db.ForeignKey('venues.id'), nullable=True)
+    venue_name = db.Column(db.String(100), nullable=True)
+    customer_id = db.Column(db.String(50), nullable=True)
+    points = db.Column(db.Integer, default=0)
+    tier = db.Column(db.String(20), default='silver')
+    created_at = db.Column(db.String(50), default=lambda: datetime.utcnow().isoformat())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'role': self.role,
+            'venue_id': self.venue_id,
+            'venue_name': self.venue_name,
+            'customer_id': self.customer_id,
+            'points': self.points,
+            'tier': self.tier,
+            'created_at': self.created_at
+        }
+
+class Venue(db.Model):
+    __tablename__ = 'venues'
+
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(50))
+    category = db.Column(db.String(50))
+    address = db.Column(db.String(200))
+    phone = db.Column(db.String(50))
+    email = db.Column(db.String(120))
+    website = db.Column(db.String(200))
+    instagram = db.Column(db.String(100))
+    capacity = db.Column(db.Integer, default=0)
+    current_guests = db.Column(db.Integer, default=0)
+    image_class = db.Column(db.String(50))
+    image_emoji = db.Column(db.String(10))
+    photo_url = db.Column(db.String(500))
+    photos = db.Column(db.Text)  # JSON array
+    maps_url = db.Column(db.String(500))
+    maps_place_id = db.Column(db.String(100))
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
+    rating = db.Column(db.Float, default=0)
+    rating_count = db.Column(db.Integer, default=0)
+    min_spend = db.Column(db.Float, default=0)
+    music_genres = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    open_days = db.Column(db.String(50))
+    open_hours = db.Column(db.String(50))
+    has_shisha = db.Column(db.Integer, default=0)
+    has_restaurant = db.Column(db.Integer, default=0)
+    has_beach = db.Column(db.Integer, default=0)
+    verified = db.Column(db.Integer, default=0)
+    english_staff = db.Column(db.Integer, default=1)
+
+    events = db.relationship('Event', backref='venue', lazy=True)
+    reservations = db.relationship('Reservation', backref='venue', lazy=True)
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Event(db.Model):
+    __tablename__ = 'events'
+
+    id = db.Column(db.String(50), primary_key=True)
+    venue_id = db.Column(db.String(50), db.ForeignKey('venues.id'))
+    title = db.Column(db.String(200), nullable=False)
+    genre = db.Column(db.String(100))
+    genre_icon = db.Column(db.String(10))
+    dj = db.Column(db.String(100))
+    date = db.Column(db.String(20))
+    start_time = db.Column(db.String(10))
+    entry_price = db.Column(db.Float, default=0)
+    min_spend_vip = db.Column(db.Float, default=0)
+    popularity = db.Column(db.Integer, default=0)
+    badges = db.Column(db.Text)  # JSON array
+    trending = db.Column(db.Integer, default=0)
+    student_night = db.Column(db.Integer, default=0)
+    tourist_friendly = db.Column(db.Integer, default=0)
+    vip_available = db.Column(db.Integer, default=1)
+    guest_list_open = db.Column(db.Integer, default=1)
+    description = db.Column(db.Text)
+
+    def to_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        if data.get('badges'):
+            try:
+                data['badges'] = json.loads(data['badges'])
+            except:
+                pass
+        return data
+
+class Reservation(db.Model):
+    __tablename__ = 'reservations'
+
+    id = db.Column(db.String(50), primary_key=True)
+    customer_id = db.Column(db.String(50))
+    customer_name = db.Column(db.String(100))
+    customer_initials = db.Column(db.String(10))
+    venue_id = db.Column(db.String(50), db.ForeignKey('venues.id'))
+    event_id = db.Column(db.String(50), db.ForeignKey('events.id'))
+    table_number = db.Column(db.String(20))
+    table_type = db.Column(db.String(20), default='standard')
+    guests = db.Column(db.Integer, default=2)
+    arrival_time = db.Column(db.String(10))
+    min_spend = db.Column(db.Float, default=0)
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.String(50), default=lambda: datetime.utcnow().isoformat())
+    notes = db.Column(db.Text)
+    deposit_paid = db.Column(db.Integer, default=0)
+    checked_in = db.Column(db.Integer, default=0)
+    checkin_time = db.Column(db.String(10))
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Customer(db.Model):
+    __tablename__ = 'customers'
+
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    initials = db.Column(db.String(10))
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(50))
+    birthday = db.Column(db.String(20))
+    tier = db.Column(db.String(20), default='silver')
+    points = db.Column(db.Integer, default=0)
+    total_visits = db.Column(db.Integer, default=0)
+    avg_spend_month = db.Column(db.Float, default=0)
+    fav_genre = db.Column(db.String(100))
+    customer_since = db.Column(db.String(20))
+    last_visit = db.Column(db.String(20))
+    notes = db.Column(db.Text)
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Favorite(db.Model):
+    __tablename__ = 'favorites'
+
+    id = db.Column(db.String(50), primary_key=True)
+    user_id = db.Column(db.String(50), db.ForeignKey('users.id'), nullable=False)
+    venue_id = db.Column(db.String(50), db.ForeignKey('venues.id'), nullable=False)
+    created_at = db.Column(db.String(50), default=lambda: datetime.utcnow().isoformat())
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+# ════════════════════════════════════════════════════════════
+#  DATABASE (Legacy SQLite connection for backwards compatibility)
 # ════════════════════════════════════════════════════════════
 
 def get_db():
@@ -34,9 +214,9 @@ def get_db():
 
 @app.teardown_appcontext
 def close_db(exception):
-    db = g.pop('db', None)
-    if db is not None:
-        db.close()
+    conn = g.pop('db', None)
+    if conn is not None:
+        conn.close()
 
 def dict_from_row(row):
     return dict(row) if row else None
@@ -183,10 +363,20 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
 
+        CREATE TABLE IF NOT EXISTS favorites (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            venue_id TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (venue_id) REFERENCES venues(id)
+        );
+
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         CREATE INDEX IF NOT EXISTS idx_events_venue ON events(venue_id);
         CREATE INDEX IF NOT EXISTS idx_reservations_venue ON reservations(venue_id);
         CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations(status);
+        CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
     ''')
     db.commit()
     db.close()
@@ -209,8 +399,8 @@ def seed_db():
         ("v1", "ICE Club", "Nightclub", "nightclub",
          "Salaminos 22, Rethymno 741 31", None, None, None, None,
          500, 0, "ic1", u"\U0001F9CA",
-         "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=800",
-         '["https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=800","https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=800"]',
+         "https://images.unsplash.com/photo-1571266028243-d220c6a4b34a?w=1200",
+         '["https://images.unsplash.com/photo-1571266028243-d220c6a4b34a?w=1200","https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=800"]',
          "https://maps.google.com/?q=ICE+Club+Rethymno+Salaminos", "ChIJice_club_rethymno",
          35.3662, 24.4731,
          2.9, 150, 0,
@@ -221,8 +411,8 @@ def seed_db():
         ("v2", "Louvro", "Nightclub", "nightclub",
          "Salaminos 18, Rethymno 74100", "698 3730468", "louvro.bookings@gmail.com", "louvro.club", "louvro.club",
          800, 0, "ic2", u"\U0001F3AD",
-         "https://images.unsplash.com/photo-1545128485-c400e7702796?w=800",
-         '["https://images.unsplash.com/photo-1545128485-c400e7702796?w=800","https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800"]',
+         "https://images.unsplash.com/photo-1574391884720-bbc049ec09ad?w=1200",
+         '["https://images.unsplash.com/photo-1574391884720-bbc049ec09ad?w=1200","https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800"]',
          "https://maps.google.com/?q=Louvro+Rethymno+Salaminos", "ChIJlouvro_rethymno",
          35.3660, 24.4728,
          4.5, 500, 0,
@@ -233,8 +423,8 @@ def seed_db():
         ("v3", "Minibar", "Nightclub", "nightclub",
          "Ioulias Petychaki 6, Rethymno 741 50", "2831 055381", None, None, None,
          300, 0, "ic3", u"\U0001F37E",
-         "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800",
-         '["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800","https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800"]',
+         "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=1200",
+         '["https://images.unsplash.com/photo-1551024601-bec78aea704b?w=1200","https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800"]',
          "https://maps.google.com/?q=Minibar+Rethymno+Beach", "ChIJminibar_rethymno",
          35.3715, 24.4802,
          3.6, 389, 50,
@@ -245,8 +435,8 @@ def seed_db():
         ("v4", "Baja Beach Club", "Beach Club", "beach_club",
          "Rethymno Beach, Rethymno 74100", None, None, "bajabeach.gr", "bajabeachclubcrete",
          1000, 0, "ic4", u"\U0001F3D6",
-         "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800",
-         '["https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800","https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800"]',
+         "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200",
+         '["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200","https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800"]',
          "https://maps.google.com/?q=Baja+Beach+Club+Rethymno", "ChIJbaja_beach_rethymno",
          35.3680, 24.4850,
          4.7, 800, 0,
@@ -257,8 +447,8 @@ def seed_db():
         ("v5", "Fraoules", "Coffee House / Bar", "cafeteria",
          "El. Venizelou 62, Rethymno 74100", "2831 024525", None, None, "fraoules_rethymno",
          200, 0, "ic5", u"\U0001F353",
-         "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
-         '["https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800","https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=800"]',
+         "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=1200",
+         '["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=1200","https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=800"]',
          "https://maps.google.com/?q=Fraoules+Rethymno+Venizelou", "ChIJfraoules_rethymno",
          35.3695, 24.4765,
          4.6, 2644, 0,
@@ -269,8 +459,8 @@ def seed_db():
         ("v6", "Store 311", "All Day Bar", "cafeteria",
          "El. Venizelou 73, Paralia, Rethymno 74100", "694 452 5030", "store311alldaybar@gmail.com", "store311.livemenu.gr", "store_311_alldaybar",
          250, 0, "ic1", u"\U0001F378",
-         "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800",
-         '["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800","https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=800"]',
+         "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=1200",
+         '["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=1200","https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=800"]',
          "https://maps.google.com/?q=Store+311+Rethymno+Paralia", "ChIJstore311_rethymno",
          35.3698, 24.4770,
          4.4, 2570, 0,
@@ -281,8 +471,8 @@ def seed_db():
         ("v7", "LUX All Day Bar", "Cafe Lounge", "cafeteria",
          "El. Venizelou 65-68, Rethymno 74100", "2831 020303", "luxcaferethimno@gmail.com", None, "lux_rethymno",
          300, 0, "ic2", u"✨",
-         "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
-         '["https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800","https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800"]',
+         "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=1200",
+         '["https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=1200","https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800"]',
          "https://maps.google.com/?q=LUX+Cafe+Rethymno+Venizelou", "ChIJlux_rethymno",
          35.3692, 24.4762,
          4.8, 1289, 0,
@@ -643,6 +833,27 @@ def handle_options():
         return make_response("", 204)
 
 # ════════════════════════════════════════════════════════════
+#  ROUTES - Health Check
+# ════════════════════════════════════════════════════════════
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Railway monitoring"""
+    try:
+        # Test database connection
+        conn = get_db()
+        conn.execute("SELECT 1").fetchone()
+        db_status = 'connected'
+    except Exception as e:
+        db_status = f'error: {str(e)}'
+
+    return jsonify({
+        'status': 'healthy',
+        'database': db_status,
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+# ════════════════════════════════════════════════════════════
 #  ROUTES - Auth
 # ════════════════════════════════════════════════════════════
 
@@ -905,8 +1116,8 @@ def get_venues():
 
 @app.route("/api/venues/<venue_id>")
 def get_venue(venue_id):
-    db = get_db()
-    row = db.execute("SELECT * FROM venues WHERE id = ?", (venue_id,)).fetchone()
+    conn = get_db()
+    row = conn.execute("SELECT * FROM venues WHERE id = ?", (venue_id,)).fetchone()
     if not row:
         return jsonify({"success": False, "error": "Not found"}), 404
     venue = dict_from_row(row)
@@ -915,6 +1126,46 @@ def get_venue(venue_id):
     venue['current_guests'] = get_simulated_crowd(venue)
     venue['crowd_pct'] = round(venue['current_guests'] / venue['capacity'] * 100) if venue['capacity'] else 0
     return jsonify({"success": True, "data": venue})
+
+@app.route("/api/venues/<venue_id>/events")
+def get_venue_events(venue_id):
+    """Get all events at a specific venue"""
+    conn = get_db()
+    # Verify venue exists
+    venue_row = conn.execute("SELECT * FROM venues WHERE id = ?", (venue_id,)).fetchone()
+    if not venue_row:
+        return jsonify({"success": False, "error": "Venue not found"}), 404
+
+    venue = dict_from_row(venue_row)
+
+    rows = conn.execute("""
+        SELECT e.*, v.name as venue_name, v.capacity as venue_capacity,
+               v.current_guests as venue_current, v.image_class, v.image_emoji,
+               v.category, v.open_days, v.type as venue_type, v.address as venue_address,
+               v.phone as venue_phone, v.rating as venue_rating
+        FROM events e
+        LEFT JOIN venues v ON e.venue_id = v.id
+        WHERE e.venue_id = ?
+        ORDER BY e.date ASC, e.start_time ASC
+    """, (venue_id,)).fetchall()
+
+    events = []
+    for row in rows:
+        event = dict_from_row(row)
+        if event.get('badges'):
+            try:
+                event['badges'] = json.loads(event['badges'])
+            except:
+                pass
+        # Add venue status info
+        status_info = is_open_tonight(venue)
+        event['venue_status'] = status_info['status']
+        event['venue_status_label'] = status_info['status_label']
+        event['venue_badge'] = status_info['badge']
+        event['venue_is_open'] = status_info['is_open']
+        events.append(event)
+
+    return jsonify({"success": True, "data": events})
 
 @app.route("/api/venues/tonight")
 def get_venues_tonight():
@@ -935,9 +1186,190 @@ def get_venues_tonight():
 
 @app.route("/api/activity-feed")
 def activity_feed():
-    db = get_db()
-    rows = db.execute("SELECT * FROM activity_feed ORDER BY created_at DESC LIMIT 20").fetchall()
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM activity_feed ORDER BY created_at DESC LIMIT 20").fetchall()
     return jsonify({"success": True, "data": [dict_from_row(r) for r in rows]})
+
+# ════════════════════════════════════════════════════════════
+#  ROUTES - Search
+# ════════════════════════════════════════════════════════════
+
+@app.route("/api/search")
+def search():
+    """Search venues and events by query string"""
+    q = request.args.get("q", "").strip().lower()
+    if not q:
+        return jsonify({"success": True, "data": {"venues": [], "events": []}})
+
+    conn = get_db()
+
+    # Search venues
+    venue_rows = conn.execute("""
+        SELECT * FROM venues
+        WHERE LOWER(name) LIKE ? OR LOWER(type) LIKE ? OR LOWER(category) LIKE ?
+           OR LOWER(music_genres) LIKE ? OR LOWER(description) LIKE ? OR LOWER(address) LIKE ?
+        LIMIT 20
+    """, (f"%{q}%", f"%{q}%", f"%{q}%", f"%{q}%", f"%{q}%", f"%{q}%")).fetchall()
+
+    venues = []
+    for row in venue_rows:
+        venue = dict_from_row(row)
+        status_info = is_open_tonight(venue)
+        venue.update(status_info)
+        venue['current_guests'] = get_simulated_crowd(venue)
+        venue['crowd_pct'] = round(venue['current_guests'] / venue['capacity'] * 100) if venue['capacity'] else 0
+        venues.append(venue)
+
+    # Search events
+    event_rows = conn.execute("""
+        SELECT e.*, v.name as venue_name, v.capacity as venue_capacity,
+               v.current_guests as venue_current, v.image_class, v.image_emoji,
+               v.category, v.open_days
+        FROM events e
+        LEFT JOIN venues v ON e.venue_id = v.id
+        WHERE LOWER(e.title) LIKE ? OR LOWER(e.genre) LIKE ? OR LOWER(e.dj) LIKE ?
+           OR LOWER(e.description) LIKE ? OR LOWER(v.name) LIKE ?
+        LIMIT 20
+    """, (f"%{q}%", f"%{q}%", f"%{q}%", f"%{q}%", f"%{q}%")).fetchall()
+
+    events = []
+    for row in event_rows:
+        event = dict_from_row(row)
+        if event.get('badges'):
+            try:
+                event['badges'] = json.loads(event['badges'])
+            except:
+                pass
+        events.append(event)
+
+    return jsonify({
+        "success": True,
+        "data": {
+            "venues": venues,
+            "events": events,
+            "total": len(venues) + len(events)
+        }
+    })
+
+# ════════════════════════════════════════════════════════════
+#  ROUTES - User Reservations
+# ════════════════════════════════════════════════════════════
+
+@app.route("/api/user/reservations")
+@require_auth()
+def get_user_reservations():
+    """Get current user's reservations"""
+    user = request.user
+    customer_id = user.get('customer_id')
+
+    conn = get_db()
+    query = """
+        SELECT r.*, v.name as venue_name, v.photo_url as venue_photo, v.address as venue_address,
+               e.title as event_title, e.date as event_date, e.start_time as event_start_time
+        FROM reservations r
+        LEFT JOIN venues v ON r.venue_id = v.id
+        LEFT JOIN events e ON r.event_id = e.id
+        WHERE r.customer_id = ?
+        ORDER BY r.created_at DESC
+    """
+    rows = conn.execute(query, (customer_id,)).fetchall()
+    return jsonify({"success": True, "data": [dict_from_row(r) for r in rows]})
+
+# ════════════════════════════════════════════════════════════
+#  ROUTES - Favorites
+# ════════════════════════════════════════════════════════════
+
+@app.route("/api/favorites")
+@require_auth()
+def get_favorites():
+    """Get user's favorite venues"""
+    user = request.user
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT f.*, v.name as venue_name, v.type as venue_type, v.photo_url, v.category,
+               v.address, v.rating, v.capacity, v.open_days
+        FROM favorites f
+        JOIN venues v ON f.venue_id = v.id
+        WHERE f.user_id = ?
+        ORDER BY f.created_at DESC
+    """, (user['id'],)).fetchall()
+
+    favorites = []
+    for row in rows:
+        fav = dict_from_row(row)
+        # Add venue status
+        venue_data = {
+            'id': fav.get('venue_id'),
+            'name': fav.get('venue_name'),
+            'category': fav.get('category'),
+            'open_days': fav.get('open_days'),
+            'capacity': fav.get('capacity', 100)
+        }
+        status_info = is_open_tonight(venue_data)
+        fav['venue_status'] = status_info['status']
+        fav['venue_badge'] = status_info['badge']
+        favorites.append(fav)
+
+    return jsonify({"success": True, "data": favorites})
+
+@app.route("/api/favorites", methods=["POST"])
+@require_auth()
+def add_favorite():
+    """Add venue to favorites"""
+    user = request.user
+    data = request.get_json() or {}
+    venue_id = data.get("venue_id")
+
+    if not venue_id:
+        return jsonify({"success": False, "error": "venue_id is required"}), 400
+
+    conn = get_db()
+
+    # Check if venue exists
+    venue = conn.execute("SELECT id FROM venues WHERE id = ?", (venue_id,)).fetchone()
+    if not venue:
+        return jsonify({"success": False, "error": "Venue not found"}), 404
+
+    # Check if already favorited
+    existing = conn.execute(
+        "SELECT id FROM favorites WHERE user_id = ? AND venue_id = ?",
+        (user['id'], venue_id)
+    ).fetchone()
+    if existing:
+        return jsonify({"success": False, "error": "Venue already in favorites"}), 409
+
+    fav_id = "fav_" + uuid.uuid4().hex[:8]
+    conn.execute("""
+        INSERT INTO favorites (id, user_id, venue_id, created_at)
+        VALUES (?, ?, ?, ?)
+    """, (fav_id, user['id'], venue_id, datetime.utcnow().isoformat()))
+    conn.commit()
+
+    return jsonify({
+        "success": True,
+        "data": {"id": fav_id, "user_id": user['id'], "venue_id": venue_id}
+    }), 201
+
+@app.route("/api/favorites/<fav_id>", methods=["DELETE"])
+@require_auth()
+def remove_favorite(fav_id):
+    """Remove venue from favorites"""
+    user = request.user
+    conn = get_db()
+
+    # Check if favorite exists and belongs to user
+    existing = conn.execute(
+        "SELECT * FROM favorites WHERE id = ? AND user_id = ?",
+        (fav_id, user['id'])
+    ).fetchone()
+
+    if not existing:
+        return jsonify({"success": False, "error": "Favorite not found"}), 404
+
+    conn.execute("DELETE FROM favorites WHERE id = ?", (fav_id,))
+    conn.commit()
+
+    return jsonify({"success": True, "message": "Favorite removed"})
 
 # ════════════════════════════════════════════════════════════
 #  ROUTES - Reservations
